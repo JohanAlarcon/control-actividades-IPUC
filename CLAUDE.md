@@ -67,6 +67,23 @@ paleta escrita a mano. Se va cuando se construya la pantalla de entrada real.
 
 ---
 
+## El logo
+
+| Archivo | Para qué |
+|---|---|
+| `public/img/logo-ipuc.webp` | El logo en las pantallas. Mide 360 px, se muestra a 180 |
+| `public/img/icono-ipuc.png` | El icono al agregar la aplicación a la pantalla de inicio |
+| `public/favicon.ico` | El icono de la pestaña. Es el oficial que publica la iglesia |
+
+Se muestra con `resources/js/components/ipuc-logo.tsx`. **El logo no se modifica**: no se recorta,
+no se le cambia el color y no se le quita el lema. La versión que publica la iglesia es blanca, así
+que necesita fondo oscuro detrás; por eso el componente trae su propia banda azul.
+
+Pendiente con el pastor: **DEP-08**, conseguir la versión a color —hace falta para imprimir actas
+sobre papel blanco— y confirmar que la IPUC nacional autoriza usar el logo en el sistema.
+
+---
+
 ## Prohibiciones
 
 - **Nada de `DB::` ni SQL crudo** (`whereRaw`, `selectRaw`) sobre tablas con ámbito. Saltearía el

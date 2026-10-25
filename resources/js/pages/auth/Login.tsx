@@ -1,3 +1,4 @@
+import IpucLogo from '@/components/ipuc-logo';
 import { Head, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 
@@ -13,10 +14,12 @@ export default function Login() {
     };
 
     return (
-        <div className="flex min-h-screen flex-col items-center justify-center bg-white px-4 py-10 text-tinta">
+        <div className="min-h-screen bg-white text-tinta">
             <Head title="Entrar" />
 
-            <main className="w-full max-w-sm">
+            <IpucLogo />
+
+            <main className="mx-auto w-full max-w-sm px-4 py-8">
                 <h1 className="text-2xl font-bold leading-tight text-ipuc">Comités IPUC</h1>
                 <div className="mt-2 h-1 w-16 rounded bg-ipuc-dorado" />
 

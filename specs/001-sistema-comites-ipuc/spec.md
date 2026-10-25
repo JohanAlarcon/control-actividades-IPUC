@@ -7,8 +7,8 @@ rama debe crearse manualmente antes de implementar, conforme a la Gobernanza de 
 **Creada**: 2026-10-18
 
 **Estado**: Borrador — alcance ampliado el 2026-10-24 (constitución 2.1.0). Sin puntos por aclarar;
-quedan tres dependencias del cliente: DEP-05 (estructura inicial), DEP-06 (formato de acta del
-distrito) y DEP-07 (ampliar el respaldo a los archivos).
+quedan cuatro dependencias del cliente: DEP-05 (estructura inicial), DEP-06 (formato de acta del
+distrito), DEP-07 (ampliar el respaldo a los archivos) y DEP-08 (versión a color del logo).
 
 **Entrada**: Descripción del usuario: `@spec-input.md` — documento «Especificación — Sistema de
 Comités IPUC» entregado por el autor del proyecto. Se conserva en la raíz del repositorio como
@@ -1235,3 +1235,7 @@ implementación, que son otra familia de identificadores.
   desarrollo, compromisos y firmas.
 - **DEP-07**: El respaldo diario debe **ampliarse para incluir los archivos** del disco, no solo la
   base de datos (RF-078). Hoy solo cubre la base.
+
+- **DEP-08**: El pastor consigue la **versión a color del logo de la IPUC** y confirma que la
+  iglesia nacional autoriza usarlo en el sistema. En su sitio la iglesia solo publica la versión
+  blanca, que sirve sobre fondo azul pero no para imprimir actas sobre papel blanco.
