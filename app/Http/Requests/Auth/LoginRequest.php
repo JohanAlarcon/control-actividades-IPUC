@@ -9,77 +9,78 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * Se entra con el usuario que asigno el pastor, no con correo (HU-01).
+ * Cinco intentos fallidos bloquean quince minutos (RF-004).
+ */
 class LoginRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    private const INTENTOS = 5;
+
+    private const BLOQUEO_EN_SEGUNDOS = 900;
+
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'username' => ['required', 'string'],
             'password' => ['required', 'string'],
         ];
     }
 
-    /**
-     * Attempt to authenticate the request's credentials.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
+    public function messages(): array
+    {
+        return [
+            'username.required' => 'Escriba su usuario.',
+            'password.required' => 'Escriba su clave.',
+        ];
+    }
+
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+        $credenciales = [
+            'username' => $this->string('username')->trim()->toString(),
+            'password' => $this->string('password')->toString(),
+            'active' => true,
+        ];
+
+        if (! Auth::attempt($credenciales, $this->boolean('remember'))) {
+            RateLimiter::hit($this->throttleKey(), self::BLOQUEO_EN_SEGUNDOS);
 
             throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
+                'username' => 'El usuario o la clave no coinciden. Revise e intente de nuevo.',
             ]);
         }
 
         RateLimiter::clear($this->throttleKey());
+
+        $this->user()->forceFill(['last_login_at' => now()])->saveQuietly();
     }
 
-    /**
-     * Ensure the login request is not rate limited.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (! RateLimiter::tooManyAttempts($this->throttleKey(), self::INTENTOS)) {
             return;
         }
 
         event(new Lockout($this));
 
-        $seconds = RateLimiter::availableIn($this->throttleKey());
+        $minutos = ceil(RateLimiter::availableIn($this->throttleKey()) / 60);
 
         throw ValidationException::withMessages([
-            'email' => __('auth.throttle', [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ]),
+            'username' => "Por seguridad, el acceso quedó bloqueado {$minutos} minutos. "
+                .'Si olvidó su clave, pídale al pastor que se la restablezca.',
         ]);
     }
 
-    /**
-     * Get the rate limiting throttle key for the request.
-     */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('username')).'|'.$this->ip());
     }
 }

@@ -342,25 +342,25 @@ primera vez, sin depender de tener correo electrónico. **Hito 1.**
 **Independent Test**: crear una cuenta con clave temporal e intentar entrar. Entrega valor porque
 habilita a las diecisiete personas con una clave propia.
 
-- [ ] T029 [US01] · Entrada con usuario asignado en vez de correo
+- [x] T029 [US01] · Entrada con usuario asignado en vez de correo
       Archivos: `app/Http/Controllers/Auth/AuthenticatedSessionController.php` · `app/Http/Requests/Auth/LoginRequest.php` · `resources/js/pages/Auth/Login.tsx` · `routes/auth.php` (ruta `/login`)
       Verifica: `php artisan test --filter=LoginTest` · revisada a 360 px, los campos y el botón por encima del teclado.
 
-- [ ] T030 [P] [US01] · Retirar el registro público y la recuperación por correo
+- [x] T030 [P] [US01] · Retirar el registro público y la recuperación por correo
       Archivos: `routes/auth.php` · eliminar `resources/js/pages/Auth/Register.tsx`, `ForgotPassword.tsx`, `ResetPassword.tsx`, `VerifyEmail.tsx`
       El sistema no envía nada hacia afuera (S-08): un flujo de recuperación por correo sería una puerta que no funciona.
       Verifica: `php artisan route:list | grep -iE "regist|password.request"` no devuelve nada · `curl -I .../register` responde 404.
 
-- [ ] T031 [US01] · Cambio obligatorio de clave en el primer ingreso
+- [x] T031 [US01] · Cambio obligatorio de clave en el primer ingreso
       Archivos: `app/Http/Middleware/EnsurePasswordChanged.php` · `app/Http/Controllers/Auth/ChangePasswordController.php` · `resources/js/pages/Auth/ChangePassword.tsx` · ruta `/password/change`
       Verifica: `php artisan test --filter=FirstLoginTest` — con `must_change_password` en verdadero, **ninguna** otra ruta responde con información · revisada a 360 px.
 
-- [ ] T032 [US01] · Bloqueo de quince minutos tras cinco intentos
+- [x] T032 [US01] · Bloqueo de quince minutos tras cinco intentos
       Archivos: `app/Http/Requests/Auth/LoginRequest.php` · `lang/es/auth.php`
       Por usuario y por dirección de origen. El mensaje indica pedirle al pastor el restablecimiento (RF-004).
       Verifica: `php artisan test --filter=LoginLockoutTest` — el sexto intento responde con el bloqueo y el texto nombra al pastor.
 
-- [ ] T033 [US01] · Prueba: los cuatro escenarios de HU-01
+- [x] T033 [US01] · Prueba: los cuatro escenarios de HU-01
       Archivos: `tests/Feature/Auth/LoginTest.php` · `tests/Feature/Auth/FirstLoginTest.php` · `tests/Feature/Auth/LoginLockoutTest.php`
       Verifica: `php artisan test tests/Feature/Auth` — primer ingreso, ingreso posterior, bloqueo y clave restablecida.
 
