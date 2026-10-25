@@ -57,6 +57,30 @@ consultar) se descarta por tener dos reglas que mantener.
 a versión exacta —no a rango— en el momento de instalar, tomando el número de `composer show`.
 La tarea de instalación debe dejar escrito el número en este documento.
 
+### Versiones resueltas al instalar — 2026-10-24 (T003 hecha)
+
+| Dependencia | Versión fijada | Nota |
+|---|---|---|
+| `spatie/laravel-activitylog` | **4.12.3** | La línea 5.x exige PHP 8.4 y la constitución fija 8.3, así que queda en la 4.x |
+| `maatwebsite/excel` | **4.0.6** | Arrastra `phpoffice/phpspreadsheet` 5.10.0 |
+| `vite-plugin-pwa` | **2.0.0** | Fijada con `--save-exact` |
+
+**Lo que la advertencia de esta sección anticipó, y pasó.** La investigación previa decía que la
+línea compatible era la **3.1.x** de `maatwebsite/excel`. Es falso: con Laravel 12 y PHP 8.3 la que
+resuelve es la **4.0.6**. La verificación contra buscadores no servía, y confirmarlo con `composer`
+al instalar —como esta sección exigía— fue lo que lo detectó.
+
+**Y hubo un segundo hallazgo, peor.** El primer intento instaló `maatwebsite/excel` **v1.1.5**, de
+hace diez años y para Laravel 4, arrastrando el abandonado `phpoffice/phpexcel`. La causa real:
+**faltaba la extensión `zip` de PHP**, que `phpspreadsheet` exige; sin ella Composer descartó toda
+la línea moderna y cayó silenciosamente a la más vieja que no la pedía. Se activó
+`extension=zip` en `C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64\php.ini` (respaldo en
+`php.ini.backup-antes-de-zip`) y la instalación resolvió bien.
+
+**Lección para el despliegue (RG-07).** El servidor de producción necesita la extensión `zip`
+habilitada. Si falta, el mismo problema aparece allá, y Composer no falla: instala algo que no
+sirve. Hay que verificarlo en T007 con `php -m | grep zip`.
+
 | Dependencia | Compatibilidad | Cómo se fija |
 |---|---|---|
 | `spatie/laravel-activitylog` | Laravel 12 soportado; la línea mayor vigente es la 5.x | `composer require` y luego fijar el número exacto en `composer.json` |

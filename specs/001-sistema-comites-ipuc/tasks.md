@@ -126,16 +126,16 @@ deliberado — el principio I no se agrega después.
 **Purpose**: arranque del proyecto e infraestructura compartida. Días 1 y 2. El servidor se levanta
 ahora, no en la semana 4 (mitiga RG-07).
 
-- [ ] T001 · Crear el proyecto desde el kit inicial oficial de Laravel 12 para React
+- [x] T001 · Crear el proyecto desde el kit inicial oficial de Laravel 12 para React
       Archivos: todo el árbol en `C:/laragon/www/control-actividades/`
       Verifica: `php artisan --version` imprime 12.x · `npm run build` termina sin error · `http://control-actividades.test` carga la pantalla de bienvenida.
 
-- [ ] T002 · Configurar el entorno colombiano
+- [x] T002 · Configurar el entorno colombiano
       Archivos: `config/app.php` · `.env` · `.env.example`
       `APP_TIMEZONE=America/Bogota`, `APP_LOCALE=es`, moneda COP.
       Verifica: `php artisan tinker --execute="echo now()->format('d/m/Y H:i');"` imprime la hora de Bogotá · `config('app.locale')` es `es`.
 
-- [ ] T003 [P] · Instalar y fijar las tres dependencias justificadas del plan
+- [x] T003 [P] · Instalar y fijar las tres dependencias justificadas del plan
       Archivos: `composer.json` · `package.json` · `specs/001-sistema-comites-ipuc/research.md`
       Fijar versión **exacta**, sin `^` ni `~` (constitución). Anotar el número resuelto en R-02 de `research.md`.
       Verifica: `composer show spatie/laravel-activitylog maatwebsite/excel` muestra versiones exactas · `vite-plugin-pwa` fijado en `package.json` · `composer require` resolvió sin conflicto en PHP 8.4.
@@ -150,11 +150,11 @@ ahora, no en la semana 4 (mitiga RG-07).
       Puerta de calidad 8, automatizada: `max-lines` en 300 y `max-lines-per-function` en 70 sobre `resources/js/**/*.tsx` (constitución 2.2.0). Un componente que se pase rompe la construcción, no la revisión a ojo.
       Verifica: `npm run lint` falla con un componente de 310 líneas creado a propósito, y pasa al dividirlo · `find resources/js -name "*.tsx" | xargs wc -l | sort -rn | head` no muestra ningún archivo por encima de 300.
 
-- [ ] T005 [P] · Configurar Pest y la base de datos de pruebas
+- [x] T005 [P] · Configurar Pest y la base de datos de pruebas
       Archivos: `tests/Pest.php` · `phpunit.xml` · `.env.testing`
       Verifica: `php artisan test` pasa en verde con la suite del kit inicial.
 
-- [ ] T006 [P] · Repositorio, rama de trabajo y convención de commits
+- [x] T006 [P] · Repositorio, rama de trabajo y convención de commits
       Archivos: `.gitignore` · `.gitmessage` · `docs/convenciones.md`
       Crear la rama `001-sistema-comites-ipuc`: todavía no existe, y la gobernanza exige trabajo por rama de funcionalidad.
       Verifica: `git log --oneline` muestra el primer commit en imperativo español · `main` exige revisión para fusionar.
