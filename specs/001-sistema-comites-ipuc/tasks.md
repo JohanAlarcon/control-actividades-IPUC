@@ -1345,7 +1345,7 @@ cierre de cada hito se ejecutan al terminar las fases de ese hito, no todas al f
 
 ### 23.1 · Semillas y cierres de hito
 
-- [ ] T049 · Semilla de la organización: 6 comités, 10 sub-comités, 17 cargos
+- [x] T049 · Semilla de la organización: 6 comités, 10 sub-comités, 17 cargos
       Archivos: `database/seeders/CommitteeSeeder.php` · `database/seeders/UserSeeder.php` · `database/seeders/DatabaseSeeder.php`
       Los datos de la presentación que el pastor ya vio (D-14). **Ficticios**, como exige la constitución. Incluye la cuenta de doble cargo para probar el selector (T163).
       Verifica: `php artisan migrate:fresh --seed` deja en `committees` y en `users` tantas filas como declara el sembrador, y la comprobación las cuenta contra los datos de `CommitteeSeeder` y `UserSeeder`, nunca contra un número escrito en esta tarea (hoy, 6 comités más 10 sub-comités y 17 cargos) · entrar con cada uno de los tres cargos muestra su ámbito y nada más.
