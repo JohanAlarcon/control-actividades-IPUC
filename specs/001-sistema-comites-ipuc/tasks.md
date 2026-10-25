@@ -307,22 +307,22 @@ historias, porque son el motor del hito 2 y adelantarlas cargaría la semana má
 `ApprovalFlow` (T058, T059) en la Phase 8 y `ActivityStatus` (T166, T167) en la Phase 12. T056, el
 detalle del recálculo del avance, también se queda en US09: T055 trae su propia verificación.
 
-- [ ] T053 · Migración y modelo `annual_plans`
+- [x] T053 · Migración y modelo `annual_plans`
       Archivos: `database/migrations/<ts>_create_annual_plans_table.php` · `app/Models/AnnualPlan.php` · `database/factories/AnnualPlanFactory.php`
       `year` único por sede; `approved_by_user_id` y `approved_at` nulos = plan sin aprobar.
       Verifica: `php artisan test --filter=AnnualPlanTest` — un plan por año y por sede, no dos.
 
-- [ ] T054 · Migración y modelo `activities`
+- [x] T054 · Migración y modelo `activities`
       Archivos: `database/migrations/<ts>_create_activities_table.php` · `app/Models/Activity.php` · `database/factories/ActivityFactory.php`
       Con `BelongsToSite` y `BelongsToCommitteeScope`. `status`: `pending` | `approved` | `in_progress` | `completed` | `rejected` (RF-026). `progress` 0..100 calculado. `rejection_reason` obligatorio si `status` = `rejected`.
       Verifica: `php artisan test --filter=ScopeCoverageTest` sigue en verde con el modelo nuevo · `php artisan test --filter=ActivityModelTest`
 
-- [ ] T055 · Migración, modelo y recálculo de `activity_tasks`
+- [x] T055 · Migración, modelo y recálculo de `activity_tasks`
       Archivos: `database/migrations/<ts>_create_activity_tasks_table.php` · `app/Models/ActivityTask.php` · `app/Models/Activity.php`
       `progress = redondear(tareas cumplidas / tareas totales × 100)`, y **0 cuando no hay tareas**. Nadie lo escribe a mano (RF-027).
       Verifica: `php artisan test --filter=ActivityProgressTest`
 
-- [ ] T057 · Migración y modelo `approvals` polimórfica
+- [x] T057 · Migración y modelo `approvals` polimórfica
       Archivos: `database/migrations/<ts>_create_approvals_table.php` · `app/Models/Approval.php` · `database/factories/ApprovalFactory.php`
       Una sola bandeja para los cinco tipos: `activity`, `expense`, `task`, `date_change`, `new_member` (RF-015, RF-019). `level` (`president` | `pastor`), `status` (`pending` | `approved` | `rejected`), `amount` obligatorio si `type` = `expense`, `reason` **obligatorio si `status` = `rejected`**, `transferred_from_user_id` y `transferred_at` para el traspaso. La combinación `type` = `expense` con `level` = `pastor` **no existe**: `ApprovalFlow` (T058) es el único que crea filas y el modelo la rechaza al guardar (data-model.md §5, RF-018). **La regla no baja a la migración**: es política de aprobación, no esquema, y es la más propensa a cambiar.
       Verifica: `php artisan test --filter=ApprovalModelTest` — guardar el par `expense` + `pastor` lanza excepción.
@@ -557,7 +557,7 @@ presidente, comprobando qué queda cerrado y qué escala al pastor.
       Archivos: `tests/Unit/Approvals/ApprovalFlowTest.php`
       Verifica: `php artisan test --filter=ApprovalFlowTest` — el presidente aprueba una actividad y la solicitud **sigue pendiente**, ahora en el pastor. Un gasto de un líder, de cualquier monto, lo cierra el presidente (RN-04) y **cierra en ese paso**, sin quedar pendiente del pastor. Un gasto del presidente mismo no genera solicitud (RF-018). Crear una solicitud con `type` = `expense` y `level` = `pastor` falla al guardar, rechazada por el modelo `Approval` (data-model.md §5).
 
-- [ ] T060 [US19] · Inmutabilidad de lo resuelto
+- [x] T060 [US19] · Inmutabilidad de lo resuelto
       Archivos: `app/Models/Approval.php`
       El evento `updating` rechaza el cambio si la solicitud ya está resuelta (RF-021, RF-057, RN-07). Se hace cumplir **en el modelo, no en la interfaz**.
       Verifica: `php artisan test --filter=ApprovalImmutabilityTest` — editar una aprobación resuelta lanza excepción.
@@ -693,7 +693,7 @@ cumplimiento y lo que ve un cargo ajeno al comité responsable.
 > levanta en la Phase 2, bloque 2.3. Esta fase construye el detalle del recálculo, las
 > transiciones de estado, la excepción al filtro y la pantalla.
 
-- [ ] T056 [US09] · Prueba: el avance con cero tareas, la mitad, todas, y el redondeo
+- [x] T056 [US09] · Prueba: el avance con cero tareas, la mitad, todas, y el redondeo
       Archivos: `tests/Unit/Activities/ProgressCalculationTest.php`
       Verifica: `php artisan test --filter=ProgressCalculationTest` — cero tareas da 0 y no divide por cero.
 

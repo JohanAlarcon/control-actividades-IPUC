@@ -15,9 +15,9 @@ class CommitteeUserFactory extends Factory
     public function definition(): array
     {
         return [
-            'site_id' => fn (array $attrs) => Committee::find($attrs['committee_id'])?->site_id,
             'user_id' => User::factory(),
             'committee_id' => Committee::factory(),
+            'site_id' => fn (array $attrs) => Committee::find($attrs['committee_id'])?->site_id,
             'role' => CommitteeUser::PRESIDENT,
             'started_at' => now()->subMonths(6),
             'ended_at' => null,

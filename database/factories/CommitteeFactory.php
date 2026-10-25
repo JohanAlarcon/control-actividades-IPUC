@@ -12,15 +12,28 @@ use Illuminate\Support\Str;
  */
 class CommitteeFactory extends Factory
 {
+    /** Nombres reales de la IPUC, para que los datos de prueba se lean como los de la congregación. */
+    private const NOMBRES = [
+        'Comité de Alabanza',
+        'Comité de Evangelismo',
+        'Comité de Damas Dorcas',
+        'Comité de Jóvenes',
+        'Comité de Escuela Dominical',
+        'Comité de Misiones',
+        'Comité de Red de Familia',
+        'Comité de Obra Social',
+    ];
+
     public function definition(): array
     {
-        $name = 'Comité de '.$this->faker->unique()->word();
+        $n = $this->faker->unique()->numberBetween(1, 999999);
+        $name = self::NOMBRES[$n % count(self::NOMBRES)].' '.$n;
 
         return [
             'site_id' => Site::factory(),
             'parent_id' => null,
             'name' => $name,
-            'slug' => Str::slug($name).'-'.$this->faker->unique()->numberBetween(1, 99999),
+            'slug' => Str::slug($name),
             'position' => 0,
             'active' => true,
         ];

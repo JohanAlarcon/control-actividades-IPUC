@@ -11,9 +11,11 @@
 |
 */
 
+// Las pruebas de Unit tambien necesitan la base: los calculos de este proyecto
+// (avance, compromiso, saldo) se arman desde filas relacionadas.
 pest()->extend(Tests\TestCase::class)
     ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
-    ->in('Feature');
+    ->in('Feature', 'Unit');
 
 /*
 |--------------------------------------------------------------------------

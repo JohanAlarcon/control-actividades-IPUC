@@ -11,9 +11,11 @@ class SiteFactory extends Factory
 {
     public function definition(): array
     {
+        $n = $this->faker->unique()->numberBetween(1, 999999);
+
         return [
-            'name' => 'IPUC '.$this->faker->unique()->city(),
-            'city' => $this->faker->city(),
+            'name' => 'IPUC Central '.$n,
+            'city' => 'Ibagué',
             'active' => true,
         ];
     }
