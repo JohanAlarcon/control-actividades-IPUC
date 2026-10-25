@@ -1,0 +1,358 @@
+# Fase 0 — Investigación y decisiones
+
+**Funcionalidad**: Sistema de Comités IPUC · **Fecha**: 2026-10-18 · **Plan**: [plan.md](./plan.md)
+
+El stack está fijado por la constitución, así que esta fase no compara tecnologías. Resuelve los
+puntos que el plan de entrada dejaba abiertos o en contradicción con la especificación aclarada, y
+deja fijadas las reglas que después hay que probar.
+
+Cada punto sigue el formato: **Decisión · Razón · Alternativas consideradas**.
+
+**Convenio de identificadores.** En los artefactos de esta funcionalidad hay cuatro familias, y
+cada una lleva su propio prefijo: `R-xx` son las decisiones de investigación de este documento,
+`RG-xx` son los riesgos del registro de [plan.md](./plan.md), `D-xx` son sus decisiones de
+arquitectura y `DEP-xx` son las dependencias del cliente de [spec.md](./spec.md). Cuando aquí se
+cita un riesgo del plan, se cita como `RG-xx`.
+
+---
+
+## R-01 · El ámbito de una persona con dos cargos
+
+**Decisión.** Una petición tiene **un solo cargo activo**. `CurrentScope` lo resuelve así:
+
+```
+1. Si el usuario es pastor            → ámbito = todos los comités de la sede.
+2. Si tiene un solo cargo vigente     → ese cargo es el activo, sin preguntar.
+3. Si tiene dos o más cargos vigentes → el activo es el guardado en la sesión;
+                                        si no hay ninguno guardado, el sistema le pide escoger
+                                        antes de mostrarle información.
+4. El ámbito del cargo activo es:
+     presidente de X → X y sus hijos
+     líder de Y      → solo Y
+```
+
+El cargo activo se cambia por `POST /role/switch`, que valida que el cargo pertenezca al usuario y
+esté vigente, lo guarda en la sesión y regresa a la pantalla anterior. Toda pantalla muestra con
+qué cargo se está actuando (`scope.activeRole` en las propiedades compartidas).
+
+**Razón.** La aclaración del 2026-10-18 (RF-007) lo fijó así. Técnicamente es lo que más protege el
+principio I: cada consulta tiene un único ámbito posible, de modo que la prueba de aislamiento se
+escribe una sola vez por pantalla y no hay que razonar sobre uniones. Una pantalla nueva mal hecha
+falla de forma evidente, no de forma sutil.
+
+**Alternativas consideradas.** La unión de ámbitos, que era lo que traía el plan de entrada: se
+descarta porque obliga a etiquetar el origen de cada dato en cada pantalla y multiplica los casos
+de prueba del principio no negociable. El esquema mixto (unión en el inicio, cargo activo al
+consultar) se descarta por tener dos reglas que mantener.
+
+**Qué hay que probar.** Una persona con dos cargos, actuando con el cargo A, no obtiene nada del
+ámbito B por ninguna vía: ni listado, ni acceso directo por identificador, ni descarga de reporte
+(CL-05).
+
+---
+
+## R-02 · Versiones exactas de las tres dependencias añadidas
+
+**Decisión.** Se confirma que las dos dependencias de Composer funcionan con Laravel 12 y se fijan
+a versión exacta —no a rango— en el momento de instalar, tomando el número de `composer show`.
+La tarea de instalación debe dejar escrito el número en este documento.
+
+| Dependencia | Compatibilidad | Cómo se fija |
+|---|---|---|
+| `spatie/laravel-activitylog` | Laravel 12 soportado; la línea mayor vigente es la 5.x | `composer require` y luego fijar el número exacto en `composer.json` |
+| `maatwebsite/excel` | La línea 3.1.x cubre Laravel 12 | Igual. El problema conocido de `phpspreadsheet` con PHP 8.5 **no aplica**: la constitución fija PHP 8.4 |
+| `vite-plugin-pwa` | Complemento de Vite, independiente del framework | Fijar el número exacto en `package.json`, sin `^` |
+
+**Razón.** La constitución exige versiones exactas que no se actualizan sin decisión explícita. Un
+rango (`^5.0`) deja que una actualización entre sin que nadie la decida, lo que la constitución
+prohíbe.
+
+**Alternativas consideradas.** Escribir la bitácora y el generador de hojas de cálculo a mano: ya
+se descartó en el plan de entrada con su justificación (D-07, D-08), y la constitución la acepta
+como justificación escrita.
+
+**Advertencia honesta.** La compatibilidad se verificó con buscadores sobre directorios de
+terceros, no sobre las notas de publicación oficiales. Antes de cerrar la tarea de instalación hay
+que confirmarlo contra Packagist y que `composer require` resuelva sin conflicto en PHP 8.4.
+
+Fuentes consultadas: [laraplugins.io — spatie/laravel-activitylog](https://laraplugins.io/plugins/spatie/laravel-activitylog?page=5),
+[laraplugins.io — maatwebsite/excel](https://laraplugins.io/plugins/maatwebsite/excel?page=5),
+[Laravel-Excel · incidencia sobre PHP 8.5](https://github.com/SpartnerNL/Laravel-Excel/issues/4345).
+
+---
+
+## R-03 · El idioma de las rutas
+
+**Decisión.** Las rutas van en **inglés**: `/committees`, `/approvals`, `/activities`,
+`/annual-plan`, `/members`, `/sympathizers`, `/attendance`, `/budget`, `/reports`, `/users`,
+`/login`, `/password/change`. Los nombres de las pantallas de React y todo texto visible siguen en
+español de Colombia.
+
+**Razón.** La sección de idioma de la constitución lista expresamente **rutas** entre lo que se
+escribe en inglés, junto con tablas, columnas, modelos, clases, métodos, variables y componentes.
+La gobernanza dice que si un plan contradice la constitución se corrige el plan.
+
+**Alternativas consideradas.** Rutas en español, que es lo que traía el plan de entrada con el
+argumento de que la URL es visible para el usuario. Es un argumento razonable, pero la constitución
+ya decidió. Si el cliente prefiere URLs en español, el camino correcto es una enmienda PATCH a la
+sección de idioma, no una excepción en el plan.
+
+---
+
+## R-04 · Cuándo una actividad pasa de un estado al siguiente
+
+**Decisión.** `progress` se calcula, nunca se escribe a mano:
+
+```
+progress = redondear(tareas cumplidas / tareas totales × 100)
+progress = 0 cuando la actividad no tiene tareas
+```
+
+Y los estados se mueven así:
+
+| De | A | Cuándo |
+|---|---|---|
+| — | `pending` | Al proponerse una actividad fuera del plan anual |
+| `pending` | `approved` | Al aprobarla el pastor, o al aprobarse el plan anual completo |
+| `pending` | `rejected` | Al rechazarla, con motivo escrito obligatorio |
+| `approved` | `in_progress` | Al cumplirse la primera tarea, o al llegar la fecha programada: lo que ocurra primero |
+| `in_progress` | `completed` | Al llegar `progress` a 100 |
+| `approved` / `in_progress` | `completed` | Si la actividad no tiene tareas, el responsable la marca cumplida; queda en la bitácora con su nombre |
+
+Sin transiciones hacia atrás: una actividad cumplida no vuelve a «en curso». Si hubo error, se
+corrige registrando el cambio, que la bitácora conserva (principio III).
+
+**Razón.** Era el único punto que la sesión de aclaraciones dejó como *Outstanding*, y es un
+cálculo: el principio V exige prueba automatizada para los cálculos. Dejarlo implícito garantizaba
+que cada pantalla lo interpretara distinto. La regla de «la fecha programada también arranca la
+actividad» evita que una actividad sin tareas cumplidas se vea como «aprobada, aún no empieza»
+cuando ya pasó (HU-09 distingue los cuatro estados en la vista anual).
+
+**Alternativas consideradas.** Que el responsable moviera el estado a mano siempre: se descarta
+porque RF-027 obliga a que el avance se recalcule solo y HU-09 escenario 4 lo dice expresamente.
+Derivar el estado únicamente de la fecha: se descarta porque entonces una actividad con todas sus
+tareas cumplidas seguiría apareciendo en curso.
+
+---
+
+## R-05 · El historial queda fuera del filtro automático
+
+**Decisión.** Tres reglas:
+
+1. Ninguna pantalla consulta la tabla del paquete de bitácora directamente.
+2. El historial se lee **siempre** a través del modelo apuntado —que sí carga `site_id` y el
+   filtro de ámbito—, pidiéndole sus registros de bitácora por la relación.
+3. `ScopeCoverageTest` mantiene una lista blanca documentada con esa única tabla, y falla si
+   alguien agrega otra sin justificarla en este documento.
+
+**Razón.** La tabla del paquete no lleva `site_id` ni columna de comité, así que los rasgos de
+ámbito no la cubren. Si una pantalla la consultara directamente, el filtro del principio I se
+saltaría sin que nadie se enterara, que es exactamente el riesgo RG-01 del plan.
+
+**Alternativas consideradas.** Agregarle `site_id` a la tabla del paquete con una migración
+propia: se descarta porque habría que interceptar cómo el paquete escribe cada registro, lo que
+anula la razón de usarlo. Escribir la bitácora a mano: ya descartado en D-07.
+
+---
+
+## R-06 · Quién ve el acompañamiento de los simpatizantes
+
+**Decisión.** La ficha de seguimiento, las etapas y las visitas las ve y las actualiza
+**únicamente el presidente del Comité de Evangelismo**, más el pastor. En consecuencia:
+
+- `sympathizers.committee_id` apunta al **Comité de Evangelismo** (el comité padre), no a uno de
+  sus sub-comités.
+- **No existe** `assigned_to_user_id`. Repartir simpatizantes entre los líderes de sub-comité era
+  la opción C de la aclaración y fue descartada; dejar el campo invitaría a construirla.
+- Quien registró a la persona conserva la constancia en `invited_by_user_id` y puede ver que la
+  registró, pero no abre su ficha de seguimiento (HU-13 escenario 2, S-07).
+- La policy de `Sympathizer` es la más estrecha del proyecto: pastor, o presidente del Comité de
+  Evangelismo. Ningún otro cargo, ni los líderes de los sub-comités de Evangelismo.
+
+**Razón.** Lo fijó la aclaración del 2026-10-18 (RF-040). Es la información más delicada del
+sistema —personas que apenas están visitando la iglesia— y el principio I pide el ámbito más
+estrecho que cumpla el requisito.
+
+**Alternativas consideradas.** Todos los cargos del Comité de Evangelismo (opción B) y el reparto
+por sub-comité (opción C): descartadas por el cliente en la sesión de aclaraciones.
+
+**Qué hay que probar.** Un líder de sub-comité de Evangelismo recibe «no disponible» al abrir la
+ficha de un simpatizante por su identificador directo. Quien lo registró, también.
+
+---
+
+## R-07 · El nivel de compromiso de un simpatizante
+
+**Decisión.** Se calcula, no se guarda, en `Support/Sympathizers/CommitmentLevel.php`, con dos
+señales y umbrales en un solo lugar:
+
+```
+visitas recientes = contactos registrados en los últimos 60 días
+días sin contacto = días desde el último contacto registrado
+
+creciendo  → 3 o más visitas recientes y menos de 15 días sin contacto
+estable    → al menos 1 visita reciente y menos de 45 días sin contacto
+alejándose → 45 días o más sin contacto, o ninguna visita reciente
+```
+
+Los tres umbrales (60, 15, 45) y los conteos viven como constantes en esa clase, para poder
+ajustarlos sin tocar pantallas.
+
+**Razón.** RF-043 obliga a calcularlo con la asistencia reciente y los días desde la última
+visita, y prohíbe que alguien lo escriba a mano. El supuesto S-03 de la especificación anticipó que
+los umbrales se fijarían en el plan y quedarían en un solo lugar. Son números defendibles pero
+**no confirmados por el cliente**: están puestos para poder construir y probar, y se ajustan con
+una línea cuando el Comité de Evangelismo diga qué considera «alejándose».
+
+**Alternativas consideradas.** Guardar el nivel en una columna: descartado en D-10, porque es un
+dato que envejece sin que nadie lo note. Pedirle al presidente que lo clasifique a mano: lo
+prohíbe RF-043.
+
+---
+
+## R-08 · Mantener cinco consultas por petición
+
+**Decisión.** Tres medidas, en este orden:
+
+1. `Architecture/QueryBudgetTest` recorre las pantallas de lectura, cuenta las consultas con el
+   registro de consultas de Laravel y falla por encima de cinco. La unidad de medida es **la
+   petición completa**: cuentan todas las consultas que esa petición ejecuta. El reparto normativo
+   lo fija el Constitution Check de [plan.md](./plan.md), y es el único válido: **dos** consultas
+   como máximo para el bloque compartido —la persona, y sus cargos vigentes con su comité— y
+   **tres** para la pantalla. `scope.hidden` y `pendingCount` dejan de viajar en toda respuesta:
+   pasan a ser **propiedades diferidas** de Inertia, se resuelven solo donde se muestran y se miden
+   en su propia petición (A-09).
+2. Las relaciones se cargan por adelantado siempre (`with`), nunca dentro de un bucle.
+3. Los reportes y los resúmenes se resuelven con **consultas de agregación**, una por grupo de
+   cifras, no contando filas en PHP. La pantalla de reportes es la de mayor riesgo: ocho grupos de
+   cifras (RF-036), de los cuales dos exigen `GROUP BY`. Las cifras viajan en **propiedades
+   diferidas**, con su propio presupuesto de cinco consultas por respuesta, y se reutilizan para la
+   vista de gráficos y la de tabla (RF-037). Si los ocho ejes no caben en cinco, se separan en dos
+   propiedades diferidas antes de tocar el límite.
+
+**Dos excepciones declaradas.** La puerta del Constitution Check de [plan.md](./plan.md) para esta
+restricción no dice «Pasa» a secas: dice «Pasa, con dos excepciones declaradas», y las nombra.
+
+- `/reports`, por los ocho grupos de cifras de RF-036: las cifras van en propiedades diferidas con
+  su propio presupuesto de cinco por respuesta.
+- `/` (la pantalla principal): el reparto entre la primera carga y las propiedades diferidas se
+  declara igual, expresamente.
+
+En las dos, cada respuesta se mide aparte y ninguna pasa de cinco consultas. El techo de cinco
+**no se sube**: lo fija la constitución y no se enmienda por esto. Si al medir con
+`QueryBudgetTest` una pantalla no cabe, lo que se mueve a propiedad diferida son sus cifras, no el
+límite.
+
+**Razón.** La constitución fija el máximo y exige prevenir N+1. Con ~140 miembros el costo real es
+bajo hoy, pero el límite protege del hábito, no del volumen. El criterio de medición vive en
+plan.md, que es el documento normativo; aquí se remite a él para que no haya dos cifras que
+mantener.
+
+**Alternativas consideradas.** Caché de los resúmenes: se descarta por ahora. Agrega una fuente de
+datos viejos —contra el espíritu de D-10— y con este volumen no hace falta. Si CE-07 (reporte en
+menos de un minuto) llegara a fallar, se reconsidera con medición de por medio.
+
+---
+
+## R-09 · Entrar sin correo electrónico
+
+**Decisión.** El kit inicial oficial se adapta así: `users.username` único por sede reemplaza al
+correo como identificador de entrada; se retira el registro público; se retira el restablecimiento
+de clave por correo. `users.must_change_password` obliga al cambio en el primer ingreso y después
+de cada restablecimiento hecho por el pastor. El bloqueo tras cinco intentos fallidos usa el
+limitador de intentos del framework, por usuario y por dirección de origen, con quince minutos de
+espera (RF-004).
+
+**Razón.** HU-01 pide no depender de tener correo. RF-005 deja el restablecimiento solo en manos
+del pastor, y el supuesto S-08 confirma que el sistema no envía nada hacia afuera: no hay correo
+saliente, así que un flujo de recuperación por correo sería una puerta que no funciona.
+
+**Alternativas consideradas.** Dejar el correo como opcional pero presente: se descarta porque
+invita a un flujo de recuperación que no existe. Autenticación a mano: descartada en D-05.
+
+---
+
+## R-10 · Qué se hace con la autorización de tratamiento de datos
+
+**Decisión.** `members` y `sympathizers` llevan `data_consent` (bool),
+`data_consent_at` (fecha) y `data_consent_means` (`signature` | `verbal` | `message`). Las
+pantallas de registro y edición de personas muestran el aviso de privacidad, cuyo texto lo entrega
+la congregación (DEP-04). Los listados de miembros y simpatizantes informan cuántas fichas del
+ámbito están sin autorización registrada, y el reporte de la congregación incluye ese conteo
+(CE-12).
+
+El sistema **no** implementa borrado de datos a pedido de la persona: fue la opción C de la
+aclaración y no se escogió. Si el cliente lo pide después, entra como propuesta para cotizar, y hay
+que conciliarlo con RN-07, que prohíbe borrar lo registrado.
+
+**Razón.** Lo fijó la aclaración del 2026-10-18 (RF-061, RF-062). Es la constancia mínima que
+protege a la congregación sin salirse del alcance contratado.
+
+**Alternativas consideradas.** No guardar nada y dejarlo en papel (opción A): deja a la iglesia sin
+constancia. El juego completo de derechos del titular (opción C): excede lo contratado.
+
+---
+
+## R-11 · La única excepción que enumera la constitución al filtro de alcance
+
+**Decisión.** `Activity::forSharedCalendar()`: un método con nombre propio que retira el filtro de
+comité y **selecciona a mano** solo las columnas compartidas que RF-010 permite —título,
+descripción, fecha, hora, lugar, comité responsable y estado—. Nunca devuelve `budget_amount` ni
+carga tareas. Es la **única** salida del filtro en todo el proyecto —la única que la constitución
+enumera— y cualquier otra se considera defecto.
+
+Tres condiciones hacen parte de la excepción y no se pueden leer por separado:
+
+- **Solo lee.** El método no se usa como base de un `update`, de un `delete` ni de una descarga.
+- **No concede autorización.** La policy de `Activity` sigue negando toda escritura sobre una
+  actividad ajena: ver el cronograma de otro comité no habilita tocarlo.
+- **El filtro de sede no se retira nunca.** `BelongsToSite` sigue puesto; lo único que se retira es
+  el filtro del cargo activo.
+
+El **nombre del comité responsable sí se comparte** por esta excepción: es uno de los siete datos
+enumerados. La reserva de RF-009 se refiere a los conteos de `scope.hidden`, que informan cuánto
+queda fuera del ámbito sin listar nunca cuáles son; no convierte el nombre de un comité en dato
+reservado.
+
+**Razón.** RF-010 obliga a que cualquier cargo vea el cronograma de toda la congregación, lo que el
+filtro general no permite. Eso no es una excepción que el plan se tome por su cuenta: la enmienda
+del principio I del 2026-10-18 (constitución v2.0.0) la incorpora como **única excepción
+enumerada** del principio, limitada a los datos compartidos que RF-010 autoriza y solo para
+lectura. El plan solo decide la forma —una puerta con nombre, vigilada y probada, en vez de filtros
+inconsistentes repartidos por los controladores (D-15)—, no el permiso. Con la enmienda escrita, la
+excepción está amparada por la constitución y `forSharedCalendar()` se puede construir.
+
+**Alternativas consideradas.** Quitarle el filtro al modelo `Activity` y filtrar en cada consulta:
+se descarta porque invierte la carga —habría que acordarse de filtrar en lugar de acordarse de
+abrir— justo en el principio no negociable.
+
+**Qué hay que probar.** La prueba es de **lista blanca**, no de lista negra: compara el juego
+completo de llaves que trae una actividad ajena contra los siete datos enumerados y falla si
+aparece cualquier otro. No busca llaves prohibidas. Una columna nueva en `activities` deja la
+prueba roja hasta que alguien decida si se comparte. Dos casos obligatorios:
+
+1. **Lectura.** Un presidente consulta el cronograma, ve la actividad de otro comité, y la carga de
+   la respuesta trae **exactamente** esos siete datos: ni presupuesto, ni tareas, ni nada más. La
+   prueba revisa la carga de la respuesta, no solo lo que se ve en pantalla.
+2. **Escritura.** El mismo presidente intenta modificar una actividad ajena y recibe «no
+   disponible». La excepción no abre ninguna puerta de escritura.
+
+---
+
+## Puntos que siguen abiertos
+
+Ninguno bloquea el hito 1. Uno bloquea algo concreto: A-04 bloquea la carga inicial (US18) hasta
+que el pastor confirme el supuesto S-02.
+
+| # | Punto | Estado |
+|---|---|---|
+| A-01 | Umbrales del nivel de compromiso (R-07) | Puestos con valores defendibles. Confirmar con el Comité de Evangelismo durante el hito 3 |
+| A-02 | Edad de los miembros: fecha de nacimiento o edad declarada (RG-05 del plan) | **Decidido**: se admiten las dos entradas —`birth_date` cuando se sabe, y `age_reported` con `age_reported_at` cuando no— y RF-031 quedó corregido en la especificación. Queda por confirmar con el pastor, al cargar los datos en el hito 3, de cuántos miembros hay fecha y de cuántos solo edad declarada |
+| A-03 | Texto del aviso de privacidad y medio de recolección de autorizaciones | Lo entrega la congregación (DEP-04) |
+| A-04 | Supuestos S-01 (sin avisos externos) y S-02 (carga inicial por plantilla) | Pendientes de confirmación del pastor (DEP-03). **Bloquea la carga inicial (US18)** hasta que el pastor confirme S-02 |
+| A-05 | Confiabilidad y disponibilidad | Solo respaldo diario, por constitución. Sin meta de tiempo en servicio ni de recuperación; bajo impacto con 17 usuarios |
+| A-06 | Edición simultánea de la misma fila | Sin control de concurrencia. Con 17 usuarios la probabilidad es baja; si aparece, se trata como defecto |
+| A-07 | Columnas exactas de la plantilla de importación | Se fijan al construir HU-18, en el hito 3 |
+| A-08 | Versiones exactas de las tres dependencias (R-02) | Se escriben aquí al instalar, en el hito 1. Falta además confirmar contra Packagist la compatibilidad de las dos de Composer con Laravel 12: la advertencia de R-02 dice que se verificó contra directorios de terceros |
+| A-09 | Medición real del presupuesto de cinco consultas (R-08) | El criterio ya está fijado: la unidad es la petición completa, con dos consultas para el bloque compartido y tres para la pantalla. Falta la medición real al escribir `QueryBudgetTest` en el hito 1, y el reparto definitivo de las propiedades diferidas de `/reports` y de `/`, que son las dos excepciones declaradas |
+| A-10 | Precisión de los reportes por rango de edad (RF-036, A-02) | Quienes solo tengan `age_reported` entran en los rangos con precisión de ±1 año, y el reporte lo informa. Confirmar con el pastor que esa precisión le sirve para las reuniones de distrito |

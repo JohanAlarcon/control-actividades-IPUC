@@ -1,0 +1,199 @@
+# Contrato — Pantallas, ruta por ruta
+
+Rutas en inglés (R-03, corrección C-02). Toda respuesta incluye además las propiedades de
+[shared-props.md](./shared-props.md). La columna **No debe viajar** es la que la prueba de
+aislamiento verifica sobre la carga de la respuesta.
+
+## Entrar al sistema
+
+| Ruta | Método | Pantalla | Propiedades propias | Permiso | No debe viajar |
+|---|---|---|---|---|---|
+| `/login` | GET, POST | `Auth/Login` | — | público | nada del dominio |
+| `/password/change` | GET, POST | `Auth/ChangePassword` | `forced` (bool) | autenticado | nada hasta que cambie la clave |
+| `/logout` | POST | — | — | autenticado | — |
+
+**Reglas**: con `must_change_password` verdadero, **ninguna** otra ruta responde con información:
+redirige al cambio de clave (RF-002, HU-01 esc. 1). Cinco intentos fallidos bloquean quince minutos
+e indican pedirle al pastor el restablecimiento (RF-004).
+
+## Inicio
+
+| Ruta | Método | Pantalla | Propiedades propias |
+|---|---|---|---|
+| `/` | GET | `Dashboard/Index` | `kpis`, `pendingApprovals[]` · **diferidas**: `myRequests[]`, `committeeProgress[]`, `upcoming[]`, `pendingProfiles` |
+
+**Reglas**: lo primero de la pantalla es qué espera la decisión del cargo activo y **desde cuándo**
+(RF-054, HU-17 esc. 1). `myRequests[]` muestra a un líder en qué va lo que envió, quién debe
+resolverlo y, si ya se resolvió, el resultado con su motivo (HU-17 esc. 3). `pendingProfiles` es el
+conteo de fichas por completar del ámbito (CL-16).
+
+Esta pantalla es una de las **dos excepciones declaradas** al presupuesto de consultas. Cada
+propiedad diferida viaja en su propia petición parcial, que se mide con su propio presupuesto de
+cinco consultas por respuesta y con las dos del bloque compartido incluidas
+([shared-props.md](./shared-props.md)). El techo de cinco no se sube: lo que no quepa en una
+petición se reparte en más propiedades diferidas.
+
+## Comités
+
+| Ruta | Método | Pantalla | Propiedades propias | No debe viajar |
+|---|---|---|---|---|
+| `/committees` | GET | `Committees/Index` | `tree[]`, `cards[]` | de un comité fuera del ámbito: sus miembros, su presupuesto y su avance |
+| `/committees/{committee}` | GET | `Committees/Show` | `committee`, `children[]`, `hasChildren`, `president`, `members[]`, `budget`, `progress`, `canEdit` | nada si el comité está fuera del ámbito: «no disponible» (RF-008) |
+
+**Reglas**: con `hasChildren` falso, la ficha lo dice expresamente y muestra que el presidente
+coordina directamente a sus miembros (RF-012, CL-01). Un líder ve su sub-comité y **el nombre de su
+presidente**, porque es quien revisa lo que propone (HU-03 esc. 4).
+
+El **nombre** de un comité ajeno no es dato reservado: el cronograma compartido lo publica como
+responsable de una actividad (RF-010). Esta pantalla, de todos modos, no lista los comités fuera del
+ámbito; lo que nunca viaja de ellos son sus **datos**: sus miembros, su presupuesto y su avance. La
+reserva de RF-009 se refiere a los conteos de `scope.hidden`, que nunca dicen cuáles son; no
+convierte el nombre de un comité en dato reservado.
+
+## Aprobaciones
+
+| Ruta | Método | Pantalla | Propiedades propias |
+|---|---|---|---|
+| `/approvals` | GET | `Approvals/Index` | `inbox[]`, `escalated[]`, `history[]`, `counts` |
+| `/approvals` | POST | — | crea la solicitud; aplica `ApprovalFlow` |
+| `/approvals/{approval}/approve` | POST | — | resuelve o escala, según `ApprovalFlow` |
+| `/approvals/{approval}/reject` | POST | — | **exige `reason`** (RF-020) |
+| `/approvals/bulk-approve` | POST | — | varias del mismo tipo, una sola confirmación (RF-022) |
+
+**Reglas**: cada elemento de `inbox[]` lleva de qué comité viene, quién la pidió, por quién ya pasó,
+qué monto implica y qué efecto tiene en el cronograma (HU-07 esc. 1), más `waitingSince`. Un
+presidente que aprueba una actividad **no la cierra**: pasa al pastor y se avisa a quien la propuso
+(HU-06 esc. 2). Un gasto del propio comité del presidente **no crea solicitud**: se registra el
+movimiento con su nombre (RF-018, V-04). Una solicitud resuelta no se edita: `/approve` y
+`/reject` sobre una ya resuelta responden error explicado (RF-057).
+
+## Cronograma
+
+| Ruta | Método | Pantalla | Propiedades propias | No debe viajar |
+|---|---|---|---|---|
+| `/activities` | GET | `Activities/Index` | `summary`, `months[]`, `list[]`, `filters`, `annualPlan`, `canPropose` | de actividades ajenas: todo lo que no sean los siete datos compartidos |
+| `/activities/{activity}` | GET | `Activities/Show` | `activity`, `tasks[]`, `trail[]`, `canEdit`, `canCompleteTasks` | si es ajena: todo lo que no sean los siete datos compartidos; nunca presupuesto ni tareas |
+| `/activities` | POST | — | propone; devuelve `conflictWarning` (RF-028, CL-08) | — |
+| `/activities/{activity}/tasks/{task}/toggle` | POST | — | recalcula `progress` y el estado (R-04) | — |
+| `/activities/{activity}/complete` | POST | — | solo para actividades sin tareas (R-04) | — |
+| `/annual-plan/{year}/approve` | POST | — | solo pastor (RF-025) | — |
+
+**Reglas**: esta es la **única excepción que enumera la constitución** al filtro de alcance.
+`forSharedCalendar()` entrega de las actividades ajenas exactamente siete datos —título,
+descripción, fecha, hora, lugar, comité responsable y estado— y ningún otro (RF-010, R-11). La
+prueba de aislamiento compara el **juego de llaves** de la carga con esos siete: una columna nueva
+en `activities` la pone roja hasta que alguien decida si se comparte. El método **solo lee**: no se
+usa como base de un `update`, un `delete` ni una descarga, y no concede autorización — la policy de
+`Activity` sigue negando toda escritura sobre una actividad ajena, aunque se vea en el cronograma.
+`summary` y la barra de cumplimiento se recalculan con el filtro aplicado
+(RF-030, HU-09 esc. 2). El plan anual aprobado muestra quién lo aprobó y cuándo, y distingue lo que
+venía en el plan de lo propuesto después (RF-024, HU-08).
+
+La excepción está amparada por la enmienda del principio I del 2026-10-18, constitución v2.0.0.
+
+## Miembros
+
+| Ruta | Método | Pantalla | Propiedades propias |
+|---|---|---|---|
+| `/members` | GET | `Members/Index` | `members[]`, `stats`, `filters`, `committees[]`, `resultCount`, `totalCount`, `missingConsent`, `canCreate` |
+| `/members` | POST | — | registra |
+| `/members/{member}` | PUT | — | corrige; conserva el valor anterior (RF-056) |
+| `/members/{member}/history` | GET | `Members/History` | `trail[]` leído por la relación del modelo, nunca de `activity_log` (V-01) |
+| `/members/import` | GET, POST | `Members/Import` | `preview[]`, `errors[]`, `validCount`, `invalidCount`, `duplicates[]` |
+
+**Reglas**: `committees[]` solo trae los del ámbito, también para llenar desplegables. La búsqueda
+ignora mayúsculas y tildes (RF-034). `resultCount`/`totalCount` responden a «cuántos cumplen sobre
+el total» (RF-035). Un líder ve solo los de su sub-comité y el sistema le indica **cuántas**
+personas de la congregación no aparecen y por qué (RF-009, HU-04 esc. 3). La importación muestra
+filas correctas y erróneas **antes de guardar nada**, permite cargar solo las correctas y advierte
+duplicados dejando decidir (HU-18, CL-14). El formulario muestra el aviso de privacidad y pide la
+autorización con su fecha y medio (RF-061, RF-062).
+
+## Simpatizantes
+
+| Ruta | Método | Pantalla | Propiedades propias |
+|---|---|---|---|
+| `/sympathizers` | GET | `Sympathizers/Index` | `stats`, `funnel[]`, `list[]`, `pendingMember[]` |
+| `/sympathizers/{sympathizer}` | GET | `Sympathizers/Show` | `sympathizer`, `stages[]`, `visits[]`, `commitment` |
+| `/sympathizers` | POST | — | registra; advierte duplicado (CL-09) |
+| `/sympathizers/{sympathizer}/stages` | POST | — | alcanza una etapa con su fecha (RF-042) |
+| `/sympathizers/{sympathizer}/visits` | POST | — | registra visita; recalcula el compromiso |
+| `/sympathizers/{sympathizer}/promote` | POST | — | propone el paso a miembro: va al pastor (RF-019) |
+
+**Reglas — la policy más estrecha del proyecto** (RF-040, R-06): `POST /sympathizers` lo puede
+cualquier cargo; **todo lo demás solo el presidente del Comité de Evangelismo y el pastor**. Ni los
+líderes de los sub-comités de Evangelismo, ni quien registró a la persona. Quien registró recibe la
+explicación de por qué no ve la ficha, sin que parezca un error (HU-13 esc. 2). `commitment` llega
+**calculado** por el servidor, con las señales que lo determinaron para poder explicarlo (RF-043,
+HU-14 esc. 3). El formulario muestra el aviso de privacidad y pide la autorización (RF-061).
+
+## Asistencia
+
+| Ruta | Método | Pantalla | Propiedades propias |
+|---|---|---|---|
+| `/attendance` | GET | `Meetings/Index` | `meetings[]`, `perMember[]`, `kpis`, `canRecord` |
+| `/attendance` | POST | — | registra la reunión y sus marcas |
+| `/attendance/{meeting}` | GET | `Meetings/Show` | `meeting`, `attendances[]`, `canEdit` |
+| `/attendance/{meeting}` | PUT | — | corrige; conserva lo registrado antes (RF-056) |
+
+**Reglas**: los convocados solo pueden ser miembros de ese comité o sub-comité (RF-047). Una reunión
+sin ningún asistente se puede registrar (CL-11). El porcentaje por persona se calcula sobre las
+reuniones a las que **fue convocada** (RF-048). Por debajo del sesenta por ciento, el texto es de
+acompañamiento, nunca de reproche (RF-049).
+
+## Presupuesto
+
+| Ruta | Método | Pantalla | Propiedades propias |
+|---|---|---|---|
+| `/budget` | GET | `Budget/Index` | `summary`, `byCommittee[]`, `movements[]`, `treasuryNotice`, `canAssign`, `canDistribute` |
+| `/budget/assign` | POST | — | solo pastor: asigna el anual de un comité (RF-050) |
+| `/budget/distribute` | POST | — | presidente: reparte entre sus sub-comités (RF-050) |
+| `/budget/movements` | POST | — | registra el gasto; devuelve `overBudgetWarning` (RF-051) |
+
+**Reglas**: el saldo llega **calculado** (D-10). Pasarse del presupuesto **advierte y permite
+continuar si se confirma**, no bloquea (RN-05, RF-051, HU-16 esc. 2). El pastor ve los seis comités
+y el total, destacando el que pasó del noventa por ciento (HU-16 esc. 4). `treasuryNotice` viaja
+siempre: la aclaración de que la tesorería sigue manejando los recursos es obligatoria en toda
+pantalla de presupuesto (RF-053). Un comité sin asignación funciona en cero (CL-04).
+
+## Reportes
+
+| Ruta | Método | Pantalla | Propiedades propias |
+|---|---|---|---|
+| `/reports` | GET | `Reports/Index` | `stats`, `charts`, `filters`, `scopeNotice` · **diferida**: `tables` |
+| `/reports/download` | GET | — | archivo .xlsx con los filtros aplicados (RF-038) |
+| `/reports/print` | GET | `Reports/Print` | vista de impresión |
+
+**Reglas**: todo gráfico tiene su equivalente exacto en tabla, con la misma información (RF-037,
+HU-11 esc. 3). Un presidente o un líder obtiene los mismos reportes **solo con su gente**, y
+`scopeNotice` aclara que los totales de la congregación los ve únicamente el pastor (HU-11 esc. 4).
+La descarga y la impresión respetan filtros **y** ámbito (RF-038, HU-12 esc. 3). La impresión es
+legible en blanco y negro, con el nombre de la iglesia, la fecha y los filtros aplicados (HU-12
+esc. 2). Un grupo vacío muestra cero, no una pantalla rota (CL-12).
+
+Esta es la pantalla de mayor riesgo para el límite de cinco consultas: se arma con agregaciones, una
+por eje (R-08). Por eso es la otra **excepción declarada**. `stats` y `charts` caben en la primera
+carga con una agregación condicional más las dos que exigen `GROUP BY`; `tables` viaja como
+**propiedad diferida**, en su propia petición parcial, con su propio presupuesto de cinco consultas
+por respuesta y con las dos del bloque compartido incluidas
+([shared-props.md](./shared-props.md)): si los ocho grupos de RF-036 no caben
+—la distribución por comité y los bautismos por año exigen `GROUP BY`—, se separan en dos
+propiedades diferidas. El techo de cinco no se sube.
+
+## Usuarios y cargos
+
+| Ruta | Método | Pantalla | Propiedades propias |
+|---|---|---|---|
+| `/users` | GET | `Users/Index` | `users[]`, `committees[]`, `roles[]` |
+| `/users` | POST | — | crea cuenta y cargo; genera clave temporal |
+| `/users/{user}` | PUT | — | modifica |
+| `/users/{user}/reset-password` | POST | — | clave temporal nueva (RF-005) |
+| `/users/{user}/deactivate` | POST | — | retira el acceso de inmediato (RF-006) |
+| `/users/{user}/roles` | POST, DELETE | — | asigna o cierra un cargo |
+
+**Reglas**: **solo el pastor** (RF-003, HU-02). Al crear, si la persona no está en la lista de
+miembros, se le crea la ficha con nombre y teléfono marcada como pendiente de completar (V-03,
+RF-003). Retirar el acceso **no borra**: `active` en falso, y el nombre permanece en todo registro
+histórico (RF-006, RN-09). Al asignar un cargo vacante, las solicitudes pendientes pasan al nuevo
+responsable con registro del traspaso (RF-023, CL-06). Una persona puede tener dos cargos; eso
+habilita el selector, no la unión de ámbitos (CL-05, C-01).
