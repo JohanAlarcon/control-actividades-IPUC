@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToCommitteeScope;
+use App\Models\Concerns\BelongsToSite;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 
 class Committee extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToSite, BelongsToCommitteeScope;
 
     public const MAX_DEPTH = 3;
 
@@ -107,5 +109,11 @@ class Committee extends Model
         }
 
         return $parent->depth + 1;
+    }
+
+    /** Un comite se filtra por su propio id, no por una llave foranea. */
+    public function committeeScopeColumn(): string
+    {
+        return 'id';
     }
 }

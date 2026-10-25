@@ -30,6 +30,13 @@ class User extends Authenticatable
         'active',
     ];
 
+    /** Para que el modelo recien creado ya sepa su estado, sin tener que releerlo. */
+    protected $attributes = [
+        'must_change_password' => true,
+        'is_pastor' => false,
+        'active' => true,
+    ];
+
     /**
      * The attributes that should be hidden for serialization.
      *

@@ -225,25 +225,25 @@ Ninguna tarea del bloque 2.1 va en paralelo: bloquea todo lo demás.
 
 ### 2.2 · El filtro de alcance — la pieza crítica
 
-- [ ] T018 · Rasgo `BelongsToSite` con filtro automático de sede
+- [x] T018 · Rasgo `BelongsToSite` con filtro automático de sede
       Archivos: `app/Models/Concerns/BelongsToSite.php`
       Verifica: `php artisan test --filter=SiteScopeTest` — un modelo de la sede 2 no aparece consultando desde la sede 1.
 
-- [ ] T179 · `SubtreeResolver`: el sub-árbol de un nodo en una sola consulta
+- [x] T179 · `SubtreeResolver`: el sub-árbol de un nodo en una sola consulta
       Archivos: `app/Support/Committees/SubtreeResolver.php`
       Bloquea a T019 y por eso va antes. Devuelve los identificadores del nodo y de todos sus descendientes **sin recursión ni CTE**: `depth` está acotado a 3 por RF-011, así que basta comparar `parent_id` y el `parent_id` del padre. Es lo que mantiene el techo de cinco consultas por petición (D-16).
       Verifica: `php artisan test --filter=SubtreeResolverTest`
 
-- [ ] T180 · Prueba: el sub-árbol en los tres niveles, y el conteo de consultas
+- [x] T180 · Prueba: el sub-árbol en los tres niveles, y el conteo de consultas
       Archivos: `tests/Unit/Committees/SubtreeResolverTest.php`
       Verifica: `php artisan test --filter=SubtreeResolverTest` — el sub-árbol de un comité trae sus sub-comités y sus equipos; el de un sub-comité, sus equipos; el de un equipo, solo él. **Y lo resuelve en una consulta**, verificado con el registro de consultas.
 
-- [ ] T019 [US04] · `CurrentScope`: quién soy y qué nodos del árbol puedo ver
+- [x] T019 [US04] · `CurrentScope`: quién soy y qué nodos del árbol puedo ver
       Archivos: `app/Support/Scope/CurrentScope.php`
       **Cargo activo, no unión** (corrección C-01, RF-007): pastor → todos los comités de la sede · un solo cargo vigente → ese es el activo, sin preguntar · dos o más cargos → el activo es el guardado en la sesión, y si no hay ninguno el sistema pide escoger antes de mostrar información. **El ámbito de un nodo es el nodo y todo su sub-árbol** (tres niveles, 2026-10-24): presidente de X → X, sus sub-comités y sus equipos · líder de Y → Y y sus equipos. Usa `Support/Committees/SubtreeResolver` (T179): **una sola consulta, sin recursión**, porque `depth` está acotado a 3.
       Verifica: `php artisan test --filter=CurrentScopeTest`
 
-- [ ] T020 [US04] · Prueba: los cinco casos de resolución de ámbito
+- [x] T020 [US04] · Prueba: los cinco casos de resolución de ámbito
       Archivos: `tests/Unit/Scope/CurrentScopeTest.php`
       Verifica: `php artisan test --filter=CurrentScopeTest` — pastor, presidente, líder, dos cargos con uno activo, y dos cargos sin escoger (CL-05). **Ningún caso devuelve la unión de dos ámbitos.**
 
@@ -252,12 +252,12 @@ Ninguna tarea del bloque 2.1 va en paralelo: bloquea todo lo demás.
       Resuelve el ámbito una sola vez por petición.
       Verifica: `php artisan test --filter=ResolveScopeTest` · el contador de consultas del ámbito es 1 por petición, no una por consulta.
 
-- [ ] T022 [US04] · Rasgo `BelongsToCommitteeScope` con filtro automático de sub-árbol
+- [x] T022 [US04] · Rasgo `BelongsToCommitteeScope` con filtro automático de sub-árbol
       Archivos: `app/Models/Concerns/BelongsToCommitteeScope.php`
       El global scope compara contra el **conjunto de descendientes** del nodo activo, no contra `parent_id` (tres niveles, 2026-10-24).
       Verifica: `php artisan test --filter=CommitteeScopeTest`
 
-- [ ] T023 [US04] · Prueba de aislamiento en los tres niveles, cero filtros escritos a mano
+- [x] T023 [US04] · Prueba de aislamiento en los tres niveles, cero filtros escritos a mano
       Archivos: `tests/Feature/Scope/CommitteeIsolationTest.php`
       Casos obligatorios de la ampliación (RG-14): un **líder de equipo no ve a su sub-comité hermano**; un **presidente sí ve a sus nietos**; un líder de sub-comité ve sus equipos y nada de otra rama.
       Verifica: `php artisan test --filter=CommitteeIsolationTest` — ninguna consulta de la prueba escribe `where committee_id`.

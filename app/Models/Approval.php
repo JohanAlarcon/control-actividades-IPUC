@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToCommitteeScope;
+use App\Models\Concerns\BelongsToSite;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +12,7 @@ use RuntimeException;
 
 class Approval extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToSite, BelongsToCommitteeScope;
 
     public const PENDING = 'pending';
     public const APPROVED = 'approved';
