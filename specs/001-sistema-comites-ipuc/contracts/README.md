@@ -47,9 +47,9 @@ contrato porque:
 5. **Sin jerga técnica en los textos** que viajen listos para mostrar (RF-060).
 6. **Montos en pesos colombianos y fechas en formato colombiano** al presentarse; el servidor
    entrega el valor crudo y la capa de formato de `resources/js/lib` lo presenta.
-7. **Máximo cinco consultas por petición completa** (constitución), verificado por
-   `Architecture/QueryBudgetTest`: se mide la petición entera, sea la primera carga de la pantalla
-   o una petición parcial de propiedad diferida. El bloque compartido cuesta **tres** y a la
+7. **Máximo cinco consultas propias por respuesta** (constitución), verificado por
+   `Architecture/QueryBudgetTest`, sin las tres fijas de Laravel, que se miden aparte: cuenta la
+   primera carga de la pantalla y cada petición parcial de propiedad diferida. El bloque compartido cuesta **tres** y a la
    pantalla le quedan **dos** ([shared-props.md](./shared-props.md)). Hay **dos excepciones
    declaradas**, `/` y `/reports`, que reparten sus cifras en propiedades diferidas con su propio
    presupuesto de cinco por respuesta ([pages.md](./pages.md)). El techo de cinco no se sube.

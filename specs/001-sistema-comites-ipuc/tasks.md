@@ -231,7 +231,7 @@ Ninguna tarea del bloque 2.1 va en paralelo: bloquea todo lo demás.
 
 - [x] T179 · `SubtreeResolver`: el sub-árbol de un nodo en una sola consulta
       Archivos: `app/Support/Committees/SubtreeResolver.php`
-      Bloquea a T019 y por eso va antes. Devuelve los identificadores del nodo y de todos sus descendientes **sin recursión ni CTE**: `depth` está acotado a 3 por RF-011, así que basta comparar `parent_id` y el `parent_id` del padre. Es lo que mantiene el techo de cinco consultas por petición (D-16).
+      Bloquea a T019 y por eso va antes. Devuelve los identificadores del nodo y de todos sus descendientes **sin recursión ni CTE**: `depth` está acotado a 3 por RF-011, así que basta comparar `parent_id` y el `parent_id` del padre. Es lo que mantiene el techo de cinco consultas por pantalla (D-16).
       Verifica: `php artisan test --filter=SubtreeResolverTest`
 
 - [x] T180 · Prueba: el sub-árbol en los tres niveles, y el conteo de consultas
@@ -267,9 +267,9 @@ Ninguna tarea del bloque 2.1 va en paralelo: bloquea todo lo demás.
       Lista blanca de **una sola** tabla: `activity_log`, la del paquete de bitácora, que no lleva `site_id` (vacío V-01, R-05). Cualquier otra entrada exige justificación en `research.md`.
       Verifica: `php artisan test --filter=ScopeCoverageTest` en verde · se crea a propósito un modelo con `site_id` sin el rasgo y la prueba se pone roja. **Esta comprobación negativa es obligatoria: una red que no se probó no es una red.**
 
-- [x] T025 · `QueryBudgetTest`: cuenta consultas por petición y falla pasando de cinco
+- [x] T025 · `QueryBudgetTest`: cuenta consultas por pantalla y falla pasando de cinco
       Archivos: `tests/Architecture/QueryBudgetTest.php`
-      La unidad de medida es **la petición completa**, middleware incluido: 2 consultas como máximo para el bloque compartido y 3 para la pantalla. Las propiedades diferidas se miden en su propia petición parcial.
+      Cuentan las consultas propias de la pantalla, middleware incluido; las tres fijas de Laravel se miden aparte (constitución 2.3.1). 3 consultas como máximo para el bloque compartido y 2 para la pantalla. Las propiedades diferidas se miden en su propia petición parcial.
       Verifica: `php artisan test --filter=QueryBudgetTest` · una pantalla con una consulta N+1 introducida a propósito pone la prueba roja.
 
 - [x] T165 · `NoRawQueriesTest`: prohíbe `DB::` y SQL crudo sobre tablas con ámbito
@@ -1405,8 +1405,8 @@ cierre de cada hito se ejecutan al terminar las fases de ese hito, no todas al f
 
 - [ ] T150 · Presupuesto de consultas de todas las pantallas
       Archivos: `tests/Architecture/QueryBudgetTest.php`
-      Puerta de calidad 5, y base del CE-07. **La lista la arma la prueba recorriendo `Route::getRoutes()`**: se queda con las rutas `GET` que responden con Inertia y falla si alguna no tiene caso de medición, en vez de quedar fuera por un número escrito a mano. La fuente de verdad es la tabla de rutas, no `resources/js/pages/`: lo que se mide son respuestas. Lista blanca justificada para `/login` y `/password/change`. La unidad es **la petición completa**: 2 consultas como máximo para el bloque compartido y 3 para la pantalla (T025, T028). **Dos excepciones declaradas**, y ninguna más: `/reports` (T102) y `/` (T084), cuyas cifras viajan en propiedades diferidas con su propio presupuesto de cinco por respuesta. La de reportes es la de mayor riesgo (R-08).
-      Verifica: `php artisan test --filter=QueryBudgetTest` — todas las rutas con Inertia por debajo de cinco consultas por petición · una ruta nueva sin caso de medición pone la prueba roja · las propiedades diferidas de las dos excepciones se miden una por una.
+      Puerta de calidad 5, y base del CE-07. **La lista la arma la prueba recorriendo `Route::getRoutes()`**: se queda con las rutas `GET` que responden con Inertia y falla si alguna no tiene caso de medición, en vez de quedar fuera por un número escrito a mano. La fuente de verdad es la tabla de rutas, no `resources/js/pages/`: lo que se mide son respuestas. Lista blanca justificada para `/login` y `/password/change`. Cuentan las consultas propias de la pantalla, sin las tres fijas de Laravel: 3 consultas como máximo para el bloque compartido y 2 para la pantalla (T025, T028). **Dos excepciones declaradas**, y ninguna más: `/reports` (T102) y `/` (T084), cuyas cifras viajan en propiedades diferidas con su propio presupuesto de cinco por respuesta. La de reportes es la de mayor riesgo (R-08).
+      Verifica: `php artisan test --filter=QueryBudgetTest` — todas las rutas con Inertia por debajo de cinco consultas propias, como el pastor, un presidente y un líder, y sin crecer con los datos · una ruta nueva sin caso de medición pone la prueba roja · las propiedades diferidas de las dos excepciones se miden una por una.
 
 - [ ] T153 · Puerta del hito 4
       Archivos: `docs/hitos/hito-4.md`

@@ -702,4 +702,4 @@ y todos sus descendientes». Es la pieza más delicada de la ampliación del 202
 
 No hay consultas recursivas ni CTE: la profundidad está acotada a tres por RF-011, así que el
 sub-árbol de cualquier nodo se obtiene con una comparación sobre `parent_id` y el `parent_id` del
-padre. Esto mantiene el presupuesto de cinco consultas por petición.
+padre. Esto mantiene el presupuesto de cinco consultas por pantalla.

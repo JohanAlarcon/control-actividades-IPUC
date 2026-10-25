@@ -168,3 +168,27 @@ it('la lista cabe en el presupuesto de consultas aunque haya muchas cuentas con 
 
     expect($consultas)->toBeLessThanOrEqual(5);
 });
+
+it('la ficha de una cuenta cabe en el presupuesto y no crece con los datos', function () {
+    $persona = User::factory()->create(['site_id' => $this->site->id]);
+    CommitteeUser::factory()->forCommittee($this->alabanza)->create(['user_id' => $persona->id]);
+
+    $medir = function () use ($persona) {
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        $this->actingAs($this->pastor)->get("/users/{$persona->id}/edit")->assertOk();
+        $consultas = count(DB::getQueryLog());
+        DB::disableQueryLog();
+
+        return $consultas;
+    };
+
+    $antes = $medir();
+
+    foreach (Committee::factory()->for($this->site)->count(8)->create() as $comite) {
+        CommitteeUser::factory()->forCommittee($comite)->role(CommitteeUser::SECRETARY)->create(['user_id' => $persona->id]);
+    }
+
+    expect($antes)->toBeLessThanOrEqual(5)
+        ->and($medir())->toBe($antes);
+});

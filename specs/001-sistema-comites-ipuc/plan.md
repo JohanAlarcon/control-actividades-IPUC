@@ -100,17 +100,21 @@ Lo que eso exige de este plan está en la subsección «Lo que cambia con la amp
 
 ### Cómo se mide el presupuesto de cinco consultas
 
-El máximo de cinco consultas lo fija la constitución y no se sube sin enmienda. Lo que la
-constitución no dice es **qué se cuenta**, y sin un criterio escrito el presupuesto se gasta en el
-middleware antes de llegar a los datos de la pantalla. Queda fijado así.
+El máximo de cinco consultas lo fija la constitución y no se sube sin enmienda. Desde la 2.3.1
+la constitución dice también **qué se cuenta**. Queda fijado así.
 
-- **La unidad de medida es la petición completa, middleware incluido.** `QueryBudgetTest` cuenta
-  todas las consultas entre la entrada por la ruta y la respuesta de Inertia: autenticación,
-  `ResolveScope`, `HandleInertiaRequests`, policies y controlador. Es lo que espera el celular de
-  la congregación, y un criterio que excluyera una capa solo lograría que el costo se mudara allí.
+- **Cuentan las consultas propias de la pantalla, middleware incluido**: `ResolveScope`,
+  `HandleInertiaRequests`, policies y controlador. Un criterio que excluyera una de esas capas
+  solo lograría que el costo se mudara allí.
+- **No cuentan las tres fijas de Laravel** en cada petición: leer la sesión, cargar a la persona
+  autenticada y guardar la sesión. Ninguna pantalla las puede agregar ni quitar, así que no se
+  pueden esconder costos en ellas; `QueryBudgetTest` verifica aparte que sigan siendo tres.
+- **El número no crece con los datos.** `QueryBudgetTest` mide cada pantalla como el pastor, un
+  presidente y un líder, con datos en los tres niveles; luego multiplica los datos por diez y
+  exige el mismo número. Una consulta dentro de un bucle la pone roja.
 - **El bloque compartido cuesta 3 consultas y ninguna más**, con su propia aserción en
-  `QueryBudgetTest`: (1) la persona autenticada y (2) sus cargos vigentes con el comité de cada
-  uno.
+  `QueryBudgetTest`: (1) los cargos vigentes, (2) el comité de cada uno, por carga anticipada, y
+  (3) el sub-árbol del cargo activo.
 - **`scope.hidden` y `pendingCount` son propiedades diferidas de Inertia.** Dejan de viajar en
   toda respuesta y se resuelven solo donde se muestran —la cinta de alcance y la pantalla
   principal—, en una petición aparte. RF-009 pide informar cuánta información queda fuera, no
@@ -233,7 +237,7 @@ Lo que exige de este plan:
 | Plan de trabajo = cronograma anual | **No hay módulo nuevo.** Se evitó construir un segundo lugar donde programar actividades, que habría contradicho al cronograma |
 
 **Lo que NO cambia, y conviene decirlo:** los dos principios NO NEGOCIABLES siguen sin excepción, el
-techo de cinco consultas por petición no sube, la única excepción enumerada al filtro de alcance
+techo de cinco consultas por pantalla no sube, la única excepción enumerada al filtro de alcance
 sigue siendo la del cronograma compartido, y las migraciones siguen siendo la única fuente de verdad
 del esquema.
 
@@ -394,7 +398,7 @@ tests/
 ├── Architecture/
 │   ├── ScopeCoverageTest.php            # falla si un modelo con site_id no usa los rasgos
 │   ├── NoRawQueriesTest.php             # falla si aparece DB:: o SQL crudo sobre tablas con ámbito
-│   └── QueryBudgetTest.php              # cuenta consultas por petición, falla pasando de 5
+│   └── QueryBudgetTest.php              # cuenta consultas por pantalla, falla pasando de 5
 └── fixtures/members-mixed.xlsx          # hoja con errores a propósito (importación)
 
 config/                                  # app.php (zona y moneda), activitylog.php
@@ -453,11 +457,11 @@ los **R-xx**, que son las decisiones de investigación de [research.md](./resear
 | D-09 | Fecha de nacimiento, con la edad declarada como respaldo | La edad guardada envejece y rompe los reportes, y Serenatas necesita cumpleaños; pero la congregación no tiene la fecha de todos, así que `age_reported` con `age_reported_at` deja registrar igual (principio IV). | Guardar solo la edad; exigir la fecha |
 | D-10 | Compromiso y saldo calculados, no guardados | Un dato guardado es un dato que envejece sin que nadie lo note. | Columnas con el valor |
 | D-11 | Despliegue con script propio disparado al fusionar | Sin costo mensual, que pesa cuando el ingreso es $100.000. Respaldo diario por tarea programada. | Panel de pago; contenedores |
-| D-12 | Prueba que cuenta consultas por petición | La constitución fija un máximo de 5; un límite que no se mide no se cumple. | Revisión a ojo |
+| D-12 | Prueba que cuenta consultas por pantalla | La constitución fija un máximo de 5; un límite que no se mide no se cumple. | Revisión a ojo |
 | D-13 | PWA por complemento de compilación | El trabajador de servicio escrito a mano es fuente conocida de fallas difíciles de reproducir. | Manifiesto a mano |
 | D-14 | Semilla con los datos de la presentación | Sirve para desarrollar, probar y capacitar; el pastor reconoce lo que ya vio. Datos ficticios, como exige la constitución. | Conjunto mínimo; solo generadores |
 | D-15 | `forSharedCalendar()` como única excepción al filtro | RF-010 obliga a abrir el cronograma y la constitución v2.0.0 enumera la excepción. Mejor una puerta con nombre, de solo lectura, vigilada y probada, que filtros inconsistentes. | Quitar el filtro al modelo `activities` |
-| D-16 | Tres niveles con `depth` guardado, sin consultas recursivas | La profundidad está acotada a 3 por RF-011, así que el sub-árbol de un nodo sale comparando `parent_id` y el del padre: una consulta. Mantiene el techo de cinco consultas por petición sin enmendar la constitución. | Árbol de profundidad libre con CTE recursivas; tabla de cierre transitivo |
+| D-16 | Tres niveles con `depth` guardado, sin consultas recursivas | La profundidad está acotada a 3 por RF-011, así que el sub-árbol de un nodo sale comparando `parent_id` y el del padre: una consulta. Mantiene el techo de cinco consultas por pantalla sin enmendar la constitución. | Árbol de profundidad libre con CTE recursivas; tabla de cierre transitivo |
 | D-17 | Archivos en el disco del servidor, fuera de `public/`, servidos por una ruta con policy | La constitución prohíbe que los datos del cliente salgan del servidor acordado. Y en `public/` cualquiera con el enlace vería una evidencia ajena: el principio I se caería por la puerta de atrás, sin que ninguna prueba de aislamiento lo note. | Servicio externo tipo S3; servir desde `public/` con nombre difícil de adivinar |
 | D-18 | El acta cuelga de la reunión, y no duplica fecha, lugar ni asistentes | Una sola verdad sobre quién asistió. Si el acta copiara los asistentes, el porcentaje de asistencia y el acta podrían contradecirse, y el acta es el documento que la congregación trata como definitivo. | Acta independiente con sus propios asistentes |
 | D-19 | El compromiso del acta es texto; convertirlo en tarea es opcional | Decisión del autor el 2026-10-24. El acta conserva lo acordado palabra por palabra, y el seguimiento se agrega solo donde hace falta, reutilizando `activity_tasks` y el avance que ya se calcula. | Todo compromiso es tarea; compromiso solo como texto sin seguimiento |

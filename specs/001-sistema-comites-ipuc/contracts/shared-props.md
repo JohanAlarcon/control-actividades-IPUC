@@ -48,9 +48,10 @@ pendingCount       número de solicitudes esperando la decisión del cargo activ
 
 ## Presupuesto de consultas
 
-La unidad de medida de `Architecture/QueryBudgetTest` es **la petición completa**: la primera carga
-y cada petición de propiedad diferida se miden por separado, y ninguna pasa de cinco consultas. El
-reparto normativo es este:
+`Architecture/QueryBudgetTest` cuenta **las consultas propias de la pantalla**, sin las tres fijas
+de Laravel en cada petición —leer la sesión, cargar a la persona y guardar la sesión—, que se miden
+aparte. La primera carga y cada petición de propiedad diferida se miden por separado, y ninguna pasa
+de cinco consultas. El reparto normativo es este:
 
 | Parte de la respuesta | Consultas |
 |---|---|
@@ -92,9 +93,9 @@ pantalla anterior. Un `roleId` ajeno o cerrado responde «no disponible» sin re
 - Persona con dos cargos, actuando con el cargo A: ninguna pantalla, ningún acceso directo por
   identificador y ninguna descarga de reporte devuelve algo del ámbito B (CL-05).
 - `scope.hidden` nunca contiene nombres ni identificadores, en ninguna respuesta.
-- El bloque compartido no pasa de **dos consultas** en ninguna respuesta, ni en la primera carga ni
+- El bloque compartido no pasa de **tres consultas** en ninguna respuesta, ni en la primera carga ni
   en una petición parcial.
-- Ninguna petición completa pasa de cinco consultas: se mide por separado la primera carga de cada
+- Ninguna respuesta pasa de cinco consultas propias: se mide por separado la primera carga de cada
   pantalla y cada petición de propiedad diferida.
 - Ni `scope.hidden` ni `pendingCount` aparecen en la primera carga de ninguna pantalla: se piden
   aparte, y la pantalla funciona mientras no han llegado.

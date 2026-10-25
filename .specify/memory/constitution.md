@@ -193,8 +193,10 @@ mantener cualquier archivo de este proyecto sin que nadie se lo explique.
   etapas; asistencia a reuniones y ensayos; actas de reunión con sus compromisos, numeradas
   e imprimibles; archivos que respaldan el cumplimiento de una actividad y los soportes de
   los movimientos de presupuesto; y presupuesto asignado y ejecutado por comité.
-- Ninguna pantalla hace más de 5 consultas a la base de datos. Se previenen las consultas
-  N+1.
+- Ninguna pantalla hace más de 5 consultas propias a la base de datos, y su número no crece
+  con la cantidad de datos: se previenen las consultas N+1. No cuentan las tres fijas de
+  Laravel en cada petición —leer la sesión, cargar a la persona y guardar la sesión—, que
+  ninguna pantalla puede agregar ni quitar y se miden aparte.
 
 ## Flujo de Trabajo y Puertas de Calidad
 
@@ -246,6 +248,21 @@ mantener cualquier archivo de este proyecto sin que nadie se lo explique.
 - Guía de desarrollo en tiempo de ejecución: `CLAUDE.md` en la raíz del proyecto.
 
 ### Registro de enmiendas
+
+**2.3.1 · 2026-10-24 · Qué cuenta en el presupuesto de consultas**
+
+- Qué cambia: se precisa la restricción de las cinco consultas. Cuentan las de la pantalla —lo
+  que ejecutan el filtro de alcance, las propiedades compartidas, las policies y el
+  controlador—; no cuentan las tres fijas de Laravel en cada petición, que se miden aparte. Y se
+  hace explícito que el número no crece con los datos.
+- Por qué: la prueba que vigilaba esta restricción medía sin sesiones en la base y con la
+  persona ya cargada, así que no veía esas tres consultas. Medido como en el servidor, el inicio
+  de un presidente daba 6 sin mostrar todavía nada: leída como «la petición completa», la regla
+  no la podía cumplir ninguna pantalla de un presidente. Lo que protege es que una pantalla no se
+  vuelva más lenta a medida que la congregación crece, y esas tres consultas no crecen nunca. Lo
+  decidió el autor del proyecto.
+- Salto de versión: PATCH. Precisa cómo se mide una restricción existente; no agrega ni quita
+  ninguna.
 
 **2.3.0 · 2026-10-24 · La paleta de colores es la de la IPUC**
 
@@ -331,4 +348,4 @@ mantener cualquier archivo de este proyecto sin que nadie se lo explique.
   cambio de fondo. Toda la demás cobertura del principio I sigue igual, y ninguna otra
   salida del filtro queda autorizada.
 
-**Versión**: 2.3.0 | **Ratificada**: 2026-10-14 | **Última enmienda**: 2026-10-24
+**Versión**: 2.3.1 | **Ratificada**: 2026-10-14 | **Última enmienda**: 2026-10-24

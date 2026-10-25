@@ -234,16 +234,18 @@ prohíbe RF-043.
 
 ---
 
-## R-08 · Mantener cinco consultas por petición
+## R-08 · Mantener cinco consultas por pantalla
 
 **Decisión.** Tres medidas, en este orden:
 
 1. `Architecture/QueryBudgetTest` recorre las pantallas de lectura, cuenta las consultas con el
-   registro de consultas de Laravel y falla por encima de cinco. La unidad de medida es **la
-   petición completa**: cuentan todas las consultas que esa petición ejecuta. El reparto normativo
-   lo fija el Constitution Check de [plan.md](./plan.md), y es el único válido: **dos** consultas
-   como máximo para el bloque compartido —la persona, y sus cargos vigentes con su comité— y
-   **tres** para la pantalla. `scope.hidden` y `pendingCount` dejan de viajar en toda respuesta:
+   registro de consultas de Laravel y falla por encima de cinco. Cuentan **las consultas propias
+   de la pantalla**: las del filtro de alcance, las propiedades compartidas, las policies y el
+   controlador. No cuentan las tres fijas de Laravel en cada petición —leer la sesión, cargar a
+   la persona y guardar la sesión—, que se miden aparte con su propia aserción. El reparto
+   normativo lo fija el Constitution Check de [plan.md](./plan.md), y es el único válido: **tres**
+   consultas como máximo para el bloque compartido —los cargos vigentes, sus comités y el
+   sub-árbol del cargo activo— y **dos** para la pantalla. `scope.hidden` y `pendingCount` dejan de viajar en toda respuesta:
    pasan a ser **propiedades diferidas** de Inertia, se resuelven solo donde se muestran y se miden
    en su propia petición (A-09).
 2. Las relaciones se cargan por adelantado siempre (`with`), nunca dentro de un bucle.
@@ -266,6 +268,12 @@ En las dos, cada respuesta se mide aparte y ninguna pasa de cinco consultas. El 
 **no se sube**: lo fija la constitución y no se enmienda por esto. Si al medir con
 `QueryBudgetTest` una pantalla no cabe, lo que se mueve a propiedad diferida son sus cifras, no el
 límite.
+
+> **Corregido el 2026-10-24, al medirlo.** Este criterio decía «la petición completa» y un reparto
+> de 2 + 3. La prueba medía sin sesiones en la base y con la persona ya cargada, así que no veía
+> las tres consultas fijas de Laravel; medido como en el servidor, el inicio de un presidente daba
+> 6 sin mostrar nada. El autor del proyecto decidió contar las consultas propias de la pantalla y
+> medir aparte las fijas (constitución 2.3.1).
 
 **Razón.** La constitución fija el máximo y exige prevenir N+1. Con ~140 miembros el costo real es
 bajo hoy, pero el límite protege del hábito, no del volumen. El criterio de medición vive en
@@ -377,7 +385,7 @@ sub-árbol de X = X, los hijos de X, y los hijos de los hijos de X
 ```
 
 **Razón.** La profundidad está acotada a tres por RF-011, así que no hace falta recursión. Eso es lo
-que mantiene el techo de cinco consultas por petición sin enmendar la constitución: con un árbol de
+que mantiene el techo de cinco consultas por pantalla sin enmendar la constitución: con un árbol de
 profundidad libre habría que subirlo, y la constitución lo fija. Vive en
 `Support/Committees/SubtreeResolver.php`, un solo lugar, con su prueba de conteo de consultas (T179,
 T180).
@@ -461,7 +469,7 @@ que el pastor confirme el supuesto S-02.
 | A-06 | Edición simultánea de la misma fila | Sin control de concurrencia. Con 17 usuarios la probabilidad es baja; si aparece, se trata como defecto |
 | A-07 | Columnas exactas de la plantilla de importación | Se fijan al construir HU-18, en el hito 3 |
 | A-08 | Versiones exactas de las tres dependencias (R-02) | Se escriben aquí al instalar, en el hito 1. Falta además confirmar contra Packagist la compatibilidad de las dos de Composer con Laravel 12: la advertencia de R-02 dice que se verificó contra directorios de terceros |
-| A-09 | Medición real del presupuesto de cinco consultas (R-08) | El criterio ya está fijado: la unidad es la petición completa, con dos consultas para el bloque compartido y tres para la pantalla. Falta la medición real al escribir `QueryBudgetTest` en el hito 1, y el reparto definitivo de las propiedades diferidas de `/reports` y de `/`, que son las dos excepciones declaradas |
+| A-09 | Medición real del presupuesto de cinco consultas (R-08) | El criterio ya está fijado: cuentan las consultas propias de la pantalla, tres para el bloque compartido y dos para la pantalla, y las tres fijas de Laravel se miden aparte (constitución 2.3.1). La medición real quedó hecha en el hito 1; y el reparto definitivo de las propiedades diferidas de `/reports` y de `/`, que son las dos excepciones declaradas |
 | A-10 | Precisión de los reportes por rango de edad (RF-036, A-02) | Quienes solo tengan `age_reported` entran en los rangos con precisión de ±1 año, y el reporte lo informa. Confirmar con el pastor que esa precisión le sirve para las reuniones de distrito |
 | A-11 | Estructura inicial de comités (R-14, DEP-05) | **No es investigable**: ni el distrito ni la sede publican su organigrama. La entrega el pastor antes de habilitar las cuentas. La semilla trae datos ficticios, no la estructura real |
 | A-12 | Formato oficial de acta del distrito (DEP-06) | No encontré ninguno publicado. Si el distrito exige uno, hay que ver una copia de un acta real **antes** de cerrar T194, la vista de impresión. Mientras no llegue, rige el formato de RF-072 |

@@ -5,7 +5,7 @@ aquí **no sustituye** a `.specify/memory/constitution.md`: la resume para tener
 las reglas de trabajo del día a día. Si algo de aquí contradice la constitución, manda la
 constitución.
 
-Constitución vigente: **2.2.0** (ratificada 2026-10-14; enmendada 2026-10-18, 2026-10-24).
+Constitución vigente: **2.3.1** (ratificada 2026-10-14; enmendada 2026-10-18, 2026-10-24).
 
 ---
 
@@ -34,7 +34,8 @@ Todas deben pasar:
 2. `php artisan migrate:fresh --seed` corre sobre base de datos en limpio, sin errores.
 3. Cada pantalla nueva tiene al menos una prueba de aislamiento: un cargo ajeno **no** la ve.
 4. La pantalla se verificó a **360 px** de ancho.
-5. Ninguna petición supera **5 consultas** a la base de datos.
+5. Ninguna pantalla hace más de **5 consultas propias**, y el número no crece con los datos. Las 3
+   fijas de Laravel —leer y guardar la sesión, cargar a la persona— se miden aparte.
 6. No hay `DB::` ni SQL crudo sobre tablas con ámbito.
 7. Ningún texto de interfaz contiene jerga técnica.
 8. **Ningún componente de React pasa de 300 líneas.**

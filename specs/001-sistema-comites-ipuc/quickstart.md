@@ -261,7 +261,7 @@ Las tres de arquitectura son la red de seguridad del proyecto:
 |---|---|
 | `ScopeCoverageTest` | Ningún modelo con `site_id` se queda sin los rasgos de ámbito. Un modelo nuevo mal hecho rompe la construcción el mismo día. La lista blanca tiene **una sola** tabla, la de la bitácora, justificada en [research.md](./research.md) |
 | `NoRawQueriesTest` | No hay `DB::` ni SQL crudo sobre tablas con ámbito: saltarían el filtro sin que nadie se entere |
-| `QueryBudgetTest` | Ninguna **petición completa** pasa de cinco consultas: se mide la primera carga de cada pantalla y cada petición de propiedad diferida por separado ([contracts/shared-props.md](./contracts/shared-props.md)) |
+| `QueryBudgetTest` | Ninguna pantalla pasa de cinco **consultas propias**, para el pastor, un presidente y un líder, y el número no crece con los datos. Las tres fijas de Laravel se miden aparte ([contracts/shared-props.md](./contracts/shared-props.md)) |
 
 ---
 
@@ -274,7 +274,7 @@ Todas deben pasar. Son las de la constitución más las que agregó este plan.
 2. Las migraciones corren sobre base de datos en limpio: `php artisan migrate:fresh --seed`.
 3. Cada pantalla nueva tiene al menos una prueba de aislamiento: un cargo ajeno **no** la ve.
 4. La pantalla se verificó a 360 px de ancho.
-5. Ninguna petición completa supera cinco consultas. Las dos excepciones declaradas —`/` y
+5. Ninguna pantalla supera cinco consultas propias, y el número no crece con los datos. Las dos excepciones declaradas —`/` y
    `/reports`— reparten sus cifras en propiedades diferidas, cada una con su propio presupuesto de
    cinco por respuesta.
 6. No hay `DB::` ni SQL crudo sobre tablas con ámbito.
