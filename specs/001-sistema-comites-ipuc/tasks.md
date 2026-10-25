@@ -140,10 +140,15 @@ ahora, no en la semana 4 (mitiga RG-07).
       Fijar versión **exacta**, sin `^` ni `~` (constitución). Anotar el número resuelto en R-02 de `research.md`.
       Verifica: `composer show spatie/laravel-activitylog maatwebsite/excel` muestra versiones exactas · `vite-plugin-pwa` fijado en `package.json` · `composer require` resolvió sin conflicto en PHP 8.4.
 
-- [ ] T004 [P] · Escribir la guía de ejecución del proyecto
+- [x] T004 [P] · Escribir la guía de ejecución del proyecto
       Archivos: `CLAUDE.md`
-      Cierra el TODO que dejó la constitución: la gobernanza designa este archivo como guía en tiempo de ejecución y todavía no existe.
-      Verifica: contiene los cinco principios en una línea cada uno, las ocho puertas de calidad, la prohibición de `DB::` y SQL crudo sobre tablas con ámbito, y la regla de idioma (interfaz en español, código y rutas en inglés).
+      **Hecho el 2026-10-24.** Cierra el TODO que dejó la constitución: la gobernanza designa este archivo como guía en tiempo de ejecución.
+      Verifica: contiene los cinco principios en una línea cada uno, las nueve puertas de calidad, las prohibiciones (`DB::` y SQL crudo, Livewire y Filament, archivos desde `public/`, salidas del filtro), la regla de idioma, los límites de tamaño de los componentes de React, las tres familias de pruebas, el flujo de trabajo y las cuatro familias de identificadores.
+
+- [ ] T207 · Configurar los límites de tamaño en el linter
+      Archivos: `eslint.config.js` · `package.json`
+      Puerta de calidad 8, automatizada: `max-lines` en 300 y `max-lines-per-function` en 70 sobre `resources/js/**/*.tsx` (constitución 2.2.0). Un componente que se pase rompe la construcción, no la revisión a ojo.
+      Verifica: `npm run lint` falla con un componente de 310 líneas creado a propósito, y pasa al dividirlo · `find resources/js -name "*.tsx" | xargs wc -l | sort -rn | head` no muestra ningún archivo por encima de 300.
 
 - [ ] T005 [P] · Configurar Pest y la base de datos de pruebas
       Archivos: `tests/Pest.php` · `phpunit.xml` · `.env.testing`

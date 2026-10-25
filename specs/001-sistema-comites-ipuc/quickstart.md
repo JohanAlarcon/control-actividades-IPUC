@@ -279,7 +279,10 @@ Todas deben pasar. Son las de la constitución más las que agregó este plan.
    cinco por respuesta.
 6. No hay `DB::` ni SQL crudo sobre tablas con ámbito.
 7. Ningún texto de interfaz contiene jerga técnica (principio IV).
-8. Revisión y aprobación explícita del autor del proyecto: la IA propone, la persona aprueba.
+8. **Ningún componente de React pasa de 300 líneas** (constitución 2.2.0). Se comprueba con
+   `npm run lint` y a ojo con:
+   `find resources/js -name "*.tsx" | xargs wc -l | sort -rn | head`
+9. Revisión y aprobación explícita del autor del proyecto: la IA propone, la persona aprueba.
 
 ---
 
