@@ -198,27 +198,27 @@ Ninguna tarea del bloque 2.1 va en paralelo: bloquea todo lo demás.
 
 ### 2.1 · Esquema de identidad y organización
 
-- [ ] T013 · Migración, modelo y semilla de la sede
+- [x] T013 · Migración, modelo y semilla de la sede
       Archivos: `database/migrations/<ts>_create_sites_table.php` · `app/Models/Site.php` · `database/seeders/SiteSeeder.php`
       Columnas: `name` obligatorio, `city` obligatorio, `active` por omisión verdadero.
       Verifica: `php artisan migrate:fresh --seed` deja exactamente una fila en `sites`.
 
-- [ ] T014 [US01] · Migración y modelo `users` adaptados a usuario sin correo
+- [x] T014 [US01] · Migración y modelo `users` adaptados a usuario sin correo
       Archivos: `database/migrations/<ts>_update_users_table.php` · `app/Models/User.php` · `database/factories/UserFactory.php`
       Añade `site_id`, `member_id` (nulo), `username` **único por sede** y sin espacios, `must_change_password`, `is_pastor`, `active`, `last_login_at`; retira la obligatoriedad de `email`.
       Verifica: `php artisan migrate:fresh` corre limpio · `php artisan test --filter=UserFactoryTest`
 
-- [ ] T015 [US03] · Migración y modelo `committees` con `parent_id` y `depth`
+- [x] T015 [US03] · Migración y modelo `committees` con `parent_id` y `depth`
       Archivos: `database/migrations/<ts>_create_committees_table.php` · `app/Models/Committee.php` · `database/factories/CommitteeFactory.php`
       `parent_id` nulo = comité. `depth` (1, 2 o 3) se **calcula al guardar**, nunca se escribe a mano. `name` único por sede y por padre; `slug` único por sede; `active` y `position`. Relaciones `parent()`, `children()` y `descendants()`; métodos `isTopLevel()` y `hasChildren()`. **Tres niveles de profundidad** (RF-011, decisión del 2026-10-24): un `parent_id` que apunte a un nodo de `depth` 3 es inválido.
       Verifica: `php artisan test --filter=CommitteeHierarchyTest` — un comité con dos hijos, un nieto, un nodo sin hijos, `depth` correcto en los tres niveles, y un **cuarto** nivel rechazado (CL-17).
 
-- [ ] T016 [US02] · Migración y modelo `committee_user` con vigencia
+- [x] T016 [US02] · Migración y modelo `committee_user` con vigencia
       Archivos: `database/migrations/<ts>_create_committee_user_table.php` · `app/Models/CommitteeUser.php` · `database/factories/CommitteeUserFactory.php`
       `user_id`, `committee_id`, `role` (`president` | `secretary` | `treasurer` | `leader`), `started_at`, `ended_at` (nulo = vigente). **Un único titular vigente por nodo y por cargo** (RF-013): no puede haber dos filas con el mismo `committee_id`, el mismo `role` y `ended_at` nulo. `president`, `secretary` y `treasurer` solo si `depth` es 1; `leader` solo si es 2 o 3. **El ámbito lo da el nodo, no el cargo**: secretario y tesorero ven lo mismo que su presidente y se diferencian en lo que pueden hacer.
       Verifica: `php artisan test --filter=CommitteeUserTest`
 
-- [ ] T017 [US02] · Prueba: dos cargos vigentes en una persona, y un relevo que cierra sin borrar
+- [x] T017 [US02] · Prueba: dos cargos vigentes en una persona, y un relevo que cierra sin borrar
       Archivos: `tests/Feature/Committees/CommitteeUserAssignmentTest.php`
       Cubre CL-05 y RN-09.
       Verifica: `php artisan test --filter=CommitteeUserAssignmentTest`
