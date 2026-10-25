@@ -108,7 +108,7 @@ middleware antes de llegar a los datos de la pantalla. Queda fijado así.
   todas las consultas entre la entrada por la ruta y la respuesta de Inertia: autenticación,
   `ResolveScope`, `HandleInertiaRequests`, policies y controlador. Es lo que espera el celular de
   la congregación, y un criterio que excluyera una capa solo lograría que el costo se mudara allí.
-- **El bloque compartido cuesta 2 consultas y ninguna más**, con su propia aserción en
+- **El bloque compartido cuesta 3 consultas y ninguna más**, con su propia aserción en
   `QueryBudgetTest`: (1) la persona autenticada y (2) sus cargos vigentes con el comité de cada
   uno.
 - **`scope.hidden` y `pendingCount` son propiedades diferidas de Inertia.** Dejan de viajar en

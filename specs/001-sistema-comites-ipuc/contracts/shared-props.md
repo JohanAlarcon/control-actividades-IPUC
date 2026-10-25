@@ -54,9 +54,19 @@ reparto normativo es este:
 
 | Parte de la respuesta | Consultas |
 |---|---|
-| bloque compartido: la persona; sus cargos vigentes con su comité | 2 como máximo |
-| la pantalla, con sus propiedades propias | 3 |
+| bloque compartido: los cargos vigentes, sus comités, y el sub-árbol del cargo activo | **3** como máximo |
+| la pantalla, con sus propiedades propias | 2 |
 | `scope.hidden` y `pendingCount` | propiedad diferida, petición aparte |
+
+> **Corregido el 2026-10-24, al medirlo.** Este documento decía 2 para el bloque compartido y 3
+> para la pantalla. Al implementarlo, la medición real dio **6**: los cargos se consultaban dos
+> veces, el comité del cargo activo otra, y el conteo para saber si se puede cambiar de cargo una
+> más. Reutilizando lo que ya se cargó bajó a **3**, que es el mínimo real: los cargos, sus comités
+> por carga anticipada, y el sub-árbol. A la pantalla le quedan **2**. El pastor cuesta menos,
+> porque no tiene cargos que consultar.
+>
+> Si una pantalla no cabe en 2, reparte sus cifras en propiedades diferidas, como ya hacen `/` y
+> `/reports`. El techo de cinco por petición lo fija la constitución y **no se sube**.
 
 `scope.hidden` y `pendingCount` son **dos** propiedades diferidas distintas: cada una viaja en su
 propia petición parcial, y esa petición paga también las dos consultas del bloque compartido. Los
