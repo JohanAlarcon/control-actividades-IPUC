@@ -6,7 +6,9 @@ rama debe crearse manualmente antes de implementar, conforme a la Gobernanza de 
 
 **Creada**: 2026-10-18
 
-**Estado**: Borrador — sin puntos por aclarar
+**Estado**: Borrador — alcance ampliado el 2026-10-24 (constitución 2.1.0). Sin puntos por aclarar;
+quedan tres dependencias del cliente: DEP-05 (estructura inicial), DEP-06 (formato de acta del
+distrito) y DEP-07 (ampliar el respaldo a los archivos).
 
 **Entrada**: Descripción del usuario: `@spec-input.md` — documento «Especificación — Sistema de
 Comités IPUC» entregado por el autor del proyecto. Se conserva en la raíz del repositorio como
@@ -48,6 +50,39 @@ responder por toda la congregación sin pedirle cuentas a nadie por WhatsApp.
   cada miembro y cada simpatizante registra si la persona autorizó, en qué fecha y cómo la dio, y
   muestra el aviso de privacidad donde se registran personas.
 
+### Session 2026-10-24
+
+Doce decisiones del autor del proyecto que amplían el alcance contratado. La constitución se
+enmendó a 2.1.0 para incorporarlas.
+
+- Q: ¿Cómo entran los cuatro módulos nuevos —actas, evidencias, soportes de factura y comités
+  administrables—, que no estaban en el alcance contratado? → A: **Completos, sin mover la fecha.**
+  Decisión tomada contra la recomendación, que era cotizarlos como fase 2. Consecuencia aceptada:
+  los hitos semanales dejarán de cerrar de punta a punta y el cierre real se corre al final. Los
+  dos principios NO NEGOCIABLES no se tocan.
+- Q: ¿Dónde se guardan los archivos? → A: En el disco del servidor del contrato. El respaldo diario
+  debe ampliarse para incluirlos; hoy solo cubre la base de datos.
+- Q: ¿Cuántos niveles tiene la estructura de comités? → A: **Tres fijos**: comité, sub-comité y
+  equipo.
+- Q: ¿Qué son los compromisos que salen de una reunión? → A: Texto dentro del acta, con la opción
+  de convertir cualquiera en tarea con responsable.
+- Q: ¿Qué cargos existen en un comité? → A: Presidente, **secretario**, **tesorero** y líder.
+- Q: ¿Quién ve una evidencia de cumplimiento? → A: Solo el comité dueño y el pastor. **No** viajan
+  por la excepción del cronograma compartido.
+- Q: ¿Cómo se estructura un acta? → A: Enganchada a la reunión que ya se registra, con campos
+  fijos, numerada por año y comité, e inmutable al cerrarse.
+- Q: ¿Qué es el plan de trabajo anual de un comité? → A: El cronograma anual que ya existe. No hay
+  módulo nuevo.
+- Q: ¿Se suben los mínimos del principio II para adultos mayores? → A: Sí: texto de 18 px, zonas
+  pulsables de 48x48 px y contraste AA.
+- Q: ¿Quién administra la estructura y qué pasa al inactivar un comité? → A: Solo el pastor. La
+  historia se conserva consultable y sus miembros quedan sin comité, señalados para reasignar.
+  Renombrar conserva el nombre de la época en actas y reportes.
+- Q: ¿Límites y borrado de archivos? → A: 10 MB por archivo, las fotos se comprimen al subirlas, y
+  un archivo de algo ya cumplido o autorizado no se borra: se marca como reemplazado.
+- Q: ¿Quién cierra un acta? → A: El secretario la redacta, el presidente la cierra. Desde el cierre
+  no se edita: se corrige con un acta nueva.
+
 ## Escenarios de Usuario y Pruebas *(obligatorio)*
 
 ### Usuarios y alcance de cada cargo
@@ -57,9 +92,15 @@ tienen acceso.
 
 | Usuario | Cuántos | Qué hace |
 |---|---|---|
-| **Pastor** | 1 | Ve toda la congregación. Crea y quita cuentas. Aprueba el plan anual, las actividades nuevas y el paso de simpatizantes a miembros. Asigna el presupuesto de cada comité. |
-| **Presidente de comité** | 6 | Ve su comité y sus sub-comités. Revisa y resuelve lo que le proponen sus líderes. Reparte el presupuesto entre sus sub-comités. |
-| **Líder de sub-comité** | 10 | Ve únicamente su sub-comité. Propone actividades y gastos, registra avance, toma asistencia. |
+| **Pastor** | 1 | Ve toda la congregación. Administra la estructura de comités: crea, renombra e inactiva en los tres niveles. Crea y quita cuentas. Aprueba el plan anual, las actividades nuevas y el paso de simpatizantes a miembros. Asigna el presupuesto de cada comité. |
+| **Presidente de comité** | uno por comité | Ve su comité y todos sus descendientes. Revisa y resuelve lo que le proponen. Reparte el presupuesto entre ellos. Cierra las actas de su comité. |
+| **Secretario** | uno por comité | Mismo ámbito que su presidente. Redacta las actas de reunión y las guarda como borrador hasta que el presidente las cierra. |
+| **Tesorero** | uno por comité | Mismo ámbito que su presidente. Registra los movimientos de presupuesto y sube sus soportes. |
+| **Líder de sub-comité o de equipo** | uno por nodo | Ve únicamente su nodo y sus descendientes. Propone actividades y gastos, registra avance, sube evidencias, toma asistencia. |
+
+La cantidad de personas con cargo **no es un número fijo**: depende de la estructura que configure
+el pastor. La congregación arranca con la estructura que él cargue, y el sistema no supone ni
+seis comités ni diez sub-comités (ver HU-21).
 
 **Caso particular**: el presidente del Comité de Evangelismo es, además, el único que hace
 seguimiento a los simpatizantes.
@@ -80,7 +121,7 @@ complicados.
 demás historias y la única puerta por la que se aplica el alcance de cada cargo.
 
 **Prueba independiente**: se puede probar sola creando una cuenta con clave temporal e intentando
-entrar; entrega valor porque las diecisiete personas con cargo quedan habilitadas con una clave
+entrar; entrega valor porque las personas con cargo quedan habilitadas con una clave
 propia, sin usar correo electrónico.
 
 **Escenarios de Aceptación**:
@@ -135,14 +176,14 @@ para entender de quién depende cada cosa y a quién acudir.
 **Por qué esta prioridad**: la jerarquía de comités es el esqueleto del que dependen las
 aprobaciones, el presupuesto, la asistencia y el alcance de la información.
 
-**Prueba independiente**: se puede probar sola cargando los seis comités y sus diez sub-comités y
-abriendo la sección con cada uno de los tres cargos; entrega valor porque la congregación ve por
-primera vez su organización completa en un solo lugar.
+**Prueba independiente**: se puede probar sola cargando una estructura de los tres niveles y
+abriendo la sección con cada cargo; entrega valor porque la congregación ve por primera vez su
+organización completa en un solo lugar.
 
 **Escenarios de Aceptación**:
 
-1. **Dado** que soy el pastor, **cuando** abro la sección de comités, **entonces** veo los seis
-   comités, sus diez sub-comités, sus responsables y cuántos miembros tiene cada uno.
+1. **Dado** que soy el pastor, **cuando** abro la sección de comités, **entonces** veo la estructura
+   completa de los tres niveles, con sus responsables y cuántos miembros tiene cada nodo.
 2. **Dado** que soy presidente de un comité, **cuando** abro la misma sección, **entonces** veo
    únicamente mi comité y mis sub-comités; los demás aparecen como no disponibles, sin mostrar
    ningún dato suyo.
@@ -320,7 +361,7 @@ filtros, el recálculo del cumplimiento y lo que ve un cargo ajeno al comité re
 Como hermano que atiende su comité desde el teléfono quiero que todo funcione bien en una pantalla
 pequeña, para no depender de un computador.
 
-**Por qué esta prioridad**: la mayoría de las diecisiete personas con cargo usará el sistema desde
+**Por qué esta prioridad**: la mayoría de las personas con cargo usará el sistema desde
 el celular. Es el segundo principio de la constitución: una funcionalidad que solo sirve en
 escritorio no está terminada.
 
@@ -531,9 +572,9 @@ sub-comités, aprobando gastos hasta pasar el saldo y revisando la vista del pas
    confirmo.
 3. **Dado** que soy líder de sub-comité, **cuando** necesito autorización para un gasto,
    **entonces** la solicito indicando concepto y monto, y le llega a mi presidente.
-4. **Dado** que soy el pastor, **cuando** abro la sección, **entonces** veo los seis comités con su
-   asignado, gastado y disponible, y el total de la congregación, destacando el comité que ya
-   superó el noventa por ciento de lo asignado.
+4. **Dado** que soy el pastor, **cuando** abro la sección, **entonces** veo todos los comités
+   activos con su asignado, gastado y disponible, y el total de la congregación, destacando el que
+   ya superó el noventa por ciento de lo asignado.
 5. **Dado** que cualquiera abre esta sección, **cuando** la pantalla carga, **entonces** encuentra
    visible la aclaración de que la tesorería sigue manejando los recursos y que aquí solo se
    registra en qué se usaron y quién los autorizó.
@@ -607,6 +648,131 @@ historial del registro y comprobando que una aprobación ya resuelta no se puede
 
 ---
 
+---
+
+Las cuatro historias que siguen entran por la ampliación de alcance del 2026-10-24. Se numeran a
+continuación para no renumerar las veinte anteriores, pero **HU-21 es P1 y se construye en el
+cimiento**, junto con HU-03: sin estructura configurable no hay nada que configurar. Las otras tres
+son P2.
+
+### Historia de Usuario 21 — HU-21 · Administrar la estructura de comités (Prioridad: P1)
+
+Como pastor quiero crear, renombrar, reordenar e inactivar comités, sub-comités y equipos, para que
+el organigrama del sistema sea el de la congregación de hoy y no el del día que se instaló.
+
+**Por qué esta prioridad**: la estructura es el esqueleto del que dependen el filtro de alcance, las
+aprobaciones, el presupuesto y la asistencia. Y no se puede cablear: ni el distrito ni la sede
+publican su organigrama, y cambia entre vigencias.
+
+**Prueba independiente**: se puede probar sola creando un comité con un sub-comité y un equipo,
+renombrándolos, inactivando uno y comprobando que su historia sigue consultable.
+
+**Escenarios de Aceptación**:
+
+1. **Dado** que la congregación organiza un comité nuevo, **cuando** lo creo con su nombre y su
+   responsable, **entonces** queda disponible de inmediato para proponer actividades, recibir
+   presupuesto y registrar asistencia.
+2. **Dado** que un comité necesita dividirse, **cuando** le creo un sub-comité y a ese sub-comité un
+   equipo, **entonces** el sistema lo acepta y el ámbito de cada responsable incluye a sus
+   descendientes.
+3. **Dado** que intento colgar un nodo de un equipo, **cuando** guardo, **entonces** el sistema no
+   lo permite y explica que la estructura llega hasta tres niveles.
+4. **Dado** que un comité cambia de nombre, **cuando** lo renombro, **entonces** las actas y los
+   reportes ya registrados siguen mostrando el nombre que tenía en esa fecha.
+5. **Dado** que un comité deja de funcionar, **cuando** lo inactivo, **entonces** no aparece más
+   para proponer cosas nuevas, su historia completa sigue consultable, y sus miembros quedan sin
+   nodo asignado y señalados para que yo los reasigne.
+6. **Dado** que soy presidente o líder, **cuando** entro a la sección de estructura, **entonces** la
+   veo pero no puedo modificarla: solo el pastor la administra.
+
+---
+
+### Historia de Usuario 22 — HU-22 · Levantar el acta de una reunión (Prioridad: P2)
+
+Como secretario de un comité quiero escribir el acta de cada reunión y poder imprimirla, para que el
+trabajo del comité quede digitalizado y no en un cuaderno que se pierde.
+
+**Por qué esta prioridad**: es el reemplazo del libro de actas, pero el comité funciona sin ella
+mientras registre su asistencia y sus aprobaciones.
+
+**Prueba independiente**: se puede probar sola registrando una reunión, escribiendo su acta,
+cerrándola e imprimiéndola.
+
+**Escenarios de Aceptación**:
+
+1. **Dado** que mi comité tuvo una reunión ya registrada, **cuando** levanto su acta, **entonces**
+   el sistema trae la fecha, el lugar y los asistentes de esa reunión, y me deja escribir el orden
+   del día, el desarrollo y los compromisos.
+2. **Dado** que estoy escribiendo un acta, **cuando** la guardo sin terminar, **entonces** queda
+   como borrador, visible para mi comité, y puedo seguir después.
+3. **Dado** que el acta está lista, **cuando** el presidente la cierra, **entonces** el sistema le
+   asigna su número del año, la deja con los dos nombres y la fecha, y **nadie la puede editar más**.
+4. **Dado** que una acta cerrada tiene un error, **cuando** intento corregirla, **entonces** el
+   sistema no lo permite y me explica que se corrige levantando un acta nueva que haga constar la
+   corrección.
+5. **Dado** que necesito el acta en papel, **cuando** la imprimo, **entonces** obtengo una hoja
+   legible en blanco y negro con el nombre de la iglesia, el comité, el número del acta, la fecha,
+   los asistentes, el desarrollo, los compromisos y el espacio de las firmas.
+6. **Dado** que un compromiso del acta necesita seguimiento, **cuando** lo convierto en tarea con su
+   responsable y su fecha, **entonces** aparece en los pendientes de esa persona y cuenta para el
+   avance de la actividad.
+7. **Dado** que soy de otro comité, **cuando** consulto las actas, **entonces** no veo ninguna de un
+   comité que no es el mío.
+
+---
+
+### Historia de Usuario 23 — HU-23 · Respaldar el cumplimiento con evidencias (Prioridad: P2)
+
+Como líder o presidente quiero adjuntar fotos y documentos a una actividad, para demostrar que se
+cumplió sin tener que explicarlo de palabra.
+
+**Por qué esta prioridad**: da respaldo a lo que el cronograma afirma, pero el avance ya se calcula
+sin ella.
+
+**Prueba independiente**: se puede probar sola subiendo una foto y un documento a una actividad de
+mi comité y comprobando que un cargo ajeno no los ve.
+
+**Escenarios de Aceptación**:
+
+1. **Dado** que mi comité cumplió una actividad, **cuando** subo una foto o un documento como
+   evidencia, **entonces** queda adjunta a la actividad con mi nombre y la fecha.
+2. **Dado** que subo una foto tomada con el celular, **cuando** el sistema la recibe, **entonces**
+   la reduce para que pese menos sin que yo tenga que hacer nada, y me avisa si pasa de 10 MB.
+3. **Dado** que soy de otro comité, **cuando** consulto esa actividad en el cronograma compartido,
+   **entonces** veo su título, fecha y comité responsable, pero **ninguna de sus evidencias**.
+4. **Dado** que subí la foto equivocada a una actividad ya cumplida, **cuando** intento borrarla,
+   **entonces** el sistema no la borra: la marca como reemplazada, la conserva en la historia y deja
+   que suba la correcta.
+5. **Dado** que una actividad no tiene evidencias, **cuando** la abro, **entonces** el sistema lo
+   indica con naturalidad y no como un error: no toda actividad necesita respaldo.
+
+---
+
+### Historia de Usuario 24 — HU-24 · Subir el soporte de un gasto (Prioridad: P2)
+
+Como tesorero de un comité quiero adjuntar la factura o el recibo a cada gasto, para que quede claro
+en qué se usó el dinero y quién lo autorizó.
+
+**Por qué esta prioridad**: cierra el registro del presupuesto, que hoy guarda el soporte como un
+texto. La tesorería de la iglesia sigue manejando los recursos.
+
+**Prueba independiente**: se puede probar sola registrando un gasto con su factura en PDF y
+comprobando que el ámbito del comité se respeta.
+
+**Escenarios de Aceptación**:
+
+1. **Dado** que registro un gasto de mi comité, **cuando** adjunto la factura en PDF o una foto del
+   recibo, **entonces** queda unida al movimiento con mi nombre y la fecha.
+2. **Dado** que un movimiento ya quedó registrado, **cuando** intento quitarle el soporte,
+   **entonces** el sistema no lo permite: se registra un movimiento nuevo que corrija, porque lo
+   registrado no se borra.
+3. **Dado** que soy el pastor, **cuando** reviso el presupuesto de un comité, **entonces** puedo
+   abrir el soporte de cualquiera de sus movimientos.
+4. **Dado** que soy de otro comité, **cuando** consulto el presupuesto, **entonces** no veo ni los
+   movimientos ni los soportes ajenos.
+
+---
+
 ### Casos Límite
 
 - **CL-01.** Un comité sin sub-comités: la ficha debe explicarlo, no mostrar una sección vacía.
@@ -634,12 +800,35 @@ historial del registro y comprobando que una aprobación ya resuelta no se puede
 - **CL-16.** Ficha de miembro pendiente de completar, sea porque nació al habilitar una cuenta
   (RF-003) o porque no tiene ni fecha de nacimiento ni edad anotada (RF-031): aparece en las listas
   y en los reportes señalada como incompleta, y el sistema indica cuántas faltan por completar.
+- **CL-17.** Un equipo —tercer nivel— intenta tener un hijo: el sistema debe impedirlo y explicar
+  que la estructura llega hasta tres niveles.
+- **CL-18.** Un comité inactivado: su historia completa sigue consultable, no aparece para proponer
+  nada nuevo, y sus miembros quedan sin nodo asignado y señalados para reasignar.
+- **CL-19.** Un comité renombrado: las actas y los reportes anteriores conservan el nombre de su
+  fecha; el nombre nuevo rige desde el cambio.
+- **CL-20.** Un comité sin secretario: el presidente redacta y cierra el acta, y el sistema lo
+  indica en lugar de bloquear el registro.
+- **CL-21.** Una reunión sin acta: se puede consultar la asistencia sin más; el sistema no supone
+  que toda reunión tenga acta.
+- **CL-22.** Un acta cerrada con un error: no se edita. El sistema ofrece levantar una acta nueva
+  que haga constar la corrección, y las dos quedan en la historia.
+- **CL-23.** Un archivo que pasa de 10 MB: el sistema lo rechaza con una frase que dice cuánto pesa
+  y cuál es el límite, sin perder lo que la persona ya había escrito en el formulario.
+- **CL-24.** El disco del servidor se queda sin espacio: el sistema avisa a quien sube y al pastor,
+  en lenguaje claro, en vez de fallar sin explicación.
+- **CL-25.** Un archivo adjunto a algo ya cumplido que hay que reemplazar: se marca como
+  reemplazado y se conserva; nunca desaparece de la historia.
+- **CL-26.** Una actividad o un movimiento sin archivos: se indica con naturalidad, no como un
+  error. No todo necesita respaldo.
 
 ## Requisitos *(obligatorio)*
 
 Se conserva la numeración del documento de entrada (RF-001 a RF-057). RF-058 a RF-060 se agregan
 para que las promesas del celular y del lenguaje queden verificables, conforme a los principios II
 y IV de la constitución. RF-061 y RF-062 provienen de la sesión de aclaraciones del 2026-10-18.
+RF-063 a RF-080 provienen de la ampliación de alcance del 2026-10-24: estructura administrable en
+tres niveles (RF-063 a RF-066), actas de reunión (RF-067 a RF-074) y archivos adjuntos (RF-075 a
+RF-080).
 
 ### Requisitos Funcionales
 
@@ -679,10 +868,24 @@ y IV de la constitución. RF-061 y RF-062 provienen de la sesión de aclaracione
 
 #### Comités
 
-- **RF-011**: El sistema representa comités con cero o más sub-comités.
-- **RF-012**: Un comité sin sub-comités se identifica expresamente como tal.
-- **RF-013**: Cada comité y sub-comité tiene un único responsable vigente.
-- **RF-014**: Un miembro pertenece a un comité y, opcionalmente, a un sub-comité de ese comité.
+- **RF-011**: El sistema representa la estructura en **tres niveles**: comité, sub-comité y equipo.
+  Cada nodo tiene cero o más hijos, y ningún nodo cuelga de un equipo: el tercer nivel es el
+  último.
+- **RF-012**: Un nodo sin hijos se identifica expresamente como tal, y la ficha aclara que su
+  responsable coordina directamente a sus miembros.
+- **RF-013**: Cada nodo tiene un único responsable vigente, y hasta un secretario y un tesorero
+  vigentes. El responsable de un comité es su presidente; el de un sub-comité o de un equipo, su
+  líder.
+- **RF-014**: Un miembro pertenece a un solo nodo, del nivel que sea, o a ninguno.
+- **RF-063**: Solo el pastor crea, renombra, reordena e inactiva nodos de la estructura, en los
+  tres niveles. Ningún otro cargo la modifica.
+- **RF-064**: Un nodo inactivado conserva toda su historia consultable —actividades, actas,
+  asistencia, presupuesto y decisiones—, deja de aparecer para proponer cosas nuevas, y sus
+  miembros quedan sin nodo asignado y señalados para reasignar.
+- **RF-065**: Renombrar un nodo no reescribe la historia: las actas, los reportes y las decisiones
+  ya registradas conservan el nombre que el nodo tenía en esa fecha.
+- **RF-066**: El sistema no supone una cantidad ni unos nombres de comités. La estructura inicial
+  la carga el pastor, y toda pantalla y todo reporte se arman con la estructura vigente.
 
 #### Aprobaciones
 
@@ -795,10 +998,48 @@ y IV de la constitución. RF-061 y RF-062 provienen de la sesión de aclaracione
 - **RF-056**: Los registros corregibles conservan su valor anterior, quién lo cambió y cuándo.
 - **RF-057**: Las aprobaciones ya resueltas no se editan: se registra una nueva decisión.
 
+#### Actas de reunión
+
+- **RF-067**: Toda acta pertenece a una reunión ya registrada y hereda su fecha, su lugar y sus
+  asistentes. No existen actas sueltas.
+- **RF-068**: El acta tiene campos fijos: orden del día, desarrollo y compromisos, además de lo que
+  hereda de la reunión. No es texto libre.
+- **RF-069**: El secretario del comité redacta el acta y la guarda como borrador cuantas veces
+  quiera. El presidente la cierra.
+- **RF-070**: Al cerrarse, el sistema le asigna un número correlativo por comité y por año, y
+  registra quién la redactó, quién la cerró y cuándo.
+- **RF-071**: Una acta cerrada **no se edita ni se borra**. Una corrección se hace levantando un
+  acta nueva que haga constar la corrección.
+- **RF-072**: Toda acta se imprime en blanco y negro, con el nombre de la iglesia, el comité, el
+  número, la fecha, los asistentes, el desarrollo, los compromisos y el espacio de las firmas.
+- **RF-073**: Cada compromiso del acta es texto, y se puede convertir en tarea con responsable y
+  fecha. Convertido, aparece en los pendientes de esa persona y cuenta para el avance de su
+  actividad.
+- **RF-074**: Las actas siguen el filtro de alcance: las ve el comité dueño y sus ascendientes, y el
+  pastor. No viajan por la excepción del cronograma compartido.
+
+#### Archivos adjuntos
+
+- **RF-075**: Una actividad admite archivos que respalden su cumplimiento —fotos y documentos—, y un
+  movimiento de presupuesto admite su soporte —factura o recibo, en PDF o imagen—.
+- **RF-076**: Cada archivo registra quién lo subió y cuándo, y pesa 10 MB como máximo. El sistema
+  avisa en una frase cuando se pasa del límite.
+- **RF-077**: El sistema reduce las imágenes al recibirlas, sin que la persona tenga que hacer nada,
+  para que subir una foto desde el celular no consuma sus datos.
+- **RF-078**: Los archivos se guardan en el servidor del contrato. No se copian a ningún servicio
+  externo, y el respaldo diario los incluye junto con la base de datos.
+- **RF-079**: Un archivo adjunto a algo ya cumplido o ya autorizado **no se borra**: se marca como
+  reemplazado, se conserva en la historia, y se puede subir el correcto.
+- **RF-080**: Los archivos siguen el filtro de alcance: los ve el comité dueño y sus ascendientes, y
+  el pastor. **No** viajan por la excepción del cronograma compartido ni aparecen en ninguna
+  descarga de reporte fuera del ámbito.
+
 #### Celular y lenguaje
 
 - **RF-058**: Toda pantalla se usa completa en un ancho de 360 px, sin desplazamiento horizontal,
-  con zonas pulsables de 44x44 px como mínimo y texto de contenido de 16 px como mínimo.
+  con zonas pulsables de **48x48 px** como mínimo, texto de contenido de **18 px** como mínimo y
+  contraste entre texto y fondo que cumple el nivel **AA** de las pautas de accesibilidad
+  (constitución 2.1.0).
 - **RF-059**: El sistema se instala en la pantalla de inicio del teléfono y abre su pantalla
   principal en menos de 3 segundos sobre una conexión móvil lenta. Las tablas de muchas columnas
   se presentan como tarjetas en pantallas angostas.
@@ -836,12 +1077,23 @@ Lo siguiente no se construye. Si la congregación lo pide, se registra como prop
 
 - **Sede**: la congregación que opera el sistema. Toda la información de comités, personas,
   actividades, asistencia y presupuesto pertenece a una sede. Hoy existe una sola.
-- **Comité**: unidad de trabajo de la congregación, con nombre, responsable vigente y cero o más
+- **Comité**: unidad de trabajo de la congregación, con nombre, responsable vigente, su secretario y
+  su tesorero, su marca de activo o inactivo, el orden en que se muestra, y cero o más
   sub-comités. Son seis.
-- **Sub-comité**: unidad dependiente de un comité, con su propio responsable. Son diez.
-- **Cargo**: el papel que una persona ejerce (pastor, presidente de comité, líder de sub-comité)
-  sobre un comité o sub-comité determinado, con fecha de inicio y, cuando aplica, de retiro.
-  Determina el ámbito de información de su titular.
+- **Sub-comité**: unidad dependiente de un comité, con su propio responsable.
+- **Equipo**: unidad dependiente de un sub-comité, con su propio responsable. Es el tercer y último
+  nivel: un equipo no tiene hijos.
+- **Acta de reunión**: el registro de lo tratado en una reunión, con su número del año, el orden del
+  día, el desarrollo, los compromisos, quién la redactó, quién la cerró y cuándo. Cerrada, no se
+  edita ni se borra.
+- **Compromiso de acta**: cada acuerdo que sale de una reunión, con su texto y, cuando se convierte,
+  su responsable y su fecha como tarea.
+- **Archivo adjunto**: foto o documento que respalda el cumplimiento de una actividad, o soporte de
+  un movimiento de presupuesto, con quién lo subió, cuándo, su peso y su marca de reemplazado.
+- **Cargo**: el papel que una persona ejerce —pastor, presidente de comité, secretario, tesorero, o
+  líder de sub-comité o de equipo— sobre un nodo determinado de la estructura, con fecha de inicio
+  y, cuando aplica, de retiro. Determina el ámbito de información de su titular y lo que puede
+  hacer dentro de él.
 - **Cuenta de acceso**: el usuario y la clave de una persona con cargo, ligada a la única ficha de
   miembro de esa persona, con la marca de si debe cambiar la clave, los intentos fallidos recientes
   y si está vigente o retirada.
@@ -887,7 +1139,7 @@ Medibles a los seis meses de la puesta en funcionamiento, salvo los que indiquen
 
 **Uso y oportunidad**
 
-- **CE-01**: Las diecisiete personas con cargo entran al sistema al menos una vez por semana.
+- **CE-01**: Todas las personas con cargo entran al sistema al menos una vez por semana.
 - **CE-02**: El plan del año siguiente queda cargado y aprobado por el pastor antes del 31 de
   enero.
 - **CE-03**: El noventa por ciento de las solicitudes se resuelven en menos de siete días
@@ -908,12 +1160,20 @@ Medibles a los seis meses de la puesta en funcionamiento, salvo los que indiquen
 
 - **CE-09**: Cero incidentes en que una persona haya visto información de un comité que no le
   corresponde.
-- **CE-10**: Las diecisiete personas con cargo completan sus tareas habituales desde el celular;
+- **CE-10**: Todas las personas con cargo completan sus tareas habituales desde el celular;
   ninguna pantalla exige desplazamiento horizontal ni computador.
 - **CE-11**: Una persona mayor de la congregación, sin que nadie se la explique, entiende qué le
   pide cada pantalla que usa habitualmente y qué hacer cuando aparece un mensaje de error.
 - **CE-12**: El cien por ciento de las fichas de miembros y simpatizantes tiene registrada su
   autorización para el manejo de datos, con fecha y medio, al cumplirse los seis meses.
+- **CE-13**: Toda reunión de comité del semestre tiene su acta cerrada en el sistema, y ningún
+  comité sigue llevando su libro en papel.
+- **CE-14**: El ochenta por ciento de las actividades cumplidas tiene al menos un archivo que
+  respalda su cumplimiento.
+- **CE-15**: El cien por ciento de los movimientos de presupuesto tiene su soporte adjunto, de modo
+  que el pastor puede mostrar en qué se usó cada peso sin pedirle nada a nadie.
+- **CE-16**: El pastor administra la estructura de comités sin ayuda técnica: crea, renombra e
+  inactiva un nodo en menos de dos minutos desde el celular.
 
 ## Supuestos
 
@@ -955,8 +1215,8 @@ implementación, que son otra familia de identificadores.
 
 - **DEP-01**: El pastor entrega la lista de los 140 miembros en la plantilla de hoja de cálculo
   antes del primer mes de operación (CE-05).
-- **DEP-02**: El pastor entrega la estructura definitiva de los seis comités, sus diez sub-comités
-  y los nombres de los diecisiete responsables antes de habilitar las cuentas.
+- **DEP-02**: Reemplazada por DEP-05 el 2026-10-24. La estructura dejó de ser un dato fijo que el
+  pastor entrega una vez: ahora la administra él mismo desde el sistema (HU-21).
 - **DEP-03**: El pastor confirma los supuestos S-01 y S-02 antes de `/speckit-plan`. Los tres
   puntos que estaban marcados como pendientes de aclaración quedaron resueltos en la sesión del
   2026-10-18; ver `## Clarifications`.
@@ -964,3 +1224,14 @@ implementación, que son otra familia de identificadores.
   medio recoge las autorizaciones de los miembros y simpatizantes ya registrados (RF-061, CE-12).
   La decisión jurídica sobre el tratamiento de datos es del cliente; el sistema solo deja la
   constancia.
+- **DEP-05**: El pastor entrega la **estructura inicial de comités** —nombres de los tres niveles y
+  sus responsables, secretarios y tesoreros— antes de habilitar las cuentas. El sistema no supone
+  ninguna: ni el Distrito 28 ni la sede de Ibagué publican su organigrama, y la página «Comités y
+  Oficios» del distrito está sin diligenciar, así que este dato solo lo tiene la congregación
+  (RF-066, HU-21).
+- **DEP-06**: Si el distrito exige un **formato oficial de acta**, el pastor entrega una copia de un
+  acta real antes de que se construya la vista de impresión. No encontré ninguno publicado. Mientras
+  no llegue, rige el formato de RF-072: nombre de la iglesia, comité, número, fecha, asistentes,
+  desarrollo, compromisos y firmas.
+- **DEP-07**: El respaldo diario debe **ampliarse para incluir los archivos** del disco, no solo la
+  base de datos (RF-078). Hoy solo cubre la base.

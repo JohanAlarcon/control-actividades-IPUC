@@ -100,7 +100,20 @@ la semana 1 termina sin el filtro de alcance desplegado y probado, la conversaci
 | 20 | US16 · Presupuesto del comité | P2 | 4 | T133–T141, T168, T169 |
 | 21 | US18 · Cargar la lista inicial | P3 | 3 | T120–T122 |
 | 22 | US19 · Corregir un dato equivocado | P3 | 4 | T142–T146, T177 |
-| 23 · Polish | — | — | 4 y Entrega | T049–T052, T087–T089, T123–T125, T147–T150, T153–T162 |
+| 23 | US21 · Administrar la estructura | **P1** | 1 | T181–T185 |
+| 24 | US22 · Levantar el acta de una reunión | P2 | 4 | T187–T195 |
+| 25 | US23 · Evidencias de cumplimiento | P2 | 4 | T196–T203 |
+| 26 | US24 · Soporte de un gasto | P2 | 4 | T204, T205 |
+| 27 · Polish | — | — | 4 y Entrega | T049–T052, T087–T089, T123–T125, T147–T150, T153–T162, T206 |
+
+Las fases 23 a 26 y las tareas T178 a T206 entran por la **ampliación de alcance del 2026-10-24**
+(constitución 2.1.0). Dos advertencias sobre el orden:
+
+- **La Phase 23 es P1 y se ejecuta justo después de la Phase 2**, aunque aparezca al final del
+  documento: se puso ahí para no renumerar las veinte fases anteriores. La semilla de demostración
+  (T049) depende de ella.
+- **T179 y T180 van en la Phase 2**, antes de T019, porque `SubtreeResolver` bloquea a `CurrentScope`
+  y el filtro de tres niveles es lo primero que hay que tener sólido (RG-14).
 
 **Camino crítico.** T013 → T016 → T019 → T022 → T024 → (todo lo demás). El filtro de alcance
 bloquea el proyecto entero: ninguna pantalla con datos de comité se construye antes de T024. Es
@@ -153,10 +166,10 @@ ahora, no en la semana 4 (mitiga RG-07).
       Archivos: `.github/workflows/deploy.yml`
       Verifica: un commit en `main` dispara la acción y la URL de producción sirve el cambio en menos de 3 minutos.
 
-- [ ] T010 · Respaldo diario de la base de datos
+- [ ] T010 · Respaldo diario de la base de datos **y de los archivos**
       Archivos: `app/Console/Commands/BackupDatabase.php` · `routes/console.php`
-      Comando `db:backup` — en inglés, por la regla de idioma del código.
-      Verifica: `php artisan db:backup` deja el archivo con la fecha en el nombre · `crontab -l` muestra la entrada diaria.
+      Comando `db:backup` — en inglés, por la regla de idioma del código. **Incluye el directorio de archivos adjuntos**, no solo la base (RF-078, DEP-07, RG-13): sin eso, una falla de disco pierde las evidencias y los soportes de factura aunque la base se recupere. El módulo de archivos no se despliega hasta que esta tarea esté hecha.
+      Verifica: `php artisan db:backup` deja el archivo con la fecha en el nombre y el respaldo contiene los adjuntos · `crontab -l` muestra la entrada diaria.
 
 - [ ] T011 [P] · Prueba: el respaldo genera archivo y no escribe datos de personas en el registro
       Archivos: `tests/Feature/BackupCommandTest.php`
@@ -190,14 +203,14 @@ Ninguna tarea del bloque 2.1 va en paralelo: bloquea todo lo demás.
       Añade `site_id`, `member_id` (nulo), `username` **único por sede** y sin espacios, `must_change_password`, `is_pastor`, `active`, `last_login_at`; retira la obligatoriedad de `email`.
       Verifica: `php artisan migrate:fresh` corre limpio · `php artisan test --filter=UserFactoryTest`
 
-- [ ] T015 [US03] · Migración y modelo `committees` con `parent_id`
+- [ ] T015 [US03] · Migración y modelo `committees` con `parent_id` y `depth`
       Archivos: `database/migrations/<ts>_create_committees_table.php` · `app/Models/Committee.php` · `database/factories/CommitteeFactory.php`
-      `parent_id` nulo = comité principal. `name` único por sede y por padre; `slug` único por sede. Relaciones `parent()` y `children()`; métodos `isTopLevel()` y `hasSubcommittees()`. **Dos niveles de profundidad**: `parent_id` de un comité que ya tiene padre es inválido.
-      Verifica: `php artisan test --filter=CommitteeHierarchyTest` — un comité con dos hijos, un comité sin hijos, un hijo que conoce a su padre, y un tercer nivel rechazado.
+      `parent_id` nulo = comité. `depth` (1, 2 o 3) se **calcula al guardar**, nunca se escribe a mano. `name` único por sede y por padre; `slug` único por sede; `active` y `position`. Relaciones `parent()`, `children()` y `descendants()`; métodos `isTopLevel()` y `hasChildren()`. **Tres niveles de profundidad** (RF-011, decisión del 2026-10-24): un `parent_id` que apunte a un nodo de `depth` 3 es inválido.
+      Verifica: `php artisan test --filter=CommitteeHierarchyTest` — un comité con dos hijos, un nieto, un nodo sin hijos, `depth` correcto en los tres niveles, y un **cuarto** nivel rechazado (CL-17).
 
 - [ ] T016 [US02] · Migración y modelo `committee_user` con vigencia
       Archivos: `database/migrations/<ts>_create_committee_user_table.php` · `app/Models/CommitteeUser.php` · `database/factories/CommitteeUserFactory.php`
-      `user_id`, `committee_id`, `role` (`president` | `leader`), `started_at`, `ended_at` (nulo = vigente). **Un único responsable vigente por comité**: no puede haber dos filas con el mismo `committee_id` y `ended_at` nulo (RF-013). `president` solo si el comité no tiene padre; `leader` solo si lo tiene.
+      `user_id`, `committee_id`, `role` (`president` | `secretary` | `treasurer` | `leader`), `started_at`, `ended_at` (nulo = vigente). **Un único titular vigente por nodo y por cargo** (RF-013): no puede haber dos filas con el mismo `committee_id`, el mismo `role` y `ended_at` nulo. `president`, `secretary` y `treasurer` solo si `depth` es 1; `leader` solo si es 2 o 3. **El ámbito lo da el nodo, no el cargo**: secretario y tesorero ven lo mismo que su presidente y se diferencian en lo que pueden hacer.
       Verifica: `php artisan test --filter=CommitteeUserTest`
 
 - [ ] T017 [US02] · Prueba: dos cargos vigentes en una persona, y un relevo que cierra sin borrar
@@ -211,9 +224,18 @@ Ninguna tarea del bloque 2.1 va en paralelo: bloquea todo lo demás.
       Archivos: `app/Models/Concerns/BelongsToSite.php`
       Verifica: `php artisan test --filter=SiteScopeTest` — un modelo de la sede 2 no aparece consultando desde la sede 1.
 
+- [ ] T179 · `SubtreeResolver`: el sub-árbol de un nodo en una sola consulta
+      Archivos: `app/Support/Committees/SubtreeResolver.php`
+      Bloquea a T019 y por eso va antes. Devuelve los identificadores del nodo y de todos sus descendientes **sin recursión ni CTE**: `depth` está acotado a 3 por RF-011, así que basta comparar `parent_id` y el `parent_id` del padre. Es lo que mantiene el techo de cinco consultas por petición (D-16).
+      Verifica: `php artisan test --filter=SubtreeResolverTest`
+
+- [ ] T180 · Prueba: el sub-árbol en los tres niveles, y el conteo de consultas
+      Archivos: `tests/Unit/Committees/SubtreeResolverTest.php`
+      Verifica: `php artisan test --filter=SubtreeResolverTest` — el sub-árbol de un comité trae sus sub-comités y sus equipos; el de un sub-comité, sus equipos; el de un equipo, solo él. **Y lo resuelve en una consulta**, verificado con el registro de consultas.
+
 - [ ] T019 [US04] · `CurrentScope`: quién soy y qué nodos del árbol puedo ver
       Archivos: `app/Support/Scope/CurrentScope.php`
-      **Cargo activo, no unión** (corrección C-01, RF-007): pastor → todos los comités de la sede · un solo cargo vigente → ese es el activo, sin preguntar · dos o más cargos → el activo es el guardado en la sesión, y si no hay ninguno el sistema pide escoger antes de mostrar información · presidente de X → X y sus hijos · líder de Y → solo Y.
+      **Cargo activo, no unión** (corrección C-01, RF-007): pastor → todos los comités de la sede · un solo cargo vigente → ese es el activo, sin preguntar · dos o más cargos → el activo es el guardado en la sesión, y si no hay ninguno el sistema pide escoger antes de mostrar información. **El ámbito de un nodo es el nodo y todo su sub-árbol** (tres niveles, 2026-10-24): presidente de X → X, sus sub-comités y sus equipos · líder de Y → Y y sus equipos. Usa `Support/Committees/SubtreeResolver` (T179): **una sola consulta, sin recursión**, porque `depth` está acotado a 3.
       Verifica: `php artisan test --filter=CurrentScopeTest`
 
 - [ ] T020 [US04] · Prueba: los cinco casos de resolución de ámbito
@@ -225,12 +247,14 @@ Ninguna tarea del bloque 2.1 va en paralelo: bloquea todo lo demás.
       Resuelve el ámbito una sola vez por petición.
       Verifica: `php artisan test --filter=ResolveScopeTest` · el contador de consultas del ámbito es 1 por petición, no una por consulta.
 
-- [ ] T022 [US04] · Rasgo `BelongsToCommitteeScope` con filtro automático de comité
+- [ ] T022 [US04] · Rasgo `BelongsToCommitteeScope` con filtro automático de sub-árbol
       Archivos: `app/Models/Concerns/BelongsToCommitteeScope.php`
+      El global scope compara contra el **conjunto de descendientes** del nodo activo, no contra `parent_id` (tres niveles, 2026-10-24).
       Verifica: `php artisan test --filter=CommitteeScopeTest`
 
-- [ ] T023 [US04] · Prueba de aislamiento: tres cargos, tres conjuntos, cero filtros escritos a mano
+- [ ] T023 [US04] · Prueba de aislamiento en los tres niveles, cero filtros escritos a mano
       Archivos: `tests/Feature/Scope/CommitteeIsolationTest.php`
+      Casos obligatorios de la ampliación (RG-14): un **líder de equipo no ve a su sub-comité hermano**; un **presidente sí ve a sus nietos**; un líder de sub-comité ve sus equipos y nada de otra rama.
       Verifica: `php artisan test --filter=CommitteeIsolationTest` — ninguna consulta de la prueba escribe `where committee_id`.
 
 - [ ] T024 [US04] · `ScopeCoverageTest`: recorre los modelos y falla si falta el rasgo
@@ -384,6 +408,15 @@ no entra mientras su nombre permanece en el historial.
       La tabla `approvals` (T057) ya existe: se construye en la Phase 2, bloque 2.3 (RF-023, CL-06).
       Verifica: `php artisan test --filter=PendingTransferTest` — al relevar, los pendientes quedan a nombre del nuevo responsable y `transferred_from_user_id` guarda de quién venían, con la fecha.
 
+- [ ] T178 [US02] · Policies de secretario y tesorero
+      Archivos: `app/Policies/MinutePolicy.php` · `app/Policies/BudgetMovementPolicy.php` · `app/Providers/AppServiceProvider.php`
+      Los cargos nuevos de la ampliación del 2026-10-24. **No amplían el ámbito**: ven exactamente lo que ve su presidente —su comité y todo su sub-árbol— y se diferencian en lo que pueden hacer (D-20). El secretario redacta actas; el tesorero registra movimientos y sube soportes.
+      Verifica: `php artisan test --filter=RolePermissionsTest`
+
+- [ ] T186 [US02] · Prueba: secretario y tesorero, mismo ámbito y distinto permiso
+      Archivos: `tests/Feature/Users/RolePermissionsTest.php`
+      Verifica: `php artisan test --filter=RolePermissionsTest` — el secretario de un comité ve lo mismo que su presidente y **no** puede cerrar un acta ni asignar presupuesto; el tesorero registra movimientos y **no** puede redactar actas; ninguno de los dos ve nada de otra rama.
+
 - [ ] T039 [US02] · Prueba: los cuatro escenarios de HU-02
       Archivos: `tests/Feature/Users/UserManagementTest.php` · `tests/Feature/Users/RoleHandoverTest.php` · `tests/Feature/Users/RevokeAccessTest.php`
       Incluye asignar dos cargos a la misma persona: **la persona escoge con cuál actúa y ve un ámbito a la vez**, con el cargo activo indicado en la pantalla (corrección C-01).
@@ -468,7 +501,7 @@ pantalla de inicio del teléfono y tiempo de apertura.
 
 - [ ] T044 [US20] · Diseño base: barra, menú con contador, cinta de alcance
       Archivos: `resources/js/layouts/AppLayout.tsx` · `resources/js/components/ui/` · `resources/css/app.css`
-      Mínimos del principio II: zona pulsable de **44x44 px**, texto de contenido de **16 px**, **cero desplazamiento horizontal**.
+      Mínimos del principio II, constitución 2.1.0: zona pulsable de **48x48 px**, texto de contenido de **18 px**, contraste **AA**, **cero desplazamiento horizontal**. El público son adultos mayores con poca experiencia en aplicaciones.
       Verifica: a 360 px sin barra horizontal en ninguna de las pantallas existentes · `npm run build` sin advertencias.
 
 - [ ] T045 [P] [US20] · Componente tabla-tarjeta
@@ -1132,7 +1165,175 @@ comprobar que una aprobación ya resuelta no se puede editar.
 
 ---
 
-## Phase 23: Polish & Cross-Cutting Concerns
+## Phase 23: User Story 21 - US21 · Administrar la estructura de comités (Priority: P1)
+
+**Goal**: que el pastor cree, renombre, reordene e inactive comités, sub-comités y equipos, para que
+el organigrama del sistema sea el de la congregación de hoy. **Hito 1.**
+
+**Independent Test**: crear un comité con un sub-comité y un equipo, renombrarlos, inactivar uno y
+comprobar que su historia sigue consultable.
+
+> **P1, y su orden de ejecución es justo después de la Phase 2**, no aquí. Aparece al final para no
+> renumerar las veinte fases anteriores. Sin estructura configurable no hay nada que configurar: la
+> semilla de demostración (T049) depende de esta fase, y la investigación del 2026-10-24 confirmó
+> que no existe una lista canónica de comités que sembrar (DEP-05).
+
+- [ ] T181 [US21] · Policy de la estructura: solo el pastor
+      Archivos: `app/Policies/CommitteeStructurePolicy.php` · `app/Providers/AppServiceProvider.php`
+      RF-063. Ningún otro cargo crea, renombra, reordena ni inactiva nodos.
+      Verifica: `php artisan test --filter=CommitteeStructurePolicyTest` — un presidente recibe «no disponible» en las seis acciones, por el servidor y no por la pantalla.
+
+- [ ] T182 [US21] · Crear, renombrar y reordenar nodos en los tres niveles
+      Archivos: `app/Http/Controllers/CommitteeStructureController.php` · `app/Http/Requests/StoreCommitteeRequest.php`, `UpdateCommitteeRequest.php` · `resources/js/pages/Structure/Index.tsx` · `resources/js/components/domain/StructureTree.tsx` · rutas `/structure`
+      Valida la profundidad: un `parent_id` que apunte a un nodo de `depth` 3 se rechaza con una frase que explica que la estructura llega hasta tres niveles (CL-17). `name` único por sede y por padre.
+      Verifica: `php artisan test --filter=CommitteeStructureTest` · a 360 px el árbol se administra con el pulgar, sin desplazamiento horizontal.
+
+- [ ] T183 [US21] · Inactivar un nodo conservando toda su historia
+      Archivos: `app/Http/Controllers/CommitteeStructureController.php` · `app/Models/Committee.php`
+      RF-064, CL-18: `active` en falso, **nunca borrado**. Sale de los desplegables para proponer cosas nuevas; su historia de actividades, actas, asistencia, presupuesto y decisiones sigue consultable; sus miembros quedan con `committee_id` nulo y señalados para reasignar.
+      Verifica: `php artisan test --filter=DeactivateCommitteeTest` — tras inactivar, sus actividades y actas siguen consultables, no aparece para proponer, y sus miembros quedan señalados.
+
+- [ ] T184 [US21] · El nombre de la época se conserva en la historia
+      Archivos: `app/Models/Committee.php` · `app/Models/Minute.php`
+      RF-065, CL-19: renombrar no reescribe la historia. Las actas guardan `committee_name_at_close` al cerrarse, y la bitácora conserva el cambio de nombre con su fecha.
+      Verifica: `php artisan test --filter=RenameCommitteeTest` — un acta cerrada antes del cambio sigue mostrando el nombre anterior; el cronograma y los reportes nuevos usan el vigente.
+
+- [ ] T185 [US21] · Prueba: los seis escenarios de HU-21
+      Archivos: `tests/Feature/Structure/CommitteeStructureTest.php` · `tests/Feature/Structure/DeactivateCommitteeTest.php` · `tests/Feature/Structure/RenameCommitteeTest.php`
+      Verifica: `php artisan test tests/Feature/Structure`
+
+**Checkpoint**: US21 funciona por separado. El pastor administra su organigrama sin ayuda técnica
+(CE-16).
+
+---
+
+## Phase 24: User Story 22 - US22 · Levantar el acta de una reunión (Priority: P2)
+
+**Goal**: que el secretario escriba el acta de cada reunión y se pueda imprimir, para que el trabajo
+del comité quede digitalizado y no en un cuaderno que se pierde. **Hito 4.**
+
+**Independent Test**: registrar una reunión, escribir su acta, cerrarla e imprimirla.
+
+- [ ] T187 [US22] · Migraciones y modelos `minutes` y `minute_commitments`
+      Archivos: `database/migrations/<ts>_create_minutes_table.php`, `<ts>_create_minute_commitments_table.php` · `app/Models/Minute.php`, `MinuteCommitment.php` · factories
+      `meeting_id` **único**: una reunión tiene a lo sumo una acta (RF-067). El acta **no duplica** fecha, lugar ni asistentes: los lee de `meetings` y `meeting_attendances` (D-18). `status` (`draft` | `closed`); `number` y `committee_name_at_close` nulos hasta el cierre.
+      Verifica: `php artisan test --filter=MinuteModelTest` · `ScopeCoverageTest` en verde con los dos modelos nuevos.
+
+- [ ] T188 [US22] · `MinuteNumber`: correlativo por comité y por año
+      Archivos: `app/Support/Minutes/MinuteNumber.php`
+      RF-070. Se asigna **al cerrar**, no al crear, para que un borrador abandonado no consuma número.
+      Verifica: `php artisan test --filter=MinuteNumberTest`
+
+- [ ] T189 [US22] · Prueba: el correlativo, incluido el cambio de año y dos comités a la vez
+      Archivos: `tests/Unit/Minutes/MinuteNumberTest.php`
+      Verifica: `php artisan test --filter=MinuteNumberTest` — dos comités llevan numeraciones independientes; el primero del año nuevo vuelve a 1; un borrador abandonado no deja huecos.
+
+- [ ] T190 [US22] · Redacción del acta por el secretario, con borradores
+      Archivos: `app/Http/Controllers/MinuteController.php` · `app/Http/Requests/StoreMinuteRequest.php` · `resources/js/pages/Minutes/Form.tsx` · rutas `/minutes`
+      RF-068, RF-069: campos fijos —orden del día, desarrollo, compromisos—, no texto libre. El formulario trae la fecha, el lugar y los asistentes de la reunión. Si el comité no tiene secretario, lo redacta el presidente y el sistema lo indica (CL-20).
+      Verifica: `php artisan test --filter=DraftMinuteTest` · a 360 px el acta se escribe desde el celular, con el teclado abierto.
+
+- [ ] T191 [US22] · Cierre del acta por el presidente, inmutable desde ese momento
+      Archivos: `app/Http/Controllers/MinuteController.php` · `app/Models/Minute.php` · `app/Policies/MinutePolicy.php`
+      RF-070, RF-071: al cerrar se asigna el número, se copia el nombre del comité y se sellan quién la cerró y cuándo. Con `status` = `closed` el evento `updating` **rechaza el cambio en el modelo**, no en la pantalla, igual que `approvals` (T060).
+      Verifica: `php artisan test --filter=MinuteImmutabilityTest`
+
+- [ ] T192 [US22] · Prueba: la inmutabilidad y la corrección con acta nueva
+      Archivos: `tests/Feature/Minutes/MinuteImmutabilityTest.php`
+      CL-22: una acta cerrada no se edita ni por la ruta directa; el sistema ofrece levantar una acta nueva que haga constar la corrección, y las dos quedan en la historia.
+      Verifica: `php artisan test --filter=MinuteImmutabilityTest`
+
+- [ ] T193 [US22] · Compromisos del acta, y su paso opcional a tarea
+      Archivos: `app/Http/Controllers/MinuteCommitmentController.php` · `resources/js/components/domain/CommitmentList.tsx`
+      RF-073, D-19: el compromiso es **texto**; convertirlo es opcional. Al convertir se crea la fila en `activity_tasks` con responsable y fecha, se guarda su identificador, y **no se reescribe el texto del compromiso**: el acta conserva lo acordado palabra por palabra.
+      Verifica: `php artisan test --filter=CommitmentToTaskTest` — convertido, aparece en los pendientes de esa persona y cuenta para el avance de la actividad (RF-027).
+
+- [ ] T194 [US22] · Vista de impresión del acta
+      Archivos: `app/Http/Controllers/MinuteController.php` · `resources/js/pages/Minutes/Print.tsx` · `resources/css/print.css` · ruta `/minutes/{minute}/print`
+      RF-072: blanco y negro, con el nombre de la iglesia, el comité, el número, la fecha, los asistentes, el desarrollo, los compromisos y el espacio de las firmas. **Pendiente DEP-06**: si el distrito tiene formato oficial, hay que verlo antes de cerrar esta tarea; no está publicado en ninguna parte.
+      Verifica: Ctrl+P produce una hoja legible en blanco y negro, sin fondos de color ni menús.
+
+- [ ] T195 [US22] · Prueba: los siete escenarios de HU-22
+      Archivos: `tests/Feature/Minutes/DraftMinuteTest.php` · `tests/Feature/Minutes/CloseMinuteTest.php` · `tests/Feature/Minutes/CommitmentToTaskTest.php`
+      Verifica: `php artisan test tests/Feature/Minutes` — incluye que un cargo de otro comité no ve ninguna acta ajena (RF-074).
+
+**Checkpoint**: US22 funciona por separado. El libro de actas queda digitalizado (CE-13).
+
+---
+
+## Phase 25: User Story 23 - US23 · Respaldar el cumplimiento con evidencias (Priority: P2)
+
+**Goal**: adjuntar fotos y documentos a una actividad, para demostrar que se cumplió sin tener que
+explicarlo de palabra. **Hito 4.** Esta fase construye la infraestructura de archivos que US24
+también usa.
+
+**Independent Test**: subir una foto y un documento a una actividad del comité y comprobar que un
+cargo ajeno no los ve ni por la pantalla ni por la ruta directa.
+
+- [ ] T196 [US23] · Migración y modelo `attachments`
+      Archivos: `database/migrations/<ts>_create_attachments_table.php` · `app/Models/Attachment.php` · `database/factories/AttachmentFactory.php`
+      Polimórfica sobre `Activity` y `BudgetMovement`; `kind` (`evidence` | `receipt`); `committee_id` copiado del objeto apuntado para filtrar sin unir; `replaced_by_id` nulo.
+      Verifica: `php artisan test --filter=AttachmentModelTest` · `ScopeCoverageTest` en verde.
+
+- [ ] T197 [US23] · `StoreAttachment`: valida tipo y peso, comprime y guarda
+      Archivos: `app/Support/Attachments/StoreAttachment.php` · `config/filesystems.php`
+      RF-076, RF-077: imagen (JPEG, PNG, WebP) o PDF, nada ejecutable; **10 MB como máximo** después de comprimir; las imágenes se reducen al recibirlas sin que la persona haga nada. Se guarda en el disco del servidor **fuera de la carpeta pública** (D-17, RF-078).
+      Verifica: `php artisan test --filter=StoreAttachmentTest`
+
+- [ ] T198 [US23] · Prueba: límite, compresión y tipos rechazados
+      Archivos: `tests/Unit/Attachments/StoreAttachmentTest.php`
+      CL-23: un archivo de 12 MB se rechaza con una frase que dice cuánto pesa y cuál es el límite, **sin perder lo que la persona escribió** en el formulario. Un `.php` o un `.exe` se rechaza. Una foto de 6 MB queda guardada pesando menos.
+      Verifica: `php artisan test --filter=StoreAttachmentTest`
+
+- [ ] T199 [US23] · `ServeAttachment`: entrega el archivo pasando por la policy
+      Archivos: `app/Support/Attachments/ServeAttachment.php` · `app/Http/Controllers/AttachmentController.php` · `app/Policies/AttachmentPolicy.php` · ruta `/attachments/{attachment}`
+      RF-080, D-17: **nunca por URL pública**. Si los archivos estuvieran en `public/`, cualquiera con el enlace vería una evidencia ajena y el principio I se caería por la puerta de atrás sin que ninguna prueba lo note.
+      Verifica: `php artisan test --filter=ServeAttachmentTest`
+
+- [ ] T200 [US23] · Prueba: un cargo ajeno no obtiene el archivo por ninguna vía
+      Archivos: `tests/Feature/Scope/AttachmentIsolationTest.php`
+      Verifica: `php artisan test --filter=AttachmentIsolationTest` — ni por la pantalla, ni por `/attachments/{id}` con el identificador en la mano, ni en la carga del cronograma compartido (RF-080). Y no existe ningún archivo del proyecto servido desde `public/`.
+
+- [ ] T201 [US23] · Evidencias en la ficha de la actividad
+      Archivos: `app/Http/Controllers/AttachmentController.php` · `resources/js/pages/Activities/Show.tsx` · `resources/js/components/domain/FileUpload.tsx`, `AttachmentGallery.tsx`
+      RF-075. Una actividad sin evidencias lo indica con naturalidad, no como error (CL-26).
+      Verifica: `php artisan test --filter=ActivityEvidenceTest` · a 360 px se sube una foto desde la cámara del teléfono en dos toques.
+
+- [ ] T202 [US23] · Reemplazo sin borrado
+      Archivos: `app/Http/Controllers/AttachmentController.php` · `app/Models/Attachment.php`
+      RF-079, CL-25: un archivo adjunto a algo ya cumplido o ya autorizado **no se borra**; se sube el correcto y el anterior queda con `replaced_by_id`, conservado en la historia.
+      Verifica: `php artisan test --filter=AttachmentReplaceTest` — intentar borrar responde que no se puede; reemplazar deja los dos en la historia.
+
+- [ ] T203 [US23] · Prueba: los cinco escenarios de HU-23
+      Archivos: `tests/Feature/Attachments/ActivityEvidenceTest.php` · `tests/Feature/Attachments/AttachmentReplaceTest.php`
+      Verifica: `php artisan test tests/Feature/Attachments`
+
+**Checkpoint**: US23 funciona por separado. El cumplimiento queda respaldado (CE-14).
+
+---
+
+## Phase 26: User Story 24 - US24 · Subir el soporte de un gasto (Priority: P2)
+
+**Goal**: que el tesorero adjunte la factura o el recibo a cada gasto, para que quede claro en qué
+se usó el dinero y quién lo autorizó. **Hito 4.** Reutiliza la infraestructura de la Phase 25.
+
+**Independent Test**: registrar un gasto con su factura en PDF y comprobar que el ámbito del comité
+se respeta.
+
+- [ ] T204 [US24] · Soporte adjunto al movimiento de presupuesto
+      Archivos: `app/Http/Controllers/BudgetMovementController.php` · `resources/js/pages/Budget/Index.tsx` · `resources/js/components/domain/FileUpload.tsx`
+      RF-075 con `kind` = `receipt`. Lo sube el tesorero o el presidente. El pastor abre el soporte de cualquier movimiento de su congregación; un cargo ajeno no ve ni el movimiento ni el soporte.
+      Verifica: `php artisan test --filter=BudgetReceiptTest` · a 360 px se adjunta un PDF desde el teléfono.
+
+- [ ] T205 [US24] · Prueba: los cuatro escenarios de HU-24
+      Archivos: `tests/Feature/Attachments/BudgetReceiptTest.php`
+      Verifica: `php artisan test --filter=BudgetReceiptTest` — quitarle el soporte a un movimiento ya registrado responde que no se puede: se registra un movimiento nuevo que corrija (RN-07).
+
+**Checkpoint**: US24 funciona por separado. Cada peso tiene su soporte (CE-15).
+
+---
+
+## Phase 27: Polish & Cross-Cutting Concerns
 
 **Purpose**: semillas, cierres de hito, barridos sobre el sistema completo y entrega. Las tareas de
 cierre de cada hito se ejecutan al terminar las fases de ese hito, no todas al final.
@@ -1221,7 +1422,12 @@ cierre de cada hito se ejecutan al terminar las fases de ese hito, no todas al f
 - [ ] T156 · Revisión a 360 px de todas las pantallas
       Archivos: `docs/revision-360.md`
       Puerta de calidad 4. La lista sale de `Route::getRoutes()` —las rutas `GET` que responden con Inertia—, no de `resources/js/pages/` y no de un número fijo: una ruta sin captura deja la puerta sin pasar. Los formularios quedan cubiertos por la ruta que los sirve. Lista blanca justificada para `/login` y `/password/change`, que igual se revisan por ser las primeras pantallas que alguien ve.
-      Verifica: una captura de cada ruta con Inertia a 360 px anotada en el documento, sin faltar ninguna · cero desplazamiento horizontal · ninguna zona pulsable por debajo de 44x44 px.
+      Verifica: una captura de cada ruta con Inertia a 360 px anotada en el documento, sin faltar ninguna · cero desplazamiento horizontal · ninguna zona pulsable por debajo de **48x48 px** y ningún texto de contenido por debajo de **18 px** (constitución 2.1.0).
+
+- [ ] T206 · Revisar las pantallas ya construidas contra los mínimos nuevos
+      Archivos: `resources/css/app.css` · `resources/js/components/ui/` · `resources/js/layouts/AppLayout.tsx`
+      La enmienda 2.1.0 subió los mínimos del principio II después de que varias pantallas ya estaban hechas: zona pulsable de 48x48 px, texto de 18 px y contraste AA. Esta tarea las pone al día, y se ejecuta **antes** de cerrar el hito en curso, no al final.
+      Verifica: `npm run build` sin advertencias · ninguna pantalla por debajo de los mínimos · el contraste de texto sobre fondo cumple AA medido con la herramienta del navegador.
 
 - [ ] T157 · Medición final en producción
       Archivos: `docs/pruebas-rendimiento.md`
@@ -1368,7 +1574,7 @@ no negociables: el filtro de alcance y las pruebas.
 
 ## Cobertura del spec
 
-### Requisitos funcionales — los 62
+### Requisitos funcionales — los 80
 
 | RF | Tareas | RF | Tareas |
 |---|---|---|---|
@@ -1404,7 +1610,21 @@ no negociables: el filtro de alcance y las pruebas.
 | RF-030 | T081 | RF-061 | **T172, T174, T175** (miembros y simpatizantes) |
 | RF-031 | T090 *(D-09: fecha o edad declarada)*, **T170** | RF-062 | **T173** (los dos formularios) |
 
-### Casos límite — los 16
+Los dieciocho de la ampliación del 2026-10-24:
+
+| RF | Tareas | RF | Tareas |
+|---|---|---|---|
+| RF-063 | T181, T182 | RF-072 | T194 |
+| RF-064 | T183 | RF-073 | T193 |
+| RF-065 | T184 | RF-074 | T187, T195 |
+| RF-066 | T182, T049 | RF-075 | T196, T201, T204 |
+| RF-067 | T187, T190 | RF-076 | T197, T198 |
+| RF-068 | T190 | RF-077 | T197, T198 |
+| RF-069 | T178, T190, T191 | RF-078 | T197, T010 |
+| RF-070 | T188, T191 | RF-079 | T202 |
+| RF-071 | T191, T192 | RF-080 | T199, T200 |
+
+### Casos límite — los 26
 
 | CL | Tareas | CL | Tareas |
 |---|---|---|---|
@@ -1416,6 +1636,11 @@ no negociables: el filtro de alcance y las pruebas.
 | CL-06 | T061 | CL-14 | T121, T122 |
 | CL-07 | T063 | CL-15 | T146 |
 | CL-08 | T064 | CL-16 | **T170, T171, T174** |
+| CL-17 | T015, T182 | CL-22 | T192 |
+| CL-18 | T183 | CL-23 | T198 |
+| CL-19 | T184 | CL-24 | T197, T010 |
+| CL-20 | T186, T190 | CL-25 | T202 |
+| CL-21 | T195 | CL-26 | T201, T204 |
 
 ### Reglas de negocio — las 9
 
@@ -1427,7 +1652,7 @@ no negociables: el filtro de alcance y las pruebas.
 | RN-04 | T058, T059, **T168** | RN-09 | T017, T038 |
 | RN-05 | T137 | | |
 
-### Criterios de éxito — los 12
+### Criterios de éxito — los 16
 
 | CE | Lo que lo hace posible | Línea base |
 |---|---|---|
@@ -1443,6 +1668,10 @@ no negociables: el filtro de alcance y las pruebas.
 | CE-10 | T044–T048, T152, T156 | T162 |
 | CE-11 | T147, T148, T159 | T162 |
 | CE-12 | **T172, T174, T175** · T158 recolección | T162 |
+| CE-13 | T187–T195 actas cerradas | T162 |
+| CE-14 | T196–T203 evidencias | T162 |
+| CE-15 | T204, T205 soportes de gasto | T162 |
+| CE-16 | T181–T185 estructura administrable | T162 |
 
 ### Principios de la constitución
 
@@ -1452,9 +1681,9 @@ no negociables: el filtro de alcance y las pruebas.
 | II · Primero el celular | T044–T048, T152, T156, T157 · y la revisión a 360 px de cada tarea de pantalla |
 | III · Toda decisión deja rastro | T060, T061, T138, T142, **T177**, T143, T144, **T166** |
 | IV · El lenguaje de la congregación | T026, T130, T140, T143, T147, T148, **T173**, T159 |
-| V · Ninguna tarea sin pruebas (NO NEGOCIABLE) | Las 40 tareas `Prueba:` · T012, T024, T025, **T165**, T050, T079, T150, T151, T155 |
+| V · Ninguna tarea sin pruebas (NO NEGOCIABLE) | Las 50 tareas `Prueba:` · T012, T024, T025, **T165**, T050, T079, T150, T151, T155 |
 
-### Historias de usuario — las 20
+### Historias de usuario — las 24
 
 | HU | Tareas | HU | Tareas |
 |---|---|---|---|
@@ -1467,7 +1696,9 @@ no negociables: el filtro de alcance y las pruebas.
 | US07 | T072, T073 | US17 | T084–T086 |
 | US08 | T053, T074–T077 | US18 | T120–T122 |
 | US09 | T054–T056, **T166, T167**, T078–T083 | US19 | T060, T142–T146, **T177** |
-| US10 | T090–T098, **T172–T175** | US20 | T044–T048, T152 |
+| US10 | T090–T098, **T172–T175** | US20 | T044–T048, T152, T206 |
+| US21 | T015, T179–T185 | US23 | T196–T203 |
+| US22 | T187–T195 | US24 | T204, T205 |
 
 ---
 

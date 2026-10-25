@@ -36,7 +36,14 @@ contrato porque:
    descripción, fecha, hora, lugar, comité responsable y estado (R-11). Ningún otro dato de una
    actividad ajena viaja, y la excepción **solo deja leer**.
 4. **Ningún identificador ajeno viaja.** Una pantalla no recibe listas de comités que el cargo
-   activo no puede ver, ni para llenar un desplegable.
+   activo no puede ver, ni para llenar un desplegable. Se exceptúa el **nombre** del comité
+   responsable de una actividad, que el cronograma compartido publica por la excepción del
+   principio I (RF-010); lo que nunca viaja son sus miembros, su presupuesto, sus tareas, sus actas
+   y sus archivos.
+4 bis. **El ámbito es el sub-árbol.** Desde la ampliación del 2026-10-24 la estructura tiene tres
+   niveles, y el ámbito de un cargo es su nodo y todos sus descendientes. Las **actas** (RF-074) y
+   los **archivos adjuntos** (RF-080) siguen el filtro completo: no amplían la excepción del
+   cronograma, y los archivos se sirven por una ruta con policy, nunca desde `public/`.
 5. **Sin jerga técnica en los textos** que viajen listos para mostrar (RF-060).
 6. **Montos en pesos colombianos y fechas en formato colombiano** al presentarse; el servidor
    entrega el valor crudo y la capa de formato de `resources/js/lib` lo presenta.

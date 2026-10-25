@@ -50,13 +50,14 @@ durante la creación; al terminar, toda cuenta apunta a su ficha (V-03).
 **Regla de borrado**: una cuenta nunca se borra. Se pone `active` en falso, y su nombre permanece
 en todo registro histórico (RF-006, RN-09).
 
-### `committees` — comités y sub-comités en una sola tabla
+### `committees` — los tres niveles en una sola tabla
 
 | Columna | Tipo | Reglas |
 |---|---|---|
 | `id` | id | |
 | `site_id` | fk → `sites` | obligatorio |
-| `parent_id` | fk → `committees`, nulo | nulo = comité principal; con valor = sub-comité |
+| `parent_id` | fk → `committees`, nulo | nulo = comité; con padre sin abuelo = sub-comité; con abuelo = equipo |
+| `depth` | tinyint | 1, 2 o 3, derivado de `parent_id` y guardado para poder validar y consultar sin recorrer el árbol |
 | `name` | string | obligatorio, único por sede y por padre |
 | `slug` | string | único por sede |
 | `mission` | text, nulo | |
@@ -64,12 +65,26 @@ en todo registro histórico (RF-006, RN-09).
 | `position` | int | orden de despliegue |
 | `active` | bool | por omisión verdadero |
 
-**Ámbito**: sede+comité. Un sub-comité es un comité con padre: un solo filtro, una sola policy, un
-solo juego de pantallas (D-02). Un comité sin hijos resuelve CL-01 sin código especial: la ficha
+**Ámbito**: sede+comité. Los tres niveles viven en una sola tabla: un solo filtro, una sola policy,
+un solo juego de pantallas (D-02). Un nodo sin hijos resuelve CL-01 sin código especial: la ficha
 consulta si tiene hijos y, si no, lo dice expresamente (RF-012).
 
-**Regla de profundidad**: dos niveles. `parent_id` de un comité que ya tiene padre es inválido;
-se valida en el formulario y en una prueba.
+**Regla de profundidad**: **tres niveles** (RF-011, decisión del 2026-10-24). `depth` 1 es comité,
+2 es sub-comité, 3 es equipo. Un `parent_id` que apunte a un nodo de `depth` 3 es inválido: se
+valida en el formulario, en el modelo y en una prueba (CL-17). `depth` se calcula al guardar, nunca
+se escribe a mano.
+
+**Administración** (RF-063 a RF-066, HU-21): solo el pastor crea, renombra, reordena e inactiva
+nodos. Un nodo nunca se borra: `active` en falso. Inactivarlo conserva toda su historia
+consultable, lo saca de los desplegables para proponer cosas nuevas, y deja a sus miembros con
+`committee_id` nulo, señalados para reasignar (RF-064, CL-18). El nombre vigente vive en esta
+tabla; la historia conserva el nombre de su época por la bitácora y por el nombre que las actas
+guardan al cerrarse (RF-065, CL-19).
+
+> **Nota de alcance.** El sistema no supone ninguna cantidad ni ningún nombre de comité. La
+> estructura inicial la carga el pastor (DEP-05). La investigación del 2026-10-24 confirmó que ni el
+> Distrito 28 ni la sede de Ibagué publican su organigrama, así que no hay lista canónica que
+> sembrar: la semilla trae datos ficticios de demostración, no la estructura real.
 
 ### `committee_user` — los cargos, con vigencia
 
@@ -79,7 +94,7 @@ se valida en el formulario y en una prueba.
 | `site_id` | fk → `sites` | obligatorio |
 | `user_id` | fk → `users` | obligatorio |
 | `committee_id` | fk → `committees` | obligatorio |
-| `role` | enum | `president` \| `leader` |
+| `role` | enum | `president` \| `secretary` \| `treasurer` \| `leader` |
 | `started_at` | date | obligatorio |
 | `ended_at` | date, nulo | nulo = cargo vigente |
 
@@ -87,9 +102,18 @@ se valida en el formulario y en una prueba.
 
 **Reglas**:
 
-- Un comité o sub-comité tiene **un único responsable vigente** (RF-013): no puede haber dos filas
-  con el mismo `committee_id` y `ended_at` nulo.
-- `role` = `president` solo si el comité no tiene padre; `leader` solo si lo tiene.
+- Cada nodo tiene **un único titular vigente por cargo** (RF-013): no puede haber dos filas con el
+  mismo `committee_id`, el mismo `role` y `ended_at` nulo. Un comité puede tener a la vez su
+  presidente, su secretario y su tesorero vigentes.
+- `role` = `president` solo si `depth` es 1; `leader` solo si `depth` es 2 o 3. `secretary` y
+  `treasurer` solo en `depth` 1: un sub-comité o un equipo no lleva libro de actas propio ni maneja
+  presupuesto aparte del de su comité.
+- **El ámbito lo da el nodo, no el cargo**: secretario y tesorero ven exactamente lo que ve su
+  presidente —su comité y todos sus descendientes—, y se diferencian en lo que pueden *hacer*, que
+  lo resuelven las policies. El secretario redacta actas (RF-069); el tesorero registra movimientos
+  y sube soportes (HU-24).
+- Un nodo sin secretario funciona: el presidente redacta y cierra el acta, y el sistema lo indica en
+  lugar de bloquear el registro (CL-20).
 - Una persona puede tener dos filas vigentes (CL-05). Eso **no** significa que vea los dos ámbitos
   a la vez: ver `scope` en [contracts/shared-props.md](./contracts/shared-props.md) y R-01.
 - El relevo no borra: cierra la fila con `ended_at` y abre otra (HU-02, RN-09). Las solicitudes
@@ -130,9 +154,10 @@ se valida en el formulario y en una prueba.
 
 **Reglas de validación**:
 
-- `committee_id` apunta al comité **o** al sub-comité. Si el nodo tiene padre, la persona está en
-  un sub-comité; si no, está en un comité sin sub-comité (CL-02). Un solo campo cubre los dos
-  casos.
+- `committee_id` apunta a **cualquiera de los tres niveles**: comité, sub-comité o equipo (RF-014).
+  Un solo campo cubre los tres casos, y `depth` del nodo dice en cuál está la persona. Nulo = sin
+  nodo asignado (CL-02, CL-03), que es también el estado en que quedan los miembros de un nodo
+  inactivado (RF-064, CL-18).
 - **La edad se calcula, nunca se guarda suelta.** Sale de `birth_date` cuando existe; cuando no,
   del par `age_reported` + `age_reported_at`, que no envejece porque lleva su fecha de referencia.
   El formulario pide fecha de nacimiento y, cuando no se sabe, ofrece «No la sé — anote la edad»,
@@ -469,6 +494,112 @@ El pastor puede resolver varias solicitudes del mismo tipo en una sola acción, 
 
 ---
 
+## 6 bis. Actas de reunión
+
+Entran por la ampliación del 2026-10-24 (RF-067 a RF-074, HU-22).
+
+### `minutes` — el acta de una reunión
+
+| Columna | Tipo | Reglas |
+|---|---|---|
+| `id` | id | |
+| `site_id` | fk → `sites` | obligatorio |
+| `meeting_id` | fk → `meetings` | obligatorio y **único**: una reunión tiene a lo sumo una acta |
+| `committee_id` | fk → `committees` | el comité dueño, copiado de la reunión para poder filtrar sin unir |
+| `committee_name_at_close` | string, nulo | el nombre que el comité tenía al cerrarse (RF-065, CL-19) |
+| `number` | int, nulo | correlativo **por comité y por año**; se asigna al cerrar, no al crear |
+| `year` | smallint | el año de la reunión |
+| `agenda` | text, nulo | orden del día |
+| `development` | text | desarrollo de la reunión; obligatorio para cerrar |
+| `status` | enum | `draft` \| `closed` |
+| `drafted_by_user_id` | fk → `users` | quien la redactó (RF-069) |
+| `closed_by_user_id` | fk → `users`, nulo | quien la cerró; nulo mientras es borrador |
+| `closed_at` | datetime, nulo | |
+
+**Ámbito**: sede+comité. Las actas **no** viajan por la excepción del cronograma compartido
+(RF-074): las ve el comité dueño, sus ascendientes y el pastor.
+
+**Reglas**:
+
+- No existen actas sueltas: toda acta pertenece a una reunión ya registrada y hereda su fecha, su
+  lugar y sus asistentes (RF-067). Fecha, lugar y asistentes **no se duplican** aquí: se leen de
+  `meetings` y `meeting_attendances`.
+- La redacta el secretario del comité, o el presidente si no hay secretario (CL-20). El presidente
+  la cierra (RF-069, decisión del 2026-10-24).
+- Al cerrar se asigna `number` —el siguiente del comité para ese año—, se copia
+  `committee_name_at_close` y se sellan `closed_by_user_id` y `closed_at` (RF-070).
+- Con `status` = `closed` la fila **no se edita ni se borra** (RF-071). Se hace cumplir en el
+  modelo, no en la interfaz, igual que `approvals`, y tiene prueba propia. Una corrección es un
+  acta nueva que la haga constar (CL-22).
+- Una reunión sin acta es normal: el sistema no supone que toda reunión tenga una (CL-21).
+
+### `minute_commitments` — los compromisos que salen de la reunión
+
+| Columna | Tipo | Reglas |
+|---|---|---|
+| `id` | id | |
+| `site_id` | fk → `sites` | obligatorio |
+| `minute_id` | fk → `minutes` | obligatorio |
+| `text` | text | el compromiso, tal como se acordó |
+| `position` | int | orden dentro del acta |
+| `activity_task_id` | fk → `activity_tasks`, nulo | se llena al convertirlo en tarea |
+
+**Ámbito**: sede. Se consulta siempre desde el acta.
+
+**Reglas**:
+
+- Un compromiso es **texto**; convertirlo en tarea es opcional (RF-073, decisión del 2026-10-24).
+- Al convertirlo, se crea la fila en `activity_tasks` con su responsable y su fecha, y se guarda
+  aquí su identificador. Desde ese momento cuenta para el avance de la actividad (RF-027) y aparece
+  en los pendientes de esa persona.
+- Convertir no reescribe el texto del compromiso: el acta conserva lo que se acordó, palabra por
+  palabra.
+
+---
+
+## 6 ter. Archivos adjuntos
+
+Entran por la ampliación del 2026-10-24 (RF-075 a RF-080, HU-23 y HU-24).
+
+### `attachments` — evidencias de actividad y soportes de gasto
+
+| Columna | Tipo | Reglas |
+|---|---|---|
+| `id` | id | |
+| `site_id` | fk → `sites` | obligatorio |
+| `committee_id` | fk → `committees` | el comité dueño, copiado del objeto apuntado para poder filtrar sin unir |
+| `attachable_type`, `attachable_id` | relación polimórfica | `Activity` (evidencia) o `BudgetMovement` (soporte) |
+| `kind` | enum | `evidence` \| `receipt` |
+| `original_name` | string | el nombre con que la persona lo subió |
+| `path` | string | ruta en el disco del servidor del contrato |
+| `mime` | string | tipo del archivo |
+| `bytes` | int | peso después de comprimir |
+| `uploaded_by_user_id` | fk → `users` | quién lo subió (RF-076) |
+| `replaced_by_id` | fk → `attachments`, nulo | cuando se reemplazó, apunta al que lo sustituye |
+
+**Ámbito**: sede+comité. Los archivos **no** viajan por la excepción del cronograma compartido
+(RF-080): los ve el comité dueño, sus ascendientes y el pastor. Tampoco salen en ninguna descarga
+de reporte fuera del ámbito.
+
+**Reglas**:
+
+- Tipos admitidos: imagen (JPEG, PNG, WebP) y PDF. Nada ejecutable.
+- **10 MB como máximo** después de comprimir. Por encima, el sistema lo rechaza con una frase que
+  dice cuánto pesa y cuál es el límite, **sin perder lo que la persona ya escribió** en el
+  formulario (RF-076, CL-23).
+- Las imágenes se reducen al recibirlas, sin que la persona haga nada, para no gastarle los datos
+  del celular (RF-077).
+- Se guardan en el **disco del servidor del contrato**, fuera de la carpeta pública: se sirven por
+  una ruta que pasa por la policy, nunca por URL directa. No se copian a ningún servicio externo
+  (RF-078, constitución: los datos del cliente no salen del servidor acordado).
+- Un archivo adjunto a algo ya cumplido o ya autorizado **no se borra**: se sube el correcto y el
+  anterior queda con `replaced_by_id`, conservado en la historia (RF-079, CL-25).
+- Una actividad o un movimiento sin archivos es normal, no un error (CL-26).
+- El **respaldo diario debe incluir estos archivos**, no solo la base de datos (RF-078, DEP-07).
+  Sin eso, una falla de disco pierde las evidencias aunque la base se recupere.
+
+---
+
 ## 7. Presupuesto
 
 ### `budgets` — lo asignado por año
@@ -545,6 +676,9 @@ y nuevo, el autor y la fecha. Se activa en: `members`, `activities`, `approvals`
 | `approvals` | sí | **sí** | |
 | `meetings` | sí | **sí** | |
 | `meeting_attendances` | sí | — | se consulta desde la reunión |
+| `minutes` | sí | **sí** | no viajan por la excepción del cronograma (RF-074) |
+| `minute_commitments` | sí | — | se consulta desde el acta |
+| `attachments` | sí | **sí** | no viajan por la excepción del cronograma (RF-080); se sirven por ruta con policy, nunca por URL pública |
 | `budgets` | sí | **sí** | |
 | `budget_movements` | sí | **sí** | |
 | `activity_log` | **no** | **no** | del paquete; reglas especiales de la sección 8 |
@@ -552,3 +686,20 @@ y nuevo, el autor y la fecha. Se activa en: `members`, `activities`, `approvals`
 `Architecture/ScopeCoverageTest` recorre los modelos del proyecto y falla si uno con `site_id` no
 usa `BelongsToSite`, o si uno marcado como de ámbito de comité no usa `BelongsToCommitteeScope`. Un
 modelo nuevo mal hecho rompe la construcción el mismo día.
+
+### Lo que cambia al pasar a tres niveles
+
+El filtro de alcance del principio I deja de resolverse con «el nodo y sus hijos» y pasa a «el nodo
+y todos sus descendientes». Es la pieza más delicada de la ampliación del 2026-10-24, y toca:
+
+| Qué | Cómo cambia |
+|---|---|
+| `Support/Scope/CurrentScope.php` | De «X y sus hijos» a «X y todo su sub-árbol». Con `depth` acotado a 3, el sub-árbol se resuelve en **una sola consulta** sin recursión: los hijos y los nietos del nodo activo |
+| `Models/Concerns/BelongsToCommitteeScope.php` | El global scope compara contra el conjunto de descendientes, no contra `parent_id` |
+| Las cuatro policies con ámbito | «es mi comité o mi hijo» pasa a «está en mi sub-árbol» |
+| `tests/Feature/Scope/` | **Todas** las pruebas de aislamiento se rehacen con tres niveles: un líder de equipo no ve a su sub-comité hermano, y un presidente sí ve a sus nietos |
+| `ScopeCoverageTest` | Sin cambio de forma; cubre las tres tablas nuevas automáticamente |
+
+No hay consultas recursivas ni CTE: la profundidad está acotada a tres por RF-011, así que el
+sub-árbol de cualquier nodo se obtiene con una comparación sobre `parent_id` y el `parent_id` del
+padre. Esto mantiene el presupuesto de cinco consultas por petición.

@@ -34,7 +34,11 @@ inicial oficial de Laravel 12 para React. Tres dependencias añadidas con justif
 PWA (`vite-plugin-pwa`).
 
 **Storage**: MySQL 8. Las migraciones son la única fuente de verdad del esquema; la base no se
-modifica a mano.
+modifica a mano. Los archivos adjuntos —evidencias de actividad y soportes de gasto— van al **disco
+del servidor del contrato**, fuera de la carpeta pública, y se sirven por una ruta que pasa por la
+policy, nunca por URL directa (RF-078). No se copian a ningún servicio externo: la constitución
+prohíbe que los datos del cliente salgan del servidor acordado. El respaldo diario debe ampliarse
+para incluirlos (DEP-07).
 
 **Testing**: Pest con factories sobre base de datos de pruebas. Tres familias: `Feature/` (la
 mayoría, entran por ruta como un cargo concreto), `Unit/` (cálculos puros: compromiso, avance,
@@ -53,12 +57,14 @@ reporte de la congregación en menos de un minuto (CE-07); ninguna petición por
 consultas a la base de datos, propiedades compartidas incluidas (constitución; criterio de medición
 y reparto en Constitution Check), verificado por prueba automatizada.
 
-**Constraints**: cero desplazamiento horizontal a 360 px; zonas pulsables de 44x44 px; texto de
-contenido de 16 px (RF-058). Sin Livewire ni Filament. Sin `DB::` ni SQL crudo sobre tablas con
+**Constraints**: cero desplazamiento horizontal a 360 px; zonas pulsables de 48x48 px; texto de
+contenido de 18 px; contraste AA (RF-058, constitución 2.1.0). Sin Livewire ni Filament. Sin `DB::` ni SQL crudo sobre tablas con
 ámbito. Sin avisos externos: ni correo, ni WhatsApp, ni mensaje de texto (fuera de alcance).
 
-**Scale/Scope**: 1 sede (modelo preparado para varias), 17 cuentas, 6 comités, 10 sub-comités,
-~140 miembros, 20 historias de usuario, 62 requisitos funcionales. Cuatro hitos semanales. Las
+**Scale/Scope**: 1 sede (modelo preparado para varias), ~140 miembros, 24 historias de usuario, 80
+requisitos funcionales. La estructura de comités **no tiene cantidad fija**: tres niveles —comité,
+sub-comité y equipo—, administrados por el pastor (RF-063 a RF-066), y las cuentas son una por cargo
+vigente. Cuatro hitos semanales. Las
 pantallas no se cuentan a mano: son las rutas GET que responden con Inertia en `routes/web.php`,
 contratadas una por una en [contracts/pages.md](./contracts/pages.md), y es de ahí —de
 `Route::getRoutes()`— de donde las pruebas derivan la lista.
@@ -67,15 +73,19 @@ contratadas una por una en [contracts/pages.md](./contracts/pages.md), y es de a
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-Constitución v2.0.0 (ratificada 2026-10-14, enmendada 2026-10-18). Evaluación del plan de entrada
+Constitución v2.1.0 (ratificada 2026-10-14, enmendada 2026-10-18 y 2026-10-24). Evaluación del plan
 contra los cinco principios y las restricciones. **Resultado: la puerta pasa, con dos correcciones
-aplicadas al plan y cuatro vacíos cerrados.** La gobernanza manda que, si un plan contradice la
+aplicadas al plan y cinco vacíos cerrados.** La gobernanza manda que, si un plan contradice la
 constitución, se corrige el plan.
+
+La enmienda 2.1.0 del 2026-10-24 amplió el alcance contratado y subió los mínimos del principio II.
+Lo que eso exige de este plan está en la subsección «Lo que cambia con la ampliación del
+2026-10-24», al final de esta puerta.
 
 | Principio / restricción | Veredicto | Sustento |
 |---|---|---|
-| **I. Privacidad entre comités (NO NEGOCIABLE)** | **Corregido → pasa** | Tres capas + `ScopeCoverageTest` + prohibición de SQL crudo cumplen con holgura. **Corrección C-01**: el plan de entrada resolvía el caso de dos cargos como «unión de ambos conjuntos»; la aclaración del 2026-10-18 fijó **cargo activo** (RF-007). Se corrige: el ámbito de una petición es el de un solo cargo. Este plan ejerce la **única excepción enumerada** del principio —el cronograma compartido, `forSharedCalendar()`—, que la enmienda del 2026-10-18 incorporó a la constitución v2.0.0 con sus siete datos, su método de **solo lectura** y su prueba obligatoria de lista blanca (R-11 de [research.md](./research.md), D-15). La excepción está **amparada por la constitución**, no solo decidida por el plan, y no se usa ninguna otra salida del filtro. |
-| **II. Primero el celular** | Pasa | 360 px primero, tablas como tarjetas, PWA por complemento de compilación, apertura bajo 3 s. Metas verificables en RF-058 y RF-059. |
+| **I. Privacidad entre comités (NO NEGOCIABLE)** | **Corregido → pasa** | Tres capas + `ScopeCoverageTest` + prohibición de SQL crudo cumplen con holgura. **Corrección C-01**: el plan de entrada resolvía el caso de dos cargos como «unión de ambos conjuntos»; la aclaración del 2026-10-18 fijó **cargo activo** (RF-007). Se corrige: el ámbito de una petición es el de un solo cargo. Este plan ejerce la **única excepción enumerada** del principio —el cronograma compartido, `forSharedCalendar()`—, que la enmienda del 2026-10-18 incorporó a la constitución v2.0.0 con sus siete datos, su método de **solo lectura** y su prueba obligatoria de lista blanca (R-11 de [research.md](./research.md), D-15). La excepción está **amparada por la constitución**, no solo decidida por el plan, y no se usa ninguna otra salida del filtro. **La enmienda 2.1.0 obliga a reescribir este filtro para tres niveles**: es el trabajo más delicado de la ampliación y no se puede recortar (ver «Lo que cambia con la ampliación del 2026-10-24» y RG-14). Las evidencias y los soportes **no** amplían la excepción: siguen el filtro completo. |
+| **II. Primero el celular** | Pasa, con revisión pendiente | 360 px primero, tablas como tarjetas, PWA por complemento de compilación, apertura bajo 3 s. Metas verificables en RF-058 y RF-059. La enmienda 2.1.0 subió los mínimos a **48x48 px** de zona pulsable, **18 px** de texto y contraste **AA**, por el público de adultos mayores: las pantallas ya construidas se revisan contra los mínimos nuevos antes de cerrar el hito en curso. |
 | **III. Toda decisión deja rastro** | Pasa, con un vacío cerrado | Bitácora en los siete modelos que importan; `approvals` resueltas no se editan. **Vacío V-01**: la tabla del paquete no lleva `site_id`, así que queda fuera del filtro automático. Se cierra con una regla explícita (ver abajo). |
 | **IV. El lenguaje es el de la congregación** | **Corregido → pasa** | Textos en español de Colombia, de «usted», vocabulario IPUC. **Corrección C-02**: el plan de entrada ponía las rutas en español; la sección de idioma de la constitución lista **rutas** entre lo que se escribe en inglés. Se corrige a rutas en inglés. Los textos visibles siguen en español. |
 | **V. Ninguna tarea se cierra sin pruebas (NO NEGOCIABLE)** | Pasa | Pest con factories. Cobertura obligatoria cubierta: filtro de alcance (`Feature/Scope/` + `Architecture/`), flujo de aprobaciones, cálculos de estadísticas y presupuesto (`Unit/`), validación de formularios (una Request por formulario). |
@@ -205,6 +215,33 @@ nuevas.**
 Lo único que queda abierto son los puntos que [research.md](./research.md) enumera como pendientes,
 ninguno bloqueante para empezar el hito 1.
 
+### Lo que cambia con la ampliación del 2026-10-24
+
+La enmienda 2.1.0 incorporó al alcance contratado cuatro módulos y subió los mínimos del principio
+II. Doce decisiones del autor, registradas en `spec.md` → `## Clarifications` → Session 2026-10-24.
+Lo que exige de este plan:
+
+| Decisión | Qué toca en el plan |
+|---|---|
+| **Tres niveles** de estructura, administrables por el pastor | Es el cambio más caro, y cae dentro del principio no negociable I. `CurrentScope` pasa de «el nodo y sus hijos» a «el nodo y su sub-árbol»; el rasgo de comité compara contra descendientes; las cuatro policies cambian su condición; y **todas** las pruebas de aislamiento se rehacen. Sin consultas recursivas: `depth` está acotado a 3, así que el sub-árbol sale en una consulta (ver `data-model.md` §9) |
+| **Cuatro cargos**: presidente, secretario, tesorero, líder | `committee_user.role` crece a cuatro valores. El ámbito **no** cambia: secretario y tesorero ven lo mismo que su presidente y se diferencian en lo que pueden hacer, que lo resuelven las policies |
+| **Actas** enganchadas a la reunión, numeradas e inmutables | Tres piezas nuevas: `MinuteController`, `Support/Minutes/MinuteNumber.php` para el correlativo por comité y año, y la vista de impresión. La inmutabilidad se hace cumplir en el modelo, como en `approvals` |
+| **Archivos** en el disco del servidor, 10 MB, comprimidos, no se borran | `AttachmentController` más `Support/Attachments/`. Se guardan fuera de la carpeta pública y se sirven por una ruta con policy: si estuvieran en `public/`, cualquiera con el enlace vería una evidencia ajena y el principio I se caería por la puerta de atrás |
+| Evidencias y soportes **no** viajan por la excepción del cronograma | `forSharedCalendar()` no se toca. Sigue entregando los siete datos y nada más. No hace falta enmendar el principio I otra vez |
+| **Mínimos de 48x48, 18 px y contraste AA** | Revisión de las pantallas ya construidas y actualización del diseño base |
+| **Compromisos** del acta convertibles en tarea | `minute_commitments.activity_task_id` engancha con `activity_tasks`, que ya alimenta el avance calculado |
+| Plan de trabajo = cronograma anual | **No hay módulo nuevo.** Se evitó construir un segundo lugar donde programar actividades, que habría contradicho al cronograma |
+
+**Lo que NO cambia, y conviene decirlo:** los dos principios NO NEGOCIABLES siguen sin excepción, el
+techo de cinco consultas por petición no sube, la única excepción enumerada al filtro de alcance
+sigue siendo la del cronograma compartido, y las migraciones siguen siendo la única fuente de verdad
+del esquema.
+
+**El riesgo que esto crea está en RG-11.** El autor decidió que los cuatro módulos entran completos
+**sin mover la fecha**, contra la recomendación de cotizarlos como fase 2. Como el plazo y el alcance
+quedan fijos y la calidad no se negocia, lo que cede es la promesa de que cada hito cierre de punta
+a punta.
+
 ## Project Structure
 
 ### Documentation (this feature)
@@ -249,6 +286,10 @@ app/
 │   │   ├── SympathizerController.php
 │   │   ├── SympathizerVisitController.php
 │   │   ├── MeetingController.php
+│   │   ├── MinuteController.php         # actas: borrador, cierre e impresión (RF-067 a RF-072)
+│   │   ├── MinuteCommitmentController.php # compromisos y su paso a tarea (RF-073)
+│   │   ├── AttachmentController.php     # subir, servir con policy y reemplazar (RF-075 a RF-080)
+│   │   ├── CommitteeStructureController.php # solo el pastor: crear, renombrar, inactivar (HU-21)
 │   │   ├── BudgetController.php
 │   │   ├── BudgetMovementController.php # gastos, asignaciones e ingresos (RF-051)
 │   │   ├── ReportController.php
@@ -295,6 +336,10 @@ app/
     ├── Sympathizers/ConvertToMember.php # paso de simpatizante a miembro (HU-14)
     ├── Meetings/AttendanceRate.php      # porcentaje sobre reuniones convocadas (RF-048)
     ├── Budget/BalanceCalculator.php     # el saldo se calcula, no se guarda (D-10)
+    ├── Minutes/MinuteNumber.php          # correlativo por comité y por año (RF-070)
+    ├── Attachments/StoreAttachment.php   # valida tipo y peso, comprime y guarda (RF-076, RF-077)
+    ├── Attachments/ServeAttachment.php   # entrega el archivo pasando por la policy (RF-080)
+    ├── Committees/SubtreeResolver.php    # el sub-árbol de un nodo en una consulta (tres niveles)
     └── Reports/MemberStats.php          # agregaciones por eje (research.md R-08)
 
 bootstrap/app.php                        # registra middleware y manejo de excepciones
@@ -303,6 +348,8 @@ resources/js/
 ├── pages/                               # una carpeta por sección, nombres que siguen las rutas
 │   ├── Dashboard/  Committees/  Approvals/  Activities/
 │   ├── Members/  Sympathizers/  Meetings/  Budget/  Reports/  Users/
+│   ├── Minutes/                         # Form, Show y Print del acta (HU-22)
+│   ├── Structure/                       # administración de los tres niveles, solo pastor (HU-21)
 │   ├── Errors/OutOfScope.tsx            # «no disponible», sin revelar nada (RF-008)
 │   └── Auth/
 ├── components/
@@ -311,9 +358,14 @@ resources/js/
 │                                        # RoleSwitcher (C-01), PrivacyNotice (V-02), MonthGrid,
 │                                        # ActivityBadge, FilterBar, CarePill, ChangeTrail,
 │                                        # BarChart, DonutChart, OverBudgetNotice,
-│                                        # TreasuryNotice, RoleAssigner
+│                                        # TreasuryNotice, RoleAssigner, FileUpload,
+│                                        # AttachmentGallery, CommitmentList, StructureTree
 ├── layouts/AppLayout.tsx                # barra, menú, cinta de alcance, contador de pendientes
 └── lib/                                 # fechas, moneda, draft-storage, update-check
+
+resources/css/
+├── app.css                              # estilos base y los mínimos del principio II (T044)
+└── print.css                            # vista de impresión de reportes y actas (T107, HU-22)
 
 database/
 ├── migrations/
@@ -405,6 +457,11 @@ los **R-xx**, que son las decisiones de investigación de [research.md](./resear
 | D-13 | PWA por complemento de compilación | El trabajador de servicio escrito a mano es fuente conocida de fallas difíciles de reproducir. | Manifiesto a mano |
 | D-14 | Semilla con los datos de la presentación | Sirve para desarrollar, probar y capacitar; el pastor reconoce lo que ya vio. Datos ficticios, como exige la constitución. | Conjunto mínimo; solo generadores |
 | D-15 | `forSharedCalendar()` como única excepción al filtro | RF-010 obliga a abrir el cronograma y la constitución v2.0.0 enumera la excepción. Mejor una puerta con nombre, de solo lectura, vigilada y probada, que filtros inconsistentes. | Quitar el filtro al modelo `activities` |
+| D-16 | Tres niveles con `depth` guardado, sin consultas recursivas | La profundidad está acotada a 3 por RF-011, así que el sub-árbol de un nodo sale comparando `parent_id` y el del padre: una consulta. Mantiene el techo de cinco consultas por petición sin enmendar la constitución. | Árbol de profundidad libre con CTE recursivas; tabla de cierre transitivo |
+| D-17 | Archivos en el disco del servidor, fuera de `public/`, servidos por una ruta con policy | La constitución prohíbe que los datos del cliente salgan del servidor acordado. Y en `public/` cualquiera con el enlace vería una evidencia ajena: el principio I se caería por la puerta de atrás, sin que ninguna prueba de aislamiento lo note. | Servicio externo tipo S3; servir desde `public/` con nombre difícil de adivinar |
+| D-18 | El acta cuelga de la reunión, y no duplica fecha, lugar ni asistentes | Una sola verdad sobre quién asistió. Si el acta copiara los asistentes, el porcentaje de asistencia y el acta podrían contradecirse, y el acta es el documento que la congregación trata como definitivo. | Acta independiente con sus propios asistentes |
+| D-19 | El compromiso del acta es texto; convertirlo en tarea es opcional | Decisión del autor el 2026-10-24. El acta conserva lo acordado palabra por palabra, y el seguimiento se agrega solo donde hace falta, reutilizando `activity_tasks` y el avance que ya se calcula. | Todo compromiso es tarea; compromiso solo como texto sin seguimiento |
+| D-20 | Secretario y tesorero solo en el primer nivel, y sin ampliar el ámbito | Un sub-comité no lleva libro de actas propio ni maneja presupuesto aparte. Y hacer que un cargo amplíe el ámbito habría multiplicado los casos del principio I: aquí el ámbito lo da el nodo, y el cargo solo decide qué se puede hacer. | Secretario y tesorero en los tres niveles; cargos con ámbito propio |
 
 ## Registro de riesgos
 
@@ -427,6 +484,10 @@ este plan justifica.
 | RG-08 | La importación de miembros no está listada en la Cláusula Segunda del contrato | Bajo en lo técnico, relevante en lo comercial. | Está marcada como supuesto S-02 en el spec. Confirmar con el pastor antes de construirla; si no la pide, la fase se registra como propuesta para cotizar |
 | RG-09 | Tres dependencias de terceros que mantener | Bajo. | Versiones fijadas; no se actualizan sin decisión explícita (constitución) |
 | RG-10 | El multi-sede nunca se usa y se paga su complejidad | Bajo. | Es una columna y dos rasgos. La constitución ya ponderó el costo de añadirlo después |
+| RG-11 | Cuatro módulos nuevos entran al alcance **sin mover la fecha** | **Crítico.** Es hoy el riesgo principal del proyecto, por encima de RG-04. | Decisión del autor el 2026-10-24, tomada contra la recomendación de cotizarlos como fase 2. Los dos principios NO NEGOCIABLES se sostienen, así que lo que cede es la promesa de que cada hito cierre de punta a punta: los hitos entregan funcionalidad parcial y el cierre real se corre al final. Hay que decírselo al pastor por escrito **antes** del vencimiento, no después. Indicador temprano: si la semana 1 termina sin el filtro de alcance de tres niveles desplegado y probado, la conversación va en la semana 2 |
+| RG-12 | El disco de 2 TB se llena con fotos y facturas | Medio. Bloquearía subir evidencias y, si el respaldo comparte disco, también el respaldo. | Límite de 10 MB por archivo y compresión de imágenes al recibirlas (RF-076, RF-077). Medición del espacio usado al cerrar cada hito, y aviso en lenguaje claro a quien sube y al pastor cuando el disco se acerque al límite (CL-24) |
+| RG-13 | El respaldo diario no incluye los archivos | **Alto.** Una falla de disco perdería las evidencias y los soportes de factura aunque la base de datos se recupere. | DEP-07: ampliar el respaldo antes de que el módulo de archivos entre en producción. Hasta que eso esté hecho, el módulo no se despliega |
+| RG-14 | Reescribir el filtro de alcance a tres niveles introduce una fuga | **Crítico.** Toca el principio no negociable I, que es lo primero que el cliente comprueba. | Las pruebas de aislamiento se rehacen **antes** de tocar `CurrentScope`, no después, y suman los casos nuevos: un líder de equipo que no ve a su sub-comité hermano, y un presidente que sí ve a sus nietos. `ScopeCoverageTest` cubre las tres tablas nuevas automáticamente |
 
 La mitigación de RG-04 la enmendó la Política de alcance de [tasks.md](./tasks.md): el alcance no
 se recorta, se mueve la fecha con acuerdo escrito previo.

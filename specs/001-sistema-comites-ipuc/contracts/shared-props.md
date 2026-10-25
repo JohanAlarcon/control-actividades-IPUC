@@ -37,7 +37,8 @@ pendingCount       número de solicitudes esperando la decisión del cargo activ
 |---|---|---|
 | 1 | `scope.activeRole` determina el ámbito de **toda** consulta de la petición. Un cargo distinto es otra petición. | RF-007 |
 | 2 | Si `scope.mustChoose` es verdadero, el sistema **no muestra información** hasta que la persona escoja cargo. | RF-007, R-01 |
-| 3 | `scope.hidden` lleva **solo cantidades**. Decir «hay 3 comités que usted no ve» es lo que pide RF-009; decir cuáles sería filtrar datos. | RF-009, HU-04 esc. 3 |
+| 3 | `scope.hidden` lleva **solo cantidades**. Decir «hay 3 comités que usted no ve» es lo que pide RF-009; decir cuáles, en estos conteos, sería filtrar datos. La reserva de RF-009 se refiere a estos conteos: el nombre del comité responsable de una actividad sí se comparte, por la excepción del cronograma. | RF-009, HU-04 esc. 3 |
+| 10 | `scope.activeRole` incluye el **nivel** del nodo (comité, sub-comité o equipo) y su ámbito es el nodo con todos sus descendientes. Secretario y tesorero traen el mismo ámbito que su presidente, y se diferencian en los `can*`. | RF-011, RF-013, D-20 |
 | 4 | `auth.roles` solo trae cargos con `ended_at` nulo. Un cargo cerrado desaparece del selector el mismo día. | RN-09, RF-006 |
 | 5 | `pendingCount` se cuenta con el ámbito del cargo activo, no con la suma de los cargos. | RF-007, RF-055 |
 | 6 | Toda pantalla muestra `scope.label` de forma visible: la persona siempre sabe con qué cargo actúa. | RF-007, CL-05 |

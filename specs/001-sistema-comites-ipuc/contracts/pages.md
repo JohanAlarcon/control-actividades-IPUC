@@ -1,8 +1,13 @@
 # Contrato — Pantallas, ruta por ruta
 
-Rutas en inglés (R-03, corrección C-02). Toda respuesta incluye además las propiedades de
-[shared-props.md](./shared-props.md). La columna **No debe viajar** es la que la prueba de
-aislamiento verifica sobre la carga de la respuesta.
+Rutas en inglés (R-03, corrección C-02). Toda respuesta incluye además el bloque compartido de
+[shared-props.md](./shared-props.md), salvo `scope.hidden` y `pendingCount`, que son propiedades
+diferidas y viajan en su propia petición parcial. La columna **No debe viajar** es la que la prueba
+de aislamiento verifica sobre la carga de la respuesta.
+
+El ámbito de un cargo es **su nodo y todo su sub-árbol**, en los tres niveles —comité, sub-comité y
+equipo— desde la ampliación del 2026-10-24. Donde abajo se lee «su comité y sus sub-comités»,
+entiéndase el sub-árbol completo.
 
 ## Entrar al sistema
 
@@ -140,6 +145,58 @@ HU-14 esc. 3). El formulario muestra el aviso de privacidad y pide la autorizaci
 sin ningún asistente se puede registrar (CL-11). El porcentaje por persona se calcula sobre las
 reuniones a las que **fue convocada** (RF-048). Por debajo del sesenta por ciento, el texto es de
 acompañamiento, nunca de reproche (RF-049).
+
+## Actas de reunión
+
+| Ruta | Método | Pantalla | Propiedades propias | No debe viajar |
+|---|---|---|---|---|
+| `/minutes` | GET | `Minutes/Index` | `minutes[]`, `canDraft`, `canClose` | ninguna acta de un comité fuera del sub-árbol |
+| `/minutes/create` | GET | `Minutes/Form` | `meeting`, `attendees[]`, `agenda`, `development`, `commitments[]` | — |
+| `/minutes` | POST, PUT | — | guarda el borrador | — |
+| `/minutes/{minute}` | GET | `Minutes/Show` | `minute`, `commitments[]`, `canClose`, `canConvert` | — |
+| `/minutes/{minute}/close` | POST | — | asigna número y sella; solo el presidente | — |
+| `/minutes/{minute}/print` | GET | `Minutes/Print` | vista de impresión (RF-072) | — |
+| `/minutes/{minute}/commitments/{commitment}/to-task` | POST | — | convierte el compromiso en tarea (RF-073) | — |
+
+**Reglas**: el acta **hereda** fecha, lugar y asistentes de la reunión; no los duplica (D-18). La
+redacta el secretario, o el presidente si no hay secretario (CL-20); la cierra el presidente
+(RF-069). Cerrada, `PUT` y los demás cambios responden error explicado: se corrige con un acta nueva
+(RF-071, CL-22). El número se asigna **al cerrar**, por comité y por año (RF-070). Convertir un
+compromiso **no reescribe su texto**: el acta conserva lo acordado palabra por palabra (D-19). Las
+actas siguen el filtro completo y **no viajan** por la excepción del cronograma (RF-074).
+
+## Archivos adjuntos
+
+| Ruta | Método | Pantalla | Propiedades propias | No debe viajar |
+|---|---|---|---|---|
+| `/attachments` | POST | — | sube una evidencia o un soporte; devuelve `warning` si pasa de 10 MB | — |
+| `/attachments/{attachment}` | GET | — | entrega el archivo **pasando por la policy** | ningún archivo de un comité fuera del sub-árbol |
+| `/attachments/{attachment}/replace` | POST | — | sube el correcto y marca el anterior como reemplazado (RF-079) | — |
+
+**Reglas**: los archivos **no se sirven desde `public/`** (D-17). Se guardan fuera de la carpeta
+pública y se entregan por esta ruta, que resuelve la policy antes de leer el disco: con una URL
+pública, cualquiera con el enlace vería una evidencia ajena y el principio I se caería por la puerta
+de atrás sin que ninguna prueba de aislamiento lo note. Tipos admitidos: JPEG, PNG, WebP y PDF;
+nada ejecutable. 10 MB como máximo después de comprimir, y las imágenes se reducen al recibirlas
+(RF-076, RF-077). Un archivo adjunto a algo ya cumplido o autorizado **no se borra**: se reemplaza
+(RF-079, CL-25). **No viajan** por la excepción del cronograma ni en ninguna descarga de reporte
+fuera del ámbito (RF-080).
+
+## Estructura de comités
+
+| Ruta | Método | Pantalla | Propiedades propias |
+|---|---|---|---|
+| `/structure` | GET | `Structure/Index` | `tree[]`, `canManage` |
+| `/structure` | POST | — | crea un nodo en el nivel que corresponda |
+| `/structure/{committee}` | PUT | — | renombra, reordena o cambia de padre |
+| `/structure/{committee}/deactivate` | POST | — | inactiva conservando la historia (RF-064) |
+
+**Reglas**: **solo el pastor** (RF-063). Un `parent_id` que apunte a un nodo de `depth` 3 se rechaza
+con una frase que explica que la estructura llega hasta tres niveles (CL-17). Inactivar **nunca
+borra**: `active` en falso, la historia sigue consultable, el nodo sale de los desplegables para
+proponer cosas nuevas, y sus miembros quedan sin nodo y señalados para reasignar (RF-064, CL-18).
+Renombrar no reescribe la historia (RF-065, CL-19). Los demás cargos ven la estructura y no la
+modifican (HU-21 escenario 6).
 
 ## Presupuesto
 

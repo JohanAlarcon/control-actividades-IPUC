@@ -183,11 +183,66 @@ la medida que exige el principio II.
 
 1. Ponga la ventana en 360 px de ancho y recorra todas las pantallas.
 2. **Esperado**: ni una exige desplazamiento horizontal.
-3. Abra una pantalla con tabla de muchas columnas.
-4. **Esperado**: se presenta en tarjetas legibles, no en una tabla cortada.
-5. Instale la aplicación en la pantalla de inicio del teléfono y ábrala.
-6. **Esperado**: abre como aplicación, y la pantalla principal aparece en menos de 3 segundos con la
+3. Mida una zona pulsable y un texto de contenido con las herramientas del navegador.
+4. **Esperado**: la zona pulsable mide **48x48 px** o más y el texto **18 px** o más, y el contraste
+   cumple **AA** (constitución 2.1.0, para el público de adultos mayores).
+5. Abra una pantalla con tabla de muchas columnas.
+6. **Esperado**: se presenta en tarjetas legibles, no en una tabla cortada.
+7. Instale la aplicación en la pantalla de inicio del teléfono y ábrala.
+8. **Esperado**: abre como aplicación, y la pantalla principal aparece en menos de 3 segundos con la
    red limitada a 3G en las herramientas del navegador.
+
+### 4.10 Los tres niveles y la estructura administrable — HU-21
+
+1. Con `pastor`, abra la estructura y cree un comité, luego un sub-comité dentro de él, y luego un
+   equipo dentro del sub-comité.
+2. **Esperado**: los tres se crean, y el sistema muestra el nivel de cada uno.
+3. Intente crear un nodo colgado del equipo.
+4. **Esperado**: lo rechaza y explica que la estructura llega hasta tres niveles.
+5. Entre como el líder del equipo y abra miembros, actividades y presupuesto.
+6. **Esperado**: ve solo lo de su equipo. **No ve nada de su sub-comité hermano.**
+7. Entre como el presidente del comité.
+8. **Esperado**: ve lo del comité, lo del sub-comité **y lo del equipo** — su sub-árbol completo.
+9. Con `pastor`, renombre el comité y luego inactívelo.
+10. **Esperado**: las actas y los reportes anteriores siguen mostrando el nombre viejo; tras
+    inactivarlo, su historia sigue consultable, no aparece para proponer nada, y sus miembros quedan
+    señalados para reasignar.
+11. Entre como presidente y abra la estructura.
+12. **Esperado**: la ve y no puede modificarla.
+
+### 4.11 El acta de una reunión — HU-22
+
+1. Con el secretario de un comité, registre una reunión y levante su acta.
+2. **Esperado**: el formulario trae la fecha, el lugar y los asistentes de la reunión, y pide orden
+   del día, desarrollo y compromisos.
+3. Guarde sin terminar. **Esperado**: queda como borrador y puede seguir después.
+4. Con el presidente del mismo comité, ciérrela.
+5. **Esperado**: recibe su número del año, queda con los dos nombres y la fecha.
+6. Intente editarla, incluso llamando la ruta directamente.
+7. **Esperado**: no lo permite y ofrece levantar una acta nueva que haga constar la corrección.
+8. Convierta un compromiso en tarea con su responsable.
+9. **Esperado**: aparece en los pendientes de esa persona y cuenta para el avance de la actividad; el
+   texto del compromiso en el acta **no cambió**.
+10. Imprímala. **Esperado**: hoja legible en blanco y negro con el nombre de la iglesia, el comité,
+    el número, la fecha, los asistentes, el desarrollo, los compromisos y el espacio de las firmas.
+11. Con un cargo de otro comité, busque esa acta. **Esperado**: no la ve.
+
+### 4.12 Evidencias y soportes — HU-23, HU-24
+
+1. Con un líder, suba una foto como evidencia de una actividad cumplida de su comité.
+2. **Esperado**: queda adjunta con su nombre y la fecha, y el sistema la redujo de peso solo.
+3. Intente subir un archivo de más de 10 MB y un archivo `.exe`.
+4. **Esperado**: los rechaza con una frase que dice cuánto pesa y cuál es el límite, **sin perder lo
+   que ya había escrito** en el formulario.
+5. Copie la dirección del archivo y ábrala con la sesión de un cargo de otro comité.
+6. **Esperado**: «no disponible». El archivo **no** se sirve desde una dirección pública: pasa por la
+   policy. Esto es lo más importante de esta comprobación.
+7. Consulte esa actividad desde otro comité, en el cronograma compartido.
+8. **Esperado**: ve título, fecha y comité responsable, y **ninguna evidencia**.
+9. Intente borrar la evidencia de una actividad ya cumplida.
+10. **Esperado**: no la borra; la marca como reemplazada y deja subir la correcta.
+11. Con el tesorero, registre un gasto y adjunte una factura en PDF.
+12. **Esperado**: queda unida al movimiento. Con `pastor`, ábrala; con un cargo ajeno, no aparece.
 
 ---
 
@@ -235,12 +290,21 @@ desplegado y probado — no a medias.
 
 | Hito | Contenido | Historias |
 |---|---|---|
-| **1 · Cimiento** | Sede, usuarios, cargos con vigencia, árbol de comités, el filtro de alcance con sus tres capas, el selector de cargo activo, las policies, las tres pruebas de arquitectura, entrada con cambio de clave, semilla y despliegue | HU-01 a HU-04, HU-20 |
+| **1 · Cimiento** | Sede, usuarios, los cuatro cargos con vigencia, estructura de **tres niveles** administrable por el pastor, el filtro de alcance por sub-árbol con sus tres capas, el selector de cargo activo, las policies, las tres pruebas de arquitectura, entrada con cambio de clave, semilla y despliegue | HU-01 a HU-04, **HU-21**, HU-20 |
 | **2 · Decidir** | Aprobaciones con su cadena completa, cronograma anual, propuestas, aviso de cruce, tareas y avance, transiciones de estado, bandeja y contadores | HU-05 a HU-09, HU-17 |
 | **3 · La gente** | Miembros con filtros, importación, reportes con gráficos y tabla, descarga e impresión, simpatizantes con etapas y visitas, paso a miembro, autorización de datos | HU-10 a HU-14, HU-18 |
-| **4 · Cerrar** | Asistencia, presupuesto, correcciones con bitácora, PWA afinada, conteo de consultas, capacitación y acta de entrega | HU-15, HU-16, HU-19 |
+| **4 · Cerrar** | Asistencia, **actas con sus compromisos**, presupuesto con **soportes**, **evidencias de cumplimiento**, correcciones con bitácora, PWA afinada, conteo de consultas, capacitación y acta de entrega | HU-15, HU-16, HU-19, **HU-22 a HU-24** |
 
-Si el hito 1 no queda sólido, nada de lo demás se sostiene: ahí vive el principio no negociable I.
-Y si el tiempo aprieta —riesgo RG-04, cuatro semanas para veinte historias—, **no se recorta el
-alcance**: se mueve la fecha de entrega, con acuerdo escrito previo con el pastor, y nunca se
-negocia la calidad. P1 completo antes de cualquier P2.
+Si el hito 1 no queda sólido, nada de lo demás se sostiene: ahí vive el principio no negociable I, y
+desde la ampliación del 2026-10-24 también la reescritura del filtro a tres niveles (RG-14).
+
+**Sobre el plazo, con los nombres claros.** La ampliación del 2026-10-24 metió cuatro módulos al
+alcance **sin mover la fecha**, por decisión del autor y contra la recomendación de cotizarlos como
+fase 2 (RG-11). Los dos principios NO NEGOCIABLES se sostienen y la calidad no se negocia, así que
+lo que cede es la promesa de que cada hito cierre de punta a punta: los hitos entregan funcionalidad
+parcial y el cierre real se corre al final. Eso hay que decírselo al pastor **por escrito antes del
+vencimiento**, no después. P1 completo antes de cualquier P2.
+
+**Dos cosas que no se despliegan hasta que su dependencia esté lista:** el módulo de archivos, hasta
+que el respaldo diario los incluya (DEP-07, RG-13), y la vista de impresión del acta, hasta que se
+sepa si el distrito exige un formato oficial (DEP-06).

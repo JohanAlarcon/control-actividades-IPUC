@@ -339,6 +339,89 @@ prueba roja hasta que alguien decida si se comparte. Dos casos obligatorios:
 
 ---
 
+## R-12 · Tres niveles sin consultas recursivas
+
+**Decisión.** La estructura pasa a tres niveles —comité, sub-comité y equipo— y el sub-árbol de
+cualquier nodo se resuelve en **una sola consulta**, sin recursión ni CTE:
+
+```
+depth se calcula al guardar y se guarda: 1 comité, 2 sub-comité, 3 equipo
+parent_id que apunte a un nodo de depth 3 es inválido (CL-17)
+
+sub-árbol de X = X, los hijos de X, y los hijos de los hijos de X
+              → una consulta sobre parent_id y el parent_id del padre
+```
+
+**Razón.** La profundidad está acotada a tres por RF-011, así que no hace falta recursión. Eso es lo
+que mantiene el techo de cinco consultas por petición sin enmendar la constitución: con un árbol de
+profundidad libre habría que subirlo, y la constitución lo fija. Vive en
+`Support/Committees/SubtreeResolver.php`, un solo lugar, con su prueba de conteo de consultas (T179,
+T180).
+
+**Alternativas consideradas.** Árbol de profundidad libre con CTE recursivas: se descarta porque
+rompe el presupuesto de consultas y obliga a SQL crudo, que este proyecto prohíbe sobre tablas con
+ámbito. Tabla de cierre transitivo: resuelve el rendimiento pero agrega una tabla que hay que
+mantener sincronizada en cada movimiento del árbol, y con tres niveles no se gana nada.
+
+**Qué hay que probar.** Lo más delicado de toda la ampliación (RG-14): un líder de equipo **no** ve
+a su sub-comité hermano; un presidente **sí** ve a sus nietos; y el sub-árbol se resuelve en una
+consulta, verificado con el registro de consultas.
+
+---
+
+## R-13 · Dónde viven los archivos y cómo se sirven
+
+**Decisión.** Los adjuntos van al **disco del servidor del contrato**, fuera de la carpeta pública,
+y se entregan por `/attachments/{attachment}`, una ruta que resuelve la policy antes de leer el
+disco. Límite de 10 MB después de comprimir; las imágenes se reducen al recibirlas; tipos admitidos
+JPEG, PNG, WebP y PDF.
+
+**Razón.** Dos razones, y la segunda es la que importa. La constitución prohíbe que los datos del
+cliente salgan del servidor acordado, lo que descarta cualquier servicio externo. Y si los archivos
+se sirvieran desde `public/`, cualquiera con el enlace vería una evidencia ajena: el principio I se
+caería por la puerta de atrás **sin que ninguna prueba de aislamiento lo notara**, porque las
+pruebas revisan la carga de la respuesta de Inertia, no el servidor de archivos estáticos.
+
+**Alternativas consideradas.** Servicio externo tipo S3 o R2: más barato de escalar y resuelve el
+respaldo, pero contradice la cláusula de datos de la constitución. Servir desde `public/` con un
+nombre difícil de adivinar: seguridad por oscuridad, y el enlace se comparte por WhatsApp en un
+minuto.
+
+**Lo que esto obliga.** El respaldo diario debe incluir el directorio de archivos (DEP-07, RG-13), y
+el módulo **no se despliega** hasta que eso esté hecho: una falla de disco perdería las evidencias y
+las facturas aunque la base de datos se recupere.
+
+---
+
+## R-14 · Lo que la investigación de la IPUC sí y no encontró
+
+**Decisión.** El sistema **no cablea ninguna lista de comités**. La estructura inicial la carga el
+pastor (DEP-05), y la semilla trae datos ficticios de demostración, no la estructura real.
+
+**Razón.** El 2026-10-24 se buscó la estructura de comités de la IPUC, en especial de Ibagué, para
+parametrizarla por adelantado. **No está documentada públicamente.** Lo que sí se confirmó, del
+sitio de la IPUC Central Ibagué: existen **Damas Dorcas**, **Jóvenes** y **Misiones** como
+«Directivas», y en el cuerpo de las páginas aparecen **Obra Social**, **Red de Familia** y
+**Alabanza**. La página de Obra Social tiene un encabezado «Equipos de trabajo y comités / Para la
+vigencia 2026» **sin lista debajo**, y la página «Comités y Oficios» del Distrito 28 es una
+plantilla con marcadores sin diligenciar. De paso quedó confirmado que **REFAM es «Red de
+Familia»**, el vocabulario que ya usaba la especificación.
+
+Que ni el distrito ni la sede publiquen su organigrama es el argumento a favor de la estructura
+administrable: varía entre sedes y entre vigencias. Lo que sí se puede estandarizar son los
+**flujos** —plan de trabajo, actas, evidencias, presupuesto—, que son iguales para cualquier comité,
+y eso es lo que hace el sistema.
+
+**Fuentes consultadas**: [IPUC Central Ibagué](https://www.ipuccentralibague.org/) ·
+[Obra Social](https://www.ipuccentralibague.org/obra-social) ·
+[Distrito 28 · Comités y Oficios](https://distrito28.ipuc.org.co/comites-y-oficios/) ·
+[Reseña histórica de la IPUC](https://sozai.app/transcript/rese-a-historica-ipuc-aniversario-88/).
+
+**Advertencia honesta.** Tres búsquedas y tres páginas fue lo que valía la pena gastar. El dato lo
+tiene la congregación, y la conversación con el pastor lo resuelve en diez minutos.
+
+---
+
 ## Puntos que siguen abiertos
 
 Ninguno bloquea el hito 1. Uno bloquea algo concreto: A-04 bloquea la carga inicial (US18) hasta
@@ -356,3 +439,8 @@ que el pastor confirme el supuesto S-02.
 | A-08 | Versiones exactas de las tres dependencias (R-02) | Se escriben aquí al instalar, en el hito 1. Falta además confirmar contra Packagist la compatibilidad de las dos de Composer con Laravel 12: la advertencia de R-02 dice que se verificó contra directorios de terceros |
 | A-09 | Medición real del presupuesto de cinco consultas (R-08) | El criterio ya está fijado: la unidad es la petición completa, con dos consultas para el bloque compartido y tres para la pantalla. Falta la medición real al escribir `QueryBudgetTest` en el hito 1, y el reparto definitivo de las propiedades diferidas de `/reports` y de `/`, que son las dos excepciones declaradas |
 | A-10 | Precisión de los reportes por rango de edad (RF-036, A-02) | Quienes solo tengan `age_reported` entran en los rangos con precisión de ±1 año, y el reporte lo informa. Confirmar con el pastor que esa precisión le sirve para las reuniones de distrito |
+| A-11 | Estructura inicial de comités (R-14, DEP-05) | **No es investigable**: ni el distrito ni la sede publican su organigrama. La entrega el pastor antes de habilitar las cuentas. La semilla trae datos ficticios, no la estructura real |
+| A-12 | Formato oficial de acta del distrito (DEP-06) | No encontré ninguno publicado. Si el distrito exige uno, hay que ver una copia de un acta real **antes** de cerrar T194, la vista de impresión. Mientras no llegue, rige el formato de RF-072 |
+| A-13 | Espacio en disco para archivos (RG-12) | 2 TB con límite de 10 MB por archivo y compresión de imágenes. Falta medir el consumo real al cerrar cada hito, y definir el umbral en que el sistema avisa al pastor (CL-24) |
+| A-14 | Ampliación del respaldo a los archivos (DEP-07, RG-13) | **Bloquea el despliegue del módulo de archivos.** Hoy el respaldo solo cubre la base de datos; T010 lo amplía |
+| A-15 | Secretario y tesorero solo en el primer nivel (D-20) | Criterio mío, no decisión del cliente: supuse que un sub-comité no lleva libro de actas propio ni maneja presupuesto aparte. Confirmar con el pastor cómo opera la congregación |

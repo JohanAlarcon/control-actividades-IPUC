@@ -48,8 +48,9 @@ contradicciones o vacíos reales del documento de entrada, no por falta de redac
 
 **Notas sobre los ítems que sí pasan**:
 
-- *No implementation details*: RF-058 y RF-059 incluyen medidas verificables (360 px, 44x44 px,
-  16 px, 3 segundos) y S-04/S-05 fijan zona horaria, moneda y formato de fecha. Se conservan
+- *No implementation details*: RF-058 y RF-059 incluyen medidas verificables (360 px, 48x48 px,
+  18 px, contraste AA, 3 segundos) y S-04/S-05 fijan zona horaria, moneda y formato de fecha. Las
+  medidas las subió la enmienda 2.1.0 del 2026-10-24; antes eran 44x44 y 16 px. Se conservan
   porque son las metas verificables que exigen los principios II y IV de la constitución, y
   porque no nombran lenguaje, framework ni interfaz de programación.
 - *Success criteria measurable*: CE-11 es cualitativo pero verificable por observación directa,

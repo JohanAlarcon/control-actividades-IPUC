@@ -144,6 +144,31 @@ Entorno local Laragon; el proyecto vive en `C:\laragon\www\control-actividades`.
   a mano.
 - Zona horaria America/Bogota, moneda COP, fechas en formato colombiano en la interfaz.
 
+### Código legible por un desarrollador junior
+
+La regla de oro: **la solución simple gana**. Un desarrollador junior debe poder entender y
+mantener cualquier archivo de este proyecto sin que nadie se lo explique.
+
+- Sin patrones de diseño que el problema no pida. Nada de sobreingeniería: ni capas de
+  abstracción «por si acaso», ni lógica difícil de seguir.
+- **Pocos comentarios, y solo donde hagan falta.** El código se explica por sus nombres. Un
+  comentario se justifica cuando el *por qué* no es evidente, nunca para narrar el *qué*.
+- Límites de tamaño en los componentes de React, medidos en `resources/js`:
+  - **250 líneas por archivo de componente.** Al pasarlas, se divide. **300 es el tope
+    infranqueable**: ningún componente nuevo lo supera.
+  - **70 líneas por función.** Una función más larga casi siempre hace dos cosas.
+  - **Un archivo, un componente exportado.** Los auxiliares que solo usa ese archivo pueden
+    vivir junto a él mientras no se pase del límite.
+  - El estado vive en el **nivel más bajo posible**: si solo lo usa un componente, no sube a
+    la página.
+  - Al dividir: cada sección visual a su propio componente en `resources/js/components/`; el
+    estado y las llamadas al servidor a un hook en `resources/js/hooks/`; y el archivo de
+    `resources/js/pages/` se queda solo componiendo.
+  - **Un archivo que se toca y está por encima del límite, se divide.** No hay que arreglar
+    todo el proyecto de una vez, pero lo que se modifica no se deja igual.
+- El diseño de la interfaz es minimalista: la claridad para quien la usa está por encima de
+  cualquier otra consideración (principios II y IV).
+
 ### Datos y seguridad
 
 - La información de miembros y simpatizantes es propiedad del cliente. NO se usa para otros
@@ -183,8 +208,14 @@ Entorno local Laragon; el proyecto vive en `C:\laragon\www\control-actividades`.
 - Trabajo por rama de funcionalidad. La IA propone y la persona aprueba: ningún cambio llega
   a `main` sin revisión y aprobación explícita del autor del proyecto.
 - Antes de mezclar a `main`: las pruebas pasan, las migraciones corren sobre base de datos
-  en limpio, y la pantalla se verificó a 360 px de ancho.
-- Commits en español, en imperativo, describiendo el cambio funcional.
+  en limpio, la pantalla se verificó a 360 px de ancho, y **ningún componente de React pasa
+  de 300 líneas**. Se comprueba con:
+  `find resources/js -name "*.tsx" | xargs wc -l | sort -rn | head`
+- Commits en español, en imperativo, describiendo el cambio funcional. **Breves**: una línea
+  de asunto que diga qué cambió, y cuerpo solo cuando el *por qué* no quepa en el asunto.
+- Toda explicación de un cambio se da **en lenguaje claro**, sin tecnicismos innecesarios, y
+  cuando haga falta un término técnico se explica en la misma frase. La entiende alguien sin
+  conocimientos avanzados.
 
 ### Entrega
 
