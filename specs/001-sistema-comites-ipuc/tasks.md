@@ -376,7 +376,7 @@ información que ya no le corresponde. **Hito 1.**
 **Independent Test**: crear un cargo, asignarlo, retirarlo, y comprobar que la persona retirada ya
 no entra mientras su nombre permanece en el historial.
 
-- [ ] T034 [US02] · Policy del pastor y compuerta `is-pastor`
+- [x] T034 [US02] · Policy del pastor y compuerta `is-pastor`
       Archivos: `app/Policies/UserPolicy.php` · `app/Providers/AppServiceProvider.php`
       Verifica: `php artisan test --filter=UserPolicyTest` — un presidente no crea, no modifica y no retira cuentas.
 
@@ -394,21 +394,21 @@ no entra mientras su nombre permanece en el historial.
       CL-16: la ficha pendiente aparece en listas y reportes señalada como incompleta, y el sistema indica cuántas faltan por completar.
       Verifica: `php artisan test --filter=MinimalProfileTest` — crear una cuenta para alguien nuevo deja una ficha con `profile_pending`; completarla la quita del conteo.
 
-- [ ] T036 [US02] · Asignación de cargos con vigencia y relevo
+- [x] T036 [US02] · Asignación de cargos con vigencia y relevo
       Archivos: `app/Http/Controllers/CommitteeUserController.php` · `resources/js/components/domain/RoleAssigner.tsx`
       El relevo cierra `ended_at` y abre una fila nueva; nunca borra (RN-09).
       Verifica: `php artisan test --filter=RoleHandoverTest` — tras el relevo quedan dos filas y la historia conserva el nombre anterior.
 
-- [ ] T037 [P] [US02] · Restablecer clave, volviendo a exigir el cambio
+- [x] T037 [P] [US02] · Restablecer clave, volviendo a exigir el cambio
       Archivos: `app/Http/Controllers/UserController.php` · `resources/js/pages/Users/Index.tsx`
       Verifica: `php artisan test --filter=PasswordResetByPastorTest` — solo el pastor; la persona vuelve a `/password/change` al entrar (RF-005).
 
-- [ ] T038 [US02] · Retiro inmediato del acceso, conservando el nombre en la historia
+- [x] T038 [US02] · Retiro inmediato del acceso, conservando el nombre en la historia
       Archivos: `app/Models/User.php` · `app/Http/Middleware/EnsureActiveUser.php`
       Nunca se borra una cuenta: `active` en falso (RF-006, RN-09).
       Verifica: `php artisan test --filter=RevokeAccessTest` — la sesión vigente se corta en la petición siguiente y el nombre sigue apareciendo en lo que aprobó.
 
-- [ ] T061 [US02] · Traspaso de pendientes al reemplazo
+- [x] T061 [US02] · Traspaso de pendientes al reemplazo
       Archivos: `app/Support/Approvals/TransferPending.php` · `app/Http/Controllers/CommitteeUserController.php`
       La tabla `approvals` (T057) ya existe: se construye en la Phase 2, bloque 2.3 (RF-023, CL-06).
       Verifica: `php artisan test --filter=PendingTransferTest` — al relevar, los pendientes quedan a nombre del nuevo responsable y `transferred_from_user_id` guarda de quién venían, con la fecha.

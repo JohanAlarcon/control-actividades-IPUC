@@ -44,6 +44,10 @@ class HandleInertiaRequests extends Middleware
 
         return array_merge(parent::share($request), [
             'name' => config('app.name'),
+            'flash' => [
+                'notice' => fn () => $request->session()->get('notice'),
+                'temporaryPassword' => fn () => $request->session()->get('temporaryPassword'),
+            ],
             'auth' => [
                 'user' => $usuario ? [
                     'id' => $usuario->id,

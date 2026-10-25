@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\CommitteeUserController;
 use App\Http\Controllers\RoleSwitchController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -14,6 +16,18 @@ Route::middleware(['auth'])->group(function () {
     })->name('dashboard');
 
     Route::post('role/switch', [RoleSwitchController::class, 'store'])->name('role.switch');
+
+    Route::get('users', [UserController::class, 'index'])->name('users.index');
+    Route::get('users/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('users', [UserController::class, 'store'])->name('users.store');
+    Route::get('users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::patch('users/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
+    Route::post('users/{user}/revoke', [UserController::class, 'revoke'])->name('users.revoke');
+    Route::post('users/{user}/restore', [UserController::class, 'restore'])->name('users.restore');
+
+    Route::post('committees/{committee}/roles', [CommitteeUserController::class, 'store'])->name('roles.store');
+    Route::delete('roles/{role}', [CommitteeUserController::class, 'destroy'])->name('roles.destroy');
 });
 
 require __DIR__.'/settings.php';
