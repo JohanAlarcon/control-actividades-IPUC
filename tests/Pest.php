@@ -15,7 +15,7 @@
 // (avance, compromiso, saldo) se arman desde filas relacionadas.
 pest()->extend(Tests\TestCase::class)
     ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
-    ->in('Feature', 'Unit');
+    ->in('Feature', 'Unit', 'Architecture');
 
 /*
 |--------------------------------------------------------------------------

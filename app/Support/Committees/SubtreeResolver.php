@@ -3,7 +3,6 @@
 namespace App\Support\Committees;
 
 use App\Models\Committee;
-use Illuminate\Support\Facades\DB;
 
 /**
  * El ambito de un cargo es su nodo y todos sus descendientes.
@@ -17,15 +16,16 @@ class SubtreeResolver
     /** @return array<int> */
     public function idsFor(int $committeeId): array
     {
-        $nietos = DB::table('committees as hijos')
-            ->select('hijos.id')
-            ->where('hijos.parent_id', $committeeId);
+        $hijos = Committee::query()
+            ->withoutGlobalScopes()
+            ->select('id')
+            ->where('parent_id', $committeeId);
 
         return Committee::query()
             ->withoutGlobalScopes()
             ->where('id', $committeeId)
             ->orWhere('parent_id', $committeeId)
-            ->orWhereIn('parent_id', $nietos)
+            ->orWhereIn('parent_id', $hijos)
             ->pluck('id')
             ->map(fn ($id) => (int) $id)
             ->all();

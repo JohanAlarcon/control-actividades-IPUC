@@ -262,17 +262,17 @@ Ninguna tarea del bloque 2.1 va en paralelo: bloquea todo lo demás.
       Casos obligatorios de la ampliación (RG-14): un **líder de equipo no ve a su sub-comité hermano**; un **presidente sí ve a sus nietos**; un líder de sub-comité ve sus equipos y nada de otra rama.
       Verifica: `php artisan test --filter=CommitteeIsolationTest` — ninguna consulta de la prueba escribe `where committee_id`.
 
-- [ ] T024 [US04] · `ScopeCoverageTest`: recorre los modelos y falla si falta el rasgo
+- [x] T024 [US04] · `ScopeCoverageTest`: recorre los modelos y falla si falta el rasgo
       Archivos: `tests/Architecture/ScopeCoverageTest.php`
       Lista blanca de **una sola** tabla: `activity_log`, la del paquete de bitácora, que no lleva `site_id` (vacío V-01, R-05). Cualquier otra entrada exige justificación en `research.md`.
       Verifica: `php artisan test --filter=ScopeCoverageTest` en verde · se crea a propósito un modelo con `site_id` sin el rasgo y la prueba se pone roja. **Esta comprobación negativa es obligatoria: una red que no se probó no es una red.**
 
-- [ ] T025 · `QueryBudgetTest`: cuenta consultas por petición y falla pasando de cinco
+- [x] T025 · `QueryBudgetTest`: cuenta consultas por petición y falla pasando de cinco
       Archivos: `tests/Architecture/QueryBudgetTest.php`
       La unidad de medida es **la petición completa**, middleware incluido: 2 consultas como máximo para el bloque compartido y 3 para la pantalla. Las propiedades diferidas se miden en su propia petición parcial.
       Verifica: `php artisan test --filter=QueryBudgetTest` · una pantalla con una consulta N+1 introducida a propósito pone la prueba roja.
 
-- [ ] T165 · `NoRawQueriesTest`: prohíbe `DB::` y SQL crudo sobre tablas con ámbito
+- [x] T165 · `NoRawQueriesTest`: prohíbe `DB::` y SQL crudo sobre tablas con ámbito
       Archivos: `tests/Architecture/NoRawQueriesTest.php`
       Puerta de calidad 6, automatizada. El plan prometió esta tercera prueba de arquitectura; el documento de entrada solo tenía el barrido manual de T149.
       Verifica: `php artisan test --filter=NoRawQueriesTest` · se agrega a propósito un `DB::table('members')` y la prueba se pone roja.
