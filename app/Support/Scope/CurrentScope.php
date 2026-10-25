@@ -5,6 +5,7 @@ namespace App\Support\Scope;
 use App\Models\CommitteeUser;
 use App\Models\User;
 use App\Support\Committees\SubtreeResolver;
+use Illuminate\Support\Collection;
 
 /**
  * Quien soy y que puedo ver, resuelto una sola vez por peticion.
@@ -23,6 +24,9 @@ class CurrentScope
 
     private bool $mustChoose = false;
 
+    /** Los cargos vigentes se cargan UNA vez con su comite y se reutilizan. */
+    private ?Collection $roles = null;
+
     public function __construct(private readonly SubtreeResolver $subtree) {}
 
     public function resolve(?User $user, ?int $activeRoleId = null): void
@@ -33,32 +37,24 @@ class CurrentScope
             return;
         }
 
-        $this->user = $user;
-
         if ($user->is_pastor) {
+            $this->user = $user;
             $this->committeeIds = $this->subtree->idsForSite($user->site_id);
 
             return;
         }
 
-        $cargos = $user->currentRoles()->get();
+        // Todo se consulta ANTES de activar el ambito. Si se activara primero,
+        // el filtro se aplicaria a su propia consulta y no traeria ningun comite.
+        $cargos = $user->currentRoles()->with('committee')->get();
+        $activo = $this->pickActiveRole($cargos, $activeRoleId);
+        $ids = $activo ? $this->subtree->idsFor($activo->committee_id) : [];
 
-        if ($cargos->isEmpty()) {
-            $this->committeeIds = [];
-
-            return;
-        }
-
-        $this->activeRole = $this->pickActiveRole($cargos, $activeRoleId);
-
-        if (! $this->activeRole) {
-            $this->mustChoose = true;
-            $this->committeeIds = [];
-
-            return;
-        }
-
-        $this->committeeIds = $this->subtree->idsFor($this->activeRole->committee_id);
+        $this->user = $user;
+        $this->roles = $cargos;
+        $this->activeRole = $activo;
+        $this->committeeIds = $ids;
+        $this->mustChoose = $cargos->isNotEmpty() && ! $activo;
     }
 
     public function isActive(): bool
@@ -94,7 +90,13 @@ class CurrentScope
 
     public function canSwitch(): bool
     {
-        return ! $this->isPastor() && ($this->user?->currentRoles()->count() ?? 0) > 1;
+        return ! $this->isPastor() && $this->roles()->count() > 1;
+    }
+
+    /** Los cargos vigentes ya cargados: no se vuelven a consultar. */
+    public function roles(): Collection
+    {
+        return $this->roles ?? collect();
     }
 
     /** @return array<int> */
@@ -123,5 +125,6 @@ class CurrentScope
         $this->activeRole = null;
         $this->committeeIds = null;
         $this->mustChoose = false;
+        $this->roles = null;
     }
 }

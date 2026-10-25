@@ -247,7 +247,7 @@ Ninguna tarea del bloque 2.1 va en paralelo: bloquea todo lo demás.
       Archivos: `tests/Unit/Scope/CurrentScopeTest.php`
       Verifica: `php artisan test --filter=CurrentScopeTest` — pastor, presidente, líder, dos cargos con uno activo, y dos cargos sin escoger (CL-05). **Ningún caso devuelve la unión de dos ámbitos.**
 
-- [ ] T021 [US04] · Middleware `ResolveScope` registrado en el grupo web
+- [x] T021 [US04] · Middleware `ResolveScope` registrado en el grupo web
       Archivos: `app/Http/Middleware/ResolveScope.php` · `bootstrap/app.php`
       Resuelve el ámbito una sola vez por petición.
       Verifica: `php artisan test --filter=ResolveScopeTest` · el contador de consultas del ámbito es 1 por petición, no una por consulta.
@@ -277,17 +277,17 @@ Ninguna tarea del bloque 2.1 va en paralelo: bloquea todo lo demás.
       Puerta de calidad 6, automatizada. El plan prometió esta tercera prueba de arquitectura; el documento de entrada solo tenía el barrido manual de T149.
       Verifica: `php artisan test --filter=NoRawQueriesTest` · se agrega a propósito un `DB::table('members')` y la prueba se pone roja.
 
-- [ ] T028 [US04] · Propiedades compartidas: el cargo activo y el ámbito siempre, el resto diferido
+- [x] T028 [US04] · Propiedades compartidas: el cargo activo y el ámbito siempre, el resto diferido
       Archivos: `app/Http/Middleware/HandleInertiaRequests.php`
       Según `contracts/shared-props.md`: `auth.user`, `auth.roles` (solo cargos vigentes), `scope.activeRole`, `scope.label`, `scope.mustChoose`, `scope.canSwitch` y `flash` viajan en **toda** respuesta. `scope.hidden` y `pendingCount` son **propiedades diferidas** de Inertia: se resuelven en su propia petición parcial, solo donde se muestran (la cinta de alcance, T099, y la pantalla de inicio, T084, T085). **`scope.hidden` lleva solo cantidades, nunca nombres ni identificadores** (RF-009).
       Verifica: `php artisan test --filter=SharedPropsTest` — las siete llaves permanentes viajan en toda respuesta autenticada y `scope.hidden` trae números, no listas · `php artisan test --filter=QueryBudgetTest` prueba que el bloque compartido cuesta **a lo sumo dos consultas** (la persona; sus cargos vigentes con su comité) y que `scope.hidden` y `pendingCount` se miden aparte, como propiedad diferida, no dentro de la primera carga.
 
-- [ ] T163 [US04] · Cargo activo: selector visible y cambio de cargo
+- [x] T163 [US04] · Cargo activo: selector visible y cambio de cargo
       Archivos: `app/Http/Controllers/RoleSwitchController.php` · `routes/web.php` (`POST /role/switch`) · `resources/js/components/domain/RoleSwitcher.tsx` · `resources/js/layouts/AppLayout.tsx`
       Corrección C-01. Valida que el cargo pertenezca a la persona y esté vigente, lo guarda en la sesión y regresa a la pantalla anterior. Un `roleId` ajeno o cerrado responde «no disponible» sin revelar ningún dato.
       Verifica: `php artisan test --filter=RoleSwitchTest` — un `roleId` de otra persona no cambia nada · a 360 px el selector se alcanza con el pulgar y toda pantalla muestra con qué cargo se está actuando.
 
-- [ ] T164 [US04] · Prueba: el cargo activo aplica un solo ámbito, nunca la unión
+- [x] T164 [US04] · Prueba: el cargo activo aplica un solo ámbito, nunca la unión
       Archivos: `tests/Feature/Scope/ActiveRoleTest.php`
       CL-05 con la regla corregida. Persona con dos cargos, actuando con el cargo A: ninguna pantalla, ningún acceso directo por identificador y ninguna descarga de reporte devuelve algo del ámbito B.
       Verifica: `php artisan test --filter=ActiveRoleTest`
