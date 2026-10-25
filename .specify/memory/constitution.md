@@ -243,6 +243,29 @@ mantener cualquier archivo de este proyecto sin que nadie se lo explique.
 
 ### Registro de enmiendas
 
+**2.2.0 · 2026-10-24 · Código legible por un desarrollador junior**
+
+- Qué cambia: se agrega a «Restricciones Técnicas» la sub-sección «Código legible por un
+  desarrollador junior», con los límites de tamaño de los componentes de React (250 líneas por
+  archivo, 300 como tope infranqueable, 70 por función, un componente exportado por archivo),
+  la regla de pocos comentarios, el estado en el nivel más bajo posible y cómo dividir un
+  archivo que se pasa. Y en «Ramas y aprobación» se agrega el tamaño de los componentes a las
+  puertas previas a mezclar, los commits pasan a ser breves, y toda explicación de un cambio
+  se da en lenguaje claro.
+- Por qué: lo pidió el autor del proyecto. El sistema lo va a mantener alguien que no
+  participó en construirlo, y un archivo de mil líneas o un patrón innecesario lo vuelven
+  inmantenible. Es el mismo criterio del principio IV —claridad por encima de todo—, aplicado
+  al código en vez de a la interfaz.
+- Salto de versión: MINOR. Se agrega una sub-sección normativa; no se elimina ni se redefine
+  ningún principio.
+- Impacto sobre las especificaciones ya escritas: ninguna cambia de contenido. Se agrega una
+  puerta de calidad, que `plan.md` y `tasks.md` recogen, y `CLAUDE.md` pasa a existir como la
+  guía en tiempo de ejecución que esta Gobernanza ya designaba.
+- Nota de adaptación: las reglas llegaron escritas para `Pages/`, `Components/` y archivos
+  `.jsx`. Este proyecto usa `resources/js/pages/`, `resources/js/components/` y **TypeScript**
+  (`.tsx`), así que se escribieron con las rutas y la extensión reales; el comando de
+  verificación busca `*.tsx`.
+
 **2.1.0 · 2026-10-24 · Mínimos para adultos mayores y ampliación del alcance contratado**
 
 - Qué cambia: el principio II sube sus mínimos verificables —zona pulsable de 48x48 px y texto
@@ -291,4 +314,4 @@ mantener cualquier archivo de este proyecto sin que nadie se lo explique.
   cambio de fondo. Toda la demás cobertura del principio I sigue igual, y ninguna otra
   salida del filtro queda autorizada.
 
-**Versión**: 2.1.0 | **Ratificada**: 2026-10-14 | **Última enmienda**: 2026-10-24
+**Versión**: 2.2.0 | **Ratificada**: 2026-10-14 | **Última enmienda**: 2026-10-24
