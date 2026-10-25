@@ -72,8 +72,9 @@ Ninguna funcionalidad se considera terminada si solo funciona bien en escritorio
 Objetivos verificables:
 
 - Cero desplazamiento horizontal a 360 px de ancho.
-- Toda zona pulsable mide 44x44 px como mínimo.
-- El texto de contenido mide 16 px como mínimo.
+- Toda zona pulsable mide 48x48 px como mínimo.
+- El texto de contenido mide 18 px como mínimo.
+- El contraste entre texto y fondo cumple el nivel AA de las pautas de accesibilidad.
 - La aplicación se instala como PWA y abre su pantalla principal en menos de 3 segundos
   sobre una red 3G simulada.
 - Las tablas anchas se convierten en tarjetas en pantallas angostas; no se desbordan.
@@ -156,10 +157,13 @@ Entorno local Laragon; el proyecto vive en `C:\laragon\www\control-actividades`.
 
 - Simple antes que completo. Lo que no está en el alcance contratado NO se construye: se
   registra como propuesta para cotizar.
-- El alcance contratado es: comités y sub-comités; aprobaciones en dos niveles; cronograma
-  anual con propuesta, aprobación, rechazo y seguimiento; registro de miembros con reportes
-  y estadísticas; seguimiento de simpatizantes por etapas; asistencia a reuniones y ensayos;
-  y presupuesto asignado y ejecutado por comité.
+- El alcance contratado es: la estructura de comités en tres niveles —comité, sub-comité y
+  equipo—, administrable por el pastor; aprobaciones en dos niveles; cronograma anual con
+  propuesta, aprobación, rechazo y seguimiento, que es también el plan de trabajo de cada
+  comité; registro de miembros con reportes y estadísticas; seguimiento de simpatizantes por
+  etapas; asistencia a reuniones y ensayos; actas de reunión con sus compromisos, numeradas
+  e imprimibles; archivos que respaldan el cumplimiento de una actividad y los soportes de
+  los movimientos de presupuesto; y presupuesto asignado y ejecutado por comité.
 - Ninguna pantalla hace más de 5 consultas a la base de datos. Se previenen las consultas
   N+1.
 
@@ -208,6 +212,30 @@ Entorno local Laragon; el proyecto vive en `C:\laragon\www\control-actividades`.
 
 ### Registro de enmiendas
 
+**2.1.0 · 2026-10-24 · Mínimos para adultos mayores y ampliación del alcance contratado**
+
+- Qué cambia: el principio II sube sus mínimos verificables —zona pulsable de 48x48 px y texto
+  de contenido de 18 px, antes 44x44 y 16— y agrega la exigencia de contraste AA. La sección
+  «Alcance y simplicidad» reescribe la lista del alcance contratado: la estructura de comités
+  pasa a tres niveles administrables por el pastor, y se incorporan las actas de reunión con
+  sus compromisos y los archivos que respaldan actividades y movimientos de presupuesto.
+- Por qué: quienes usan el sistema son en su mayoría adultos mayores con poca experiencia en
+  aplicaciones, y los mínimos anteriores, aunque cumplían las pautas, se quedaban cortos para
+  ese público. La ampliación del alcance la decidió el autor del proyecto el 2026-10-24, con
+  la congregación pidiendo actas digitalizadas, evidencias de cumplimiento y soportes de
+  factura.
+- Salto de versión: MINOR. Se amplía materialmente la guía de un principio y la lista de
+  alcance; no se elimina ni se redefine ningún principio.
+- Impacto sobre las especificaciones ya escritas: alcanza a los cinco artefactos. RF-058
+  sube sus medidas; el alcance de spec.md incorpora los cuatro módulos nuevos; el filtro de
+  alcance pasa de dos niveles a tres, lo que obliga a reescribir `CurrentScope`, el rasgo de
+  comité, las policies y **todas** las pruebas de aislamiento del principio I; y los cargos
+  pasan de dos a cuatro, con secretario y tesorero. Las pantallas ya construidas se revisan
+  contra los mínimos nuevos.
+- Lo que NO cambia: los dos principios NO NEGOCIABLES siguen sin admitir excepción, y la
+  única excepción enumerada al filtro de alcance sigue siendo la del cronograma compartido.
+  Las evidencias y los soportes **no** viajan por ella.
+
 **2.0.0 · 2026-10-18 · Excepción enumerada del cronograma en el principio I**
 
 - Qué cambia: el principio I prohibía en términos absolutos toda salida del filtro de
@@ -232,4 +260,4 @@ Entorno local Laragon; el proyecto vive en `C:\laragon\www\control-actividades`.
   cambio de fondo. Toda la demás cobertura del principio I sigue igual, y ninguna otra
   salida del filtro queda autorizada.
 
-**Versión**: 2.0.0 | **Ratificada**: 2026-10-14 | **Última enmienda**: 2026-10-18
+**Versión**: 2.1.0 | **Ratificada**: 2026-10-14 | **Última enmienda**: 2026-10-24
