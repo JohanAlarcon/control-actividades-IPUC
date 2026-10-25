@@ -59,6 +59,26 @@
 }
 
 /*
+ * Paleta de la IPUC, tomada del sitio oficial de la iglesia.
+ *
+ * Cada color tiene un lugar y NO son intercambiables. El azul claro y el dorado
+ * no alcanzan el contraste minimo que exige el principio II, asi que no pueden
+ * llevar texto encima. Las cifras son el contraste contra fondo blanco; el
+ * minimo para texto es 4.5, y para bordes e iconos es 3.
+ */
+@theme {
+    --color-ipuc: #00338d; /* azul principal: botones y titulos. 11:1 */
+    --color-ipuc-oscuro: #001a4d; /* el boton mientras esta presionado */
+    --color-ipuc-claro: #009fda; /* 3:1. Bordes e iconos. NUNCA texto */
+    --color-ipuc-dorado: #f0ab00; /* 2:1. Solo adorno, o con texto oscuro */
+
+    --color-tinta: #1a1a18; /* texto normal. 18:1 */
+    --color-tinta-suave: #5a5852; /* texto de apoyo. 7:1 */
+    --color-linea: #6e6a62; /* borde de los campos. 5:1 */
+    --color-alerta: #8a2b12; /* mensajes de error. 9:1 */
+}
+
+/*
   The default border color has changed to `currentColor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
   looks the same as it did with Tailwind CSS v3.

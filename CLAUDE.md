@@ -38,7 +38,32 @@ Todas deben pasar:
 6. No hay `DB::` ni SQL crudo sobre tablas con ámbito.
 7. Ningún texto de interfaz contiene jerga técnica.
 8. **Ningún componente de React pasa de 300 líneas.**
-9. Revisión y aprobación explícita del autor del proyecto: la IA propone, la persona aprueba.
+9. **Los colores se usan por su nombre**, no escritos a mano. Ver «La paleta» más abajo.
+10. Revisión y aprobación explícita del autor del proyecto: la IA propone, la persona aprueba.
+
+---
+
+## La paleta
+
+Es la de la IPUC. Está definida una sola vez, en `resources/css/app.css`, y se usa por el nombre
+de la clase de Tailwind. **Ninguna pantalla escribe un `#código` a mano.**
+
+| Clase | Color | Para qué | Contraste |
+|---|---|---|---|
+| `bg-ipuc` `text-ipuc` | `#00338d` azul | botones, títulos | 11:1 |
+| `bg-ipuc-oscuro` | `#001a4d` | el botón presionado | — |
+| `border-ipuc-claro` | `#009fda` | bordes, iconos, foco | 3:1 |
+| `bg-ipuc-dorado` | `#f0ab00` dorado | adorno | 2:1 |
+| `text-tinta` | `#1a1a18` | texto normal | 18:1 |
+| `text-tinta-suave` | `#5a5852` | texto de apoyo | 7:1 |
+| `border-linea` | `#6e6a62` | borde de los campos | 5:1 |
+| `text-alerta` | `#8a2b12` | errores | 9:1 |
+
+El azul claro y el dorado **no llevan texto encima**: 3:1 y 2:1 están por debajo del 4,5:1 que
+exige el principio II. Sirven para bordes, iconos y adorno, o con texto oscuro encima.
+
+Queda un resto del kit de Laravel sin migrar: `resources/js/pages/welcome.tsx`, con su propia
+paleta escrita a mano. Se va cuando se construya la pantalla de entrada real.
 
 ---
 

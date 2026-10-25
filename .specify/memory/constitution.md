@@ -75,6 +75,10 @@ Objetivos verificables:
 - Toda zona pulsable mide 48x48 px como mínimo.
 - El texto de contenido mide 18 px como mínimo.
 - El contraste entre texto y fondo cumple el nivel AA de las pautas de accesibilidad.
+- Los colores salen de la paleta de la IPUC definida en `resources/css/app.css` y se usan por su
+  nombre, nunca escritos a mano. Unica excepcion: la barra de carga en `resources/js/app.tsx`,
+  que es un valor de JavaScript y Tailwind no lo alcanza. El azul claro y el dorado no llevan
+  texto encima, porque no alcanzan el contraste AA.
 - La aplicación se instala como PWA y abre su pantalla principal en menos de 3 segundos
   sobre una red 3G simulada.
 - Las tablas anchas se convierten en tarjetas en pantallas angostas; no se desbordan.
@@ -243,6 +247,19 @@ mantener cualquier archivo de este proyecto sin que nadie se lo explique.
 
 ### Registro de enmiendas
 
+**2.3.0 · 2026-10-24 · La paleta de colores es la de la IPUC**
+
+- Qué cambia: el principio II agrega un objetivo verificable. Los colores de la interfaz son los
+  de la IPUC —azul `#00338d`, azul claro `#009fda`, dorado `#f0ab00`— definidos una sola vez en
+  `resources/css/app.css` y usados por su nombre. El azul claro y el dorado no pueden llevar
+  texto encima.
+- Por qué: la paleta anterior la escogió quien construía, no la iglesia, y no estaba anotada en
+  ninguna parte, así que cada pantalla podía inventar la suya. Lo segundo era el problema real.
+  El límite del azul claro y el dorado no es estético: medidos contra fondo blanco dan 3:1 y 2:1,
+  por debajo del 4,5:1 que ya exigía este principio, y la congregación es mayor.
+- Salto de versión: MINOR. Se agrega un objetivo verificable; no se elimina ni se redefine
+  ninguno de los existentes.
+
 **2.2.0 · 2026-10-24 · Código legible por un desarrollador junior**
 
 - Qué cambia: se agrega a «Restricciones Técnicas» la sub-sección «Código legible por un
@@ -314,4 +331,4 @@ mantener cualquier archivo de este proyecto sin que nadie se lo explique.
   cambio de fondo. Toda la demás cobertura del principio I sigue igual, y ninguna otra
   salida del filtro queda autorizada.
 
-**Versión**: 2.2.0 | **Ratificada**: 2026-10-14 | **Última enmienda**: 2026-10-24
+**Versión**: 2.3.0 | **Ratificada**: 2026-10-14 | **Última enmienda**: 2026-10-24

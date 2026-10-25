@@ -21,7 +21,9 @@ createInertiaApp({
         root.render(<App {...props} />);
     },
     progress: {
-        color: '#4B5563',
+        // Barra de carga. Es el unico color escrito a mano: es un valor de
+        // JavaScript y Tailwind no lo alcanza. El original esta en app.css.
+        color: '#00338d',
     },
 });
 
