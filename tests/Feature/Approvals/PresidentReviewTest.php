@@ -12,21 +12,23 @@ beforeEach(function () {
     $this->e = estructuraDePrueba();
 });
 
-test('1. un gasto, una tarea o un cambio de fecha queda resuelto al aprobarlo, y el líder ve quién y cuándo', function (string $tipo) {
+test('1. un gasto, una tarea o un cambio de fecha con el visto bueno del presidente no queda resuelto: pasa al pastor, y el líder lo ve', function (string $tipo) {
     $solicitud = solicitudDe($this->e['liderSonido'], $tipo, 'Lo que pide Sonido', $tipo === 'expense' ? 300_000 : null);
 
     $this->actingAs($this->e['presidente'])->post("/approvals/{$solicitud->id}/approve");
 
-    expect($solicitud->fresh()->status)->toBe(Approval::APPROVED);
+    expect($solicitud->fresh())
+        ->status->toBe(Approval::PENDING)
+        ->level->toBe(Approval::LEVEL_PASTOR);
 
     $this->actingAs($this->e['liderSonido'])->get('/approvals')
         ->assertInertia(fn (Assert $page) => $page
-            ->where('history.0.status', 'approved')
-            ->where('history.0.resolvedBy', 'Hermano Rigoberto Páez')
-            ->where('history.0.resolvedAt', fn ($fecha) => $fecha !== null));
+            ->where('escalated.0.title', 'Lo que pide Sonido')
+            ->where('escalated.0.level', 'pastor')
+            ->where('escalated.0.escalatedBy', 'Hermano Rigoberto Páez'));
 })->with(['gasto' => 'expense', 'tarea' => 'task', 'cambio de fecha' => 'date_change']);
 
-test('2. una actividad nueva aprobada por el presidente no se cierra: pasa al pastor, y quien la propuso lo ve', function () {
+test('2. una actividad nueva con el visto bueno del presidente no se cierra: pasa al pastor, y quien la propuso lo ve', function () {
     $solicitud = solicitudDe($this->e['liderSonido'], titulo: 'Vigilia de jóvenes');
 
     $this->actingAs($this->e['presidente'])->post("/approvals/{$solicitud->id}/approve");
@@ -42,7 +44,7 @@ test('2. una actividad nueva aprobada por el presidente no se cierra: pasa al pa
             ->where('escalated.0.escalatedBy', 'Hermano Rigoberto Páez'));
 });
 
-test('3. rechazar exige el motivo, y el motivo queda a la vista de quien propuso', function () {
+test('3. si no está de acuerdo, la devuelve: se exige el motivo, quien la propuso lo ve y no llega al pastor', function () {
     $solicitud = solicitudDe($this->e['liderMontaje']);
 
     $this->actingAs($this->e['presidente'])->post("/approvals/{$solicitud->id}/reject")->assertSessionHasErrors('reason');
@@ -50,6 +52,9 @@ test('3. rechazar exige el motivo, y el motivo queda a la vista de quien propuso
 
     $this->actingAs($this->e['liderMontaje'])->get('/approvals')
         ->assertInertia(fn (Assert $page) => $page->where('history.0.reason', 'Falta el permiso del templo.'));
+
+    $this->actingAs($this->e['pastor'])->get('/approvals')
+        ->assertInertia(fn (Assert $page) => $page->where('counts.inbox', 0));
 });
 
 test('4. al abrir el inicio, el presidente ve cuántas solicitudes esperan y desde cuándo', function () {

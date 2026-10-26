@@ -12,24 +12,20 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
- * La cadena de escalamiento, en un solo lugar (data-model §5; RF-016 a RF-019; V-04). Es lo
- * unico que crea solicitudes y lo unico que decide si una aprobacion cierra o sube al pastor.
+ * La cadena de aprobacion, en un solo lugar (data-model §5; RF-016 a RF-019). Solo el pastor
+ * aprueba; el presidente revisa: da su visto bueno y la solicitud sube al pastor, o la devuelve
+ * con el motivo (D-24). Es lo unico que crea solicitudes y lo unico que decide cuando una sube.
  * Es la regla que mas se ha movido en el proyecto: aqui se cambia, y en ningun otro lugar.
  */
 class ApprovalFlow
 {
     /**
-     * Pide aprobacion. Lo de un presidente sube al pastor; lo de los demas cargos, a su
-     * presidente. Devuelve null cuando no hace falta pedir: el gasto del propio comite lo
-     * autoriza el presidente, y queda con su nombre en el presupuesto (RF-018).
+     * Pide aprobacion. Lo de un presidente le llega directo al pastor; lo de los demas cargos,
+     * primero a su presidente, que lo revisa (RF-016, RF-017). Sin excepciones por tipo ni monto.
      */
-    public function request(CommitteeUser $cargo, Model $objeto, string $tipo, string $titulo, ?string $detalle = null, ?float $monto = null): ?Approval
+    public function request(CommitteeUser $cargo, Model $objeto, string $tipo, string $titulo, ?string $detalle = null, ?float $monto = null): Approval
     {
         $esPresidente = $cargo->role === CommitteeUser::PRESIDENT;
-
-        if ($esPresidente && $tipo === Approval::TYPE_EXPENSE) {
-            return null;
-        }
 
         return Approval::create([
             'site_id' => $cargo->site_id,
@@ -67,15 +63,16 @@ class ApprovalFlow
     }
 
     /**
-     * Aprueba. Una actividad nueva aprobada por el presidente no cierra: queda constancia de que
-     * paso por el y sube al pastor (HU-06, escenario 2). Todo lo demas cierra aqui.
+     * El visto bueno del presidente o la aprobacion del pastor, segun quien la tenga. El visto
+     * bueno nunca cierra: queda constancia de que paso por el presidente y la solicitud sube al
+     * pastor (HU-06). Solo el pastor la deja aprobada, y entonces se aplica su efecto (D-24).
      */
     public function approve(Approval $solicitud, User $quien): Approval
     {
         return DB::transaction(function () use ($solicitud, $quien) {
             $solicitud = $this->tomar($solicitud);
 
-            if ($solicitud->level === Approval::LEVEL_PRESIDENT && $solicitud->type === Approval::TYPE_ACTIVITY) {
+            if ($solicitud->level === Approval::LEVEL_PRESIDENT) {
                 $solicitud->update([
                     'level' => Approval::LEVEL_PASTOR,
                     'escalated_by_user_id' => $quien->id,
@@ -89,7 +86,10 @@ class ApprovalFlow
         });
     }
 
-    /** Rechaza, con el motivo que va a leer quien la pidio (RF-020). Rechazar siempre cierra. */
+    /**
+     * Rechaza, con el motivo que va a leer quien la pidio (RF-020), y siempre cierra. Si la
+     * rechaza el presidente, la solicitud vuelve a quien la pidio y no llega al pastor (D-24).
+     */
     public function reject(Approval $solicitud, User $quien, string $motivo): Approval
     {
         return DB::transaction(fn () => $this->cerrar($this->tomar($solicitud), [

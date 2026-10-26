@@ -22,8 +22,8 @@ describe('navItems', () => {
         expect(labels(navItems(props(true, null)))).toEqual(['Inicio', 'Aprobar', 'Comités', 'Cuentas']);
     });
 
-    it('un presidente aprueba, pero no administra cuentas', () => {
-        expect(labels(navItems(props(false, 'president')))).toEqual(['Inicio', 'Aprobar', 'Comités']);
+    it('un presidente revisa, no aprueba, y no administra cuentas', () => {
+        expect(labels(navItems(props(false, 'president')))).toEqual(['Inicio', 'Revisar', 'Comités']);
     });
 
     it('un líder no aprueba: ve en qué van sus solicitudes', () => {

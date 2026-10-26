@@ -178,8 +178,9 @@ contra RF-059. La lista de pantallas que `QueryBudgetTest` mide tampoco se escri
   muestran el aviso de privacidad (RF-061, RF-062, CE-12).
 - **V-03 · Ficha pendiente de completar.** `members` recibe `profile_pending` (bool) para la ficha
   mínima creada al habilitar una cuenta (RF-003, RF-031, CL-16).
-- **V-04 · Gasto del propio presidente.** `ApprovalFlow` codifica RF-018: el gasto del propio
-  comité lo autoriza el presidente sin escalar al pastor, y queda registrado con su nombre.
+- **V-04 · Gasto del propio presidente.** ~~`ApprovalFlow` codifica RF-018: el gasto del propio
+  comité lo autoriza el presidente sin escalar al pastor.~~ Reemplazada el 2026-10-26 por D-24:
+  ese gasto también lo aprueba el pastor.
 - **V-05 · Transiciones de estado de una actividad.** El plan de entrada no decía cuándo una
   actividad aprobada pasa a «en curso» y a «cumplida». Queda definido como regla única y probada en
   [data-model.md](./data-model.md), sección de transiciones.
@@ -472,6 +473,7 @@ los **R-xx**, que son las decisiones de investigación de [research.md](./resear
 | D-21 | El filtro del cargo se activa antes de buscar el registro de la ruta, y una cuenta de usuario se busca solo dentro de la sede | Laravel busca el registro de una dirección como `/committees/5` antes de pasar por los middleware agregados, y en ese momento el filtro todavía estaba apagado: el 2026-10-26 una presidenta abrió por su número un comité ajeno y lo vio. Hoy ninguna pantalla lo exponía, pero toda pantalla futura con un número en la dirección lo habría hecho. `EnsureActiveUser` y `ResolveScope` pasan antes de `SubstituteBindings` en `bootstrap/app.php`. La tabla de cuentas no lleva filtro de sede, porque la entrada al sistema busca a la persona antes de saber su sede, así que `User::resolveRouteBinding` lo aplica a mano. `DirectAccessTest` falla si el orden se pierde. |
 | D-22 | Una cuenta no se borra en ninguna capa | Las páginas de configuración del kit dejaban que una persona borrara su propia cuenta, y las llaves hacia las personas borraban en cascada sus cargos, sus actividades y sus solicitudes (encontrado el 2026-10-26). Se retiraron esas páginas; `User` se niega a borrarse; y la migración `keep_people_in_history` cambia las siete llaves para que la base de datos rechace borrar a quien tenga historia. Retirar el acceso sigue siendo `active` en falso (RF-006). `AccountsAreNeverDeletedTest` vigila las tres capas. |
 | D-23 | En el escritorio el menú va al costado y el contenido se abre a lo ancho | El celular sigue mandando (principio II), pero el sistema también se abre en un computador, y ahí la columna del celular quedaba estirada en medio de la pantalla, con el menú de abajo flotando (observado por el autor el 2026-10-26). De 1024 px en adelante el menú de abajo se esconde y el mismo menú aparece al costado (`side-nav.tsx`); las secciones salen de un solo lugar, `lib/navigation.ts`. Las listas pasan a dos columnas. Todo lo del escritorio va con el prefijo `lg:`: a 360 px nada cambia. |
+| D-24 | Solo el pastor aprueba | Lo decidió el autor del proyecto el 2026-10-26, al ver que la bandeja le decía «Aprobar» al presidente; la constitución dice «el presidente revisa, el pastor aprueba». El presidente da su visto bueno —la solicitud sube al pastor— o la devuelve con el motivo, y entonces no llega al pastor. Vale para la actividad nueva, el gasto, la tarea y el cambio de fecha, y también para el gasto del propio comité del presidente, que antes él autorizaba solo (V-04). `ApprovalFlow` lo codifica y el modelo `Approval` se niega a guardar una solicitud aprobada en nivel presidente. En pantalla, el pastor ve «Aprobar» y el presidente «Revisar», con los botones «Visto bueno» y «Devolver». |
 
 ## Registro de riesgos
 

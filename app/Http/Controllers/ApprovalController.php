@@ -51,15 +51,17 @@ class ApprovalController extends Controller
         $solicitud = $flujo->approve($approval, $request->user());
 
         return back()->with('notice', $solicitud->isPending()
-            ? 'Listo. Usted la aprobó y ahora pasa al pastor, que es quien la cierra.'
+            ? 'Listo. Le dio su visto bueno, y ahora pasa al pastor, que es quien aprueba.'
             : 'Listo. La solicitud quedó aprobada.');
     }
 
     public function reject(RejectApprovalRequest $request, Approval $approval, ApprovalFlow $flujo): RedirectResponse
     {
-        $flujo->reject($approval, $request->user(), $request->validated('reason'));
+        $solicitud = $flujo->reject($approval, $request->user(), $request->validated('reason'));
 
-        return back()->with('notice', 'Listo. No se aprobó, y quien la pidió va a ver el motivo.');
+        return back()->with('notice', $solicitud->level === Approval::LEVEL_PRESIDENT
+            ? 'Listo. La devolvió, y quien la pidió va a ver el motivo para corregirla.'
+            : 'Listo. No se aprobó, y quien la pidió va a ver el motivo.');
     }
 
     /**

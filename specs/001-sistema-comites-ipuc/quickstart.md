@@ -145,13 +145,13 @@ la medida que exige el principio II.
 9. Con `pastor`, apruebe. **Esperado**: entra al cronograma como aprobada, con su nombre y la fecha.
 10. Rechace otra. **Esperado**: exige motivo escrito, y el motivo queda visible para quien propuso.
 
-### 4.6 El gasto del presidente — RF-018, corrección V-04
+### 4.6 El gasto — RF-018, D-24: solo el pastor aprueba
 
-1. Con `presidente.alabanza`, registre un gasto de su propio comité.
-2. **Esperado**: queda autorizado por él mismo, con su nombre y la fecha. **No** aparece en la
-   bandeja del pastor.
+1. Con `presidente.alabanza`, pida un gasto de su propio comité.
+2. **Esperado**: le llega al pastor, que es quien aprueba. El presidente **no** lo deja aprobado.
 3. Con `lider.sonido`, solicite autorización de un gasto.
-4. **Esperado**: le llega a su presidente, y este lo cierra sin escalarlo.
+4. **Esperado**: le llega a su presidente, que solo puede darle el visto bueno —y entonces pasa al
+   pastor— o devolverlo con el motivo.
 5. Registre un gasto que deje el saldo en negativo.
 6. **Esperado**: advierte expresamente que se está pasando del presupuesto y **permite continuar**
    si se confirma.

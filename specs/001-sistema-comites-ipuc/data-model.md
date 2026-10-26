@@ -390,7 +390,7 @@ registrando el cambio, que la bitácora conserva (principio III).
 | `committee_id` | fk → `committees` | el comité de origen |
 | `approvable_type`, `approvable_id` | relación polimórfica | el objeto que la solicitud afecta |
 | `type` | enum | `activity` \| `expense` \| `task` \| `date_change` \| `new_member` (RF-015, RF-019) |
-| `level` | enum | `president` \| `pastor` — quién debe resolver **ahora**; nunca `pastor` si `type` = `expense` |
+| `level` | enum | `president` \| `pastor` — quién la tiene **ahora**: el presidente la revisa, el pastor la aprueba. Solo queda `approved` en `pastor` (D-24) |
 | `escalated_by_user_id` | fk → `users`, nulo | el presidente que la aprobó y la pasó al pastor: la tarjeta dice «por quién ya pasó» (T068). `restrict`, como toda llave hacia una persona (D-22) |
 | `escalated_at` | datetime, nulo | cuándo subió al pastor |
 | `status` | enum | `pending` \| `approved` \| `rejected` |
@@ -411,42 +411,42 @@ registrando el cambio, que la bitácora conserva (principio III).
 (RF-021, RF-057, RN-07). Corregir significa registrar una decisión nueva. Se hace cumplir en el
 modelo, no solo en la interfaz, y tiene prueba propia.
 
-**Combinación inválida**: `type` = `expense` con `level` = `pastor` **no existe**. Tras la
-aclaración de RF-018 ningún gasto llega al pastor: el del líder lo cierra su presidente, y el del
-presidente lo autoriza él mismo sin solicitud. Se hace cumplir en dos sitios:
+**Solo el pastor aprueba (D-24)**: una fila con `status` = `approved` y `level` = `president` **no
+existe**. El presidente revisa: su visto bueno sube la solicitud al pastor, sea del tipo que sea, y
+si la devuelve queda `rejected` en su propio nivel, con motivo, sin llegar al pastor. Se hace
+cumplir en dos sitios:
 
-1. `ApprovalFlow` es el único lugar que crea filas, y nunca asigna ese par.
+1. `ApprovalFlow` es el único lugar que crea y resuelve filas, y nunca deja una solicitud aprobada
+   en manos del presidente.
 2. El modelo `Approval` lo rechaza al guardar, igual que la regla de inmutabilidad.
 
 No lleva restricción `check` en la migración: el escalamiento es la regla más volátil del proyecto
-—ya se movió una vez con V-04— y llevarla a la base la congela donde es más caro cambiarla.
+—ya se movió dos veces, con V-04 y con D-24— y llevarla a la base la congela donde es más caro
+cambiarla.
 
-**Qué hay que probar**: crear una solicitud con `type` = `expense` y `level` = `pastor` falla en el
-modelo `Approval`. Y un gasto propuesto por un líder y aprobado por su presidente **cierra** en ese
-paso: no queda `pending` esperando al pastor (RF-018).
+**Qué hay que probar**: guardar una solicitud aprobada en nivel `president` falla en el modelo
+`Approval`. Y un gasto propuesto por un líder, con el visto bueno de su presidente, **no cierra**:
+queda `pending` en el pastor (RF-018).
 
 ### El escalamiento — `Support/Approvals/ApprovalFlow.php`
 
-Un solo lugar donde vive la cadena. Incluye RF-018, que el plan de entrada no contemplaba (V-04).
+Un solo lugar donde vive la cadena. Solo el pastor aprueba; el presidente revisa (RF-018, D-24).
 
 ```
 Al crear la solicitud:
-  la propone un líder                → level = president
-  la propone un presidente:
-      type = expense de su comité    → NO se crea solicitud: él autoriza y se registra
-                                       el movimiento con su nombre y la fecha (RF-018)
-      type = activity                → level = pastor
-      type = task | date_change      → level = pastor
-      type = new_member              → level = pastor (solo el presidente de Evangelismo)
+  la propone un líder, un secretario o un tesorero → level = president: la revisa su presidente
+  la propone un presidente                         → level = pastor, de cualquier tipo, también
+                                                     el gasto de su propio comité (D-24)
+      type = new_member                            → solo el presidente de Evangelismo (RF-019)
 
 Al resolver:
-  presidente aprueba type = activity → NO cierra: level pasa a pastor, status sigue pending,
-                                       quedan escalated_by_user_id y escalated_at, y quien
-                                       la propuso lo ve en su bandeja (HU-06 escenario 2)
-  presidente aprueba expense | task | date_change → cierra
-  presidente rechaza                 → cierra con motivo obligatorio
-  pastor aprueba                     → cierra y aplica el efecto sobre el objeto apuntado
-  pastor rechaza                     → cierra con motivo obligatorio
+  el presidente da su visto bueno → NO cierra, sea del tipo que sea: level pasa a pastor, status
+                                    sigue pending, quedan escalated_by_user_id y escalated_at, y
+                                    quien la propuso lo ve en su bandeja (HU-06 escenarios 1 y 2)
+  el presidente la devuelve       → cierra como rejected en su nivel, con motivo obligatorio, y
+                                    no llega al pastor (HU-06 escenario 3)
+  el pastor aprueba               → cierra y aplica el efecto sobre el objeto apuntado
+  el pastor no la aprueba         → cierra como rejected, con motivo obligatorio
 ```
 
 El pastor puede resolver varias solicitudes del mismo tipo en una sola acción, confirmando una vez

@@ -63,10 +63,10 @@ class Approval extends Model
     protected static function booted(): void
     {
         static::saving(function (Approval $approval) {
-            // RF-018: ningun gasto llega al pastor. ApprovalFlow nunca arma este par; aqui se
-            // cierra la puerta por si alguien crea la fila por otro camino (data-model §5).
-            if ($approval->type === self::TYPE_EXPENSE && $approval->level === self::LEVEL_PASTOR) {
-                throw new RuntimeException('Un gasto no llega al pastor: lo cierra el presidente del comité (RF-018).');
+            // D-24: solo el pastor aprueba. ApprovalFlow nunca deja una solicitud aprobada en manos
+            // del presidente; aqui se cierra la puerta por si alguien lo intenta por otro camino.
+            if ($approval->status === self::APPROVED && $approval->level !== self::LEVEL_PASTOR) {
+                throw new RuntimeException('Solo el pastor aprueba: una solicitud no queda aprobada en manos del presidente (D-24).');
             }
 
             if ($approval->status === self::REJECTED && blank($approval->reason)) {

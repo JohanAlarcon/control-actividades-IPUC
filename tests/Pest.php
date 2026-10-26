@@ -147,9 +147,9 @@ function nodoDelArbol(array $arbol, string $nombre): ?array
 /**
  * Lo que pide esa persona, por el camino real: ApprovalFlow decide a quien le llega. Todas apuntan
  * a una actividad de su comite, el unico objeto que ya existe; el gasto y la tarea tendran el suyo
- * cuando existan sus modulos. Devuelve null cuando no hace falta pedir (RF-018).
+ * cuando existan sus modulos.
  */
-function solicitudDe(App\Models\User $quien, string $tipo = 'activity', string $titulo = 'Vigilia de jóvenes', ?float $monto = null): ?App\Models\Approval
+function solicitudDe(App\Models\User $quien, string $tipo = 'activity', string $titulo = 'Vigilia de jóvenes', ?float $monto = null): App\Models\Approval
 {
     $cargo = App\Models\CommitteeUser::where('user_id', $quien->id)->sole();
     $actividad = App\Models\Activity::factory()

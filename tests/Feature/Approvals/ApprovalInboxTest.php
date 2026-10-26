@@ -36,7 +36,7 @@ test('el gasto trae su monto', function () {
         ->assertInertia(fn (Assert $page) => $page->where('inbox.0.type', 'expense')->where('inbox.0.amount', fn ($monto) => (float) $monto === 850000.0));
 });
 
-test('al pastor le llega lo que el presidente ya aprobó, diciendo por quién pasó', function () {
+test('al pastor le llega lo que el presidente ya revisó, diciendo quién le dio el visto bueno', function () {
     $solicitud = app(ApprovalFlow::class)->approve(solicitudDe($this->e['liderSonido']), $this->e['presidente']);
 
     $this->actingAs($this->e['pastor'])->get('/approvals')

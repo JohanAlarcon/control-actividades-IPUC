@@ -50,8 +50,14 @@ export default function Dashboard() {
                     <Shortcut
                         href="/approvals"
                         icon={Inbox}
-                        title={decides ? 'Aprobar solicitudes' : 'Ver las solicitudes'}
-                        text={decides ? 'Lo que proponen los comités y espera su decisión.' : 'En qué van las solicitudes de su comité.'}
+                        title={auth.user?.isPastor ? 'Aprobar solicitudes' : decides ? 'Revisar solicitudes' : 'Ver las solicitudes'}
+                        text={
+                            auth.user?.isPastor
+                                ? 'Lo que llega de los comités y espera su decisión.'
+                                : decides
+                                  ? 'Usted les da el visto bueno; el pastor es quien aprueba.'
+                                  : 'En qué van las solicitudes de su comité.'
+                        }
                     />
                     {canPropose(scope.activeRole?.role) && (
                         <Shortcut href="/activities/create" icon={CalendarPlus} title="Proponer una actividad" text="Algo que no estaba en el plan del año." />

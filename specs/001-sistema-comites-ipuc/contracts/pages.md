@@ -72,10 +72,11 @@ aprobó; `counts` = `{ inbox, escalated }`. La pantalla hace dos consultas propi
 solicitudes que tenga: una para lo pendiente y otra para lo resuelto.
 
 **Reglas**: cada elemento de `inbox[]` lleva de qué comité viene, quién la pidió, por quién ya pasó,
-qué monto implica y qué efecto tiene en el cronograma (HU-07 esc. 1), más `waitingSince`. Un
-presidente que aprueba una actividad **no la cierra**: pasa al pastor y se avisa a quien la propuso
-(HU-06 esc. 2). Un gasto del propio comité del presidente **no crea solicitud**: se registra el
-movimiento con su nombre (RF-018, V-04). Una solicitud resuelta no se edita: `/approve` y
+qué monto implica y qué efecto tiene en el cronograma (HU-07 esc. 1), más `waitingSince`. **Solo
+el pastor aprueba** (D-24): en manos del presidente, `/approve` es su visto bueno y nunca cierra
+—la solicitud pasa al pastor y se avisa a quien la propuso (HU-06 esc. 1 y 2)—, y `/reject` la
+devuelve con el motivo sin que llegue al pastor (HU-06 esc. 3). El gasto del propio comité del
+presidente también va al pastor (RF-018). Una solicitud resuelta no se edita: `/approve` y
 `/reject` sobre una ya resuelta responden error explicado (RF-057).
 
 ## Cronograma

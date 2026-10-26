@@ -41,7 +41,7 @@ export default function ApprovalCard({ item, showWhoDecides = false, children }:
 
             <ul className="mt-3 flex flex-col gap-2 border-t border-ipuc/10 pt-3">
                 <Fact icon={UserRound}>La pidió {item.requestedBy}</Fact>
-                {item.escalatedBy && <Fact icon={UserCheck}>Ya la aprobó {item.escalatedBy}</Fact>}
+                {item.escalatedBy && <Fact icon={UserCheck}>Visto bueno de {item.escalatedBy}</Fact>}
                 {item.amount !== null && (
                     <Fact icon={HandCoins}>
                         Monto: <strong>{money(item.amount)}</strong>
@@ -55,7 +55,9 @@ export default function ApprovalCard({ item, showWhoDecides = false, children }:
                 )}
                 {item.detail && <Fact icon={ClipboardList}>{item.detail}</Fact>}
                 {showWhoDecides && item.status === 'pending' && (
-                    <Fact icon={Hourglass}>Está en manos {item.level === 'pastor' ? 'del pastor' : 'de la presidencia del comité'}</Fact>
+                    <Fact icon={Hourglass}>
+                        {item.level === 'pastor' ? 'Espera la aprobación del pastor' : 'Espera la revisión de la presidencia del comité'}
+                    </Fact>
                 )}
             </ul>
 
@@ -74,7 +76,10 @@ function Fact({ icon: Icon, children }: { icon: LucideIcon; children: ReactNode 
     );
 }
 
-/** Lo pendiente dice desde cuándo espera; lo resuelto, qué se decidió, quién y cuándo, y el motivo si no se aprobó. */
+/**
+ * Lo pendiente dice desde cuándo espera; lo resuelto, qué se decidió, quién y cuándo, y el motivo.
+ * Lo que el presidente no deja pasar queda «devuelta»; lo que el pastor no aprueba, «no aprobada».
+ */
 function Outcome({ item }: { item: ApprovalItem }) {
     if (item.status === 'pending') {
         return (
@@ -90,7 +95,7 @@ function Outcome({ item }: { item: ApprovalItem }) {
     return (
         <div className={`mt-3 rounded-xl p-3 text-lg ${approved ? 'bg-ipuc/10 text-ipuc' : 'bg-alerta/10 text-alerta'}`}>
             <p className="font-bold">
-                {approved ? 'Aprobada' : 'No aprobada'}
+                {approved ? 'Aprobada' : item.level === 'president' ? 'Devuelta' : 'No aprobada'}
                 {item.resolvedBy && ` por ${item.resolvedBy}`}
                 {item.resolvedAt && `, el ${shortDate(item.resolvedAt)}`}
             </p>

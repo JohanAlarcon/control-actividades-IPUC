@@ -24,11 +24,11 @@ test('cuando el pastor aprueba, la actividad queda aprobada en el cronograma con
         ->and($actividad->approved_at)->not->toBeNull();
 });
 
-test('cuando el presidente aprueba una actividad, se le dice que ahora pasa al pastor', function () {
+test('cuando el presidente da su visto bueno, se le dice que ahora pasa al pastor, que es quien aprueba', function () {
     $solicitud = solicitudDe($this->e['liderSonido']);
 
     $this->actingAs($this->e['presidente'])->post("/approvals/{$solicitud->id}/approve")
-        ->assertSessionHas('notice', 'Listo. Usted la aprobó y ahora pasa al pastor, que es quien la cierra.');
+        ->assertSessionHas('notice', 'Listo. Le dio su visto bueno, y ahora pasa al pastor, que es quien aprueba.');
 
     expect($solicitud->approvable->fresh()->status)->toBe(Activity::PENDING);
 });

@@ -3,7 +3,7 @@
 use App\Models\Approval;
 
 it('deja cambiar una solicitud que sigue pendiente', function () {
-    $solicitud = Approval::factory()->create();
+    $solicitud = Approval::factory()->create(['level' => Approval::LEVEL_PASTOR]);
 
     $solicitud->update(['status' => Approval::APPROVED, 'resolved_at' => now()]);
 

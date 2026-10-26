@@ -73,24 +73,23 @@ test('el pastor la cierra: la actividad queda aprobada con su nombre y la fecha'
         ->and($actividad->approved_at)->not->toBeNull();
 });
 
-test('un gasto de un líder, de cualquier monto, lo cierra el presidente en ese paso', function () {
-    $gasto = solicitudDe($this->e['liderSonido'], Approval::TYPE_EXPENSE, 'Consola de sonido', 9_800_000);
+test('el visto bueno del presidente nunca cierra: un gasto, una tarea o un cambio de fecha también suben al pastor', function (string $tipo) {
+    $pedido = solicitudDe($this->e['liderSonido'], $tipo, 'Lo que pide Sonido', $tipo === Approval::TYPE_EXPENSE ? 9_800_000 : null);
 
-    $solicitud = $this->flujo->approve($gasto, $this->e['presidente']);
+    $solicitud = $this->flujo->approve($pedido, $this->e['presidente']);
 
-    expect($solicitud->status)->toBe(Approval::APPROVED)
-        ->and($solicitud->level)->toBe(Approval::LEVEL_PRESIDENT)
-        ->and($solicitud->resolved_by_user_id)->toBe($this->e['presidente']->id);
+    expect($solicitud->status)->toBe(Approval::PENDING)
+        ->and($solicitud->level)->toBe(Approval::LEVEL_PASTOR)
+        ->and($solicitud->escalated_by_user_id)->toBe($this->e['presidente']->id);
+})->with(['gasto' => Approval::TYPE_EXPENSE, 'tarea' => Approval::TYPE_TASK, 'cambio de fecha' => Approval::TYPE_DATE_CHANGE]);
+
+test('el gasto del propio comité del presidente también lo aprueba el pastor', function () {
+    expect(solicitudDe($this->e['presidente'], Approval::TYPE_EXPENSE, 'Cuerdas para el bajo', 120_000)->level)->toBe(Approval::LEVEL_PASTOR);
 });
 
-test('el gasto del propio comité del presidente no crea solicitud', function () {
-    expect(solicitudDe($this->e['presidente'], Approval::TYPE_EXPENSE, 'Cuerdas para el bajo', 120_000))->toBeNull()
-        ->and(Approval::count())->toBe(0);
-});
-
-test('un gasto en manos del pastor no se guarda, venga de donde venga', function () {
-    Approval::factory()->forCommittee($this->e['alabanza'])->create(['type' => Approval::TYPE_EXPENSE, 'level' => Approval::LEVEL_PASTOR]);
-})->throws(RuntimeException::class, 'Un gasto no llega al pastor');
+test('una solicitud no queda aprobada en manos del presidente, venga de donde venga', function () {
+    Approval::factory()->forCommittee($this->e['alabanza'])->create(['status' => Approval::APPROVED, 'level' => Approval::LEVEL_PRESIDENT, 'resolved_at' => now()]);
+})->throws(RuntimeException::class, 'Solo el pastor aprueba');
 
 test('rechazar cierra en cualquier nivel y deja el motivo en la actividad', function () {
     $solicitud = $this->flujo->reject(solicitudDe($this->e['liderCoro']), $this->e['presidente'], 'Ese sábado hay convención.');

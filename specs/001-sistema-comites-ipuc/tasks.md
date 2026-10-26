@@ -324,8 +324,8 @@ detalle del recálculo del avance, también se queda en US09: T055 trae su propi
 
 - [x] T057 · Migración y modelo `approvals` polimórfica
       Archivos: `database/migrations/<ts>_create_approvals_table.php` · `app/Models/Approval.php` · `database/factories/ApprovalFactory.php`
-      Una sola bandeja para los cinco tipos: `activity`, `expense`, `task`, `date_change`, `new_member` (RF-015, RF-019). `level` (`president` | `pastor`), `status` (`pending` | `approved` | `rejected`), `amount` obligatorio si `type` = `expense`, `reason` **obligatorio si `status` = `rejected`**, `transferred_from_user_id` y `transferred_at` para el traspaso. La combinación `type` = `expense` con `level` = `pastor` **no existe**: `ApprovalFlow` (T058) es el único que crea filas y el modelo la rechaza al guardar (data-model.md §5, RF-018). **La regla no baja a la migración**: es política de aprobación, no esquema, y es la más propensa a cambiar.
-      Verifica: `php artisan test --filter=ApprovalModelTest` — guardar el par `expense` + `pastor` lanza excepción.
+      Una sola bandeja para los cinco tipos: `activity`, `expense`, `task`, `date_change`, `new_member` (RF-015, RF-019). `level` (`president` | `pastor`), `status` (`pending` | `approved` | `rejected`), `amount` obligatorio si `type` = `expense`, `reason` **obligatorio si `status` = `rejected`**, `transferred_from_user_id` y `transferred_at` para el traspaso. Una solicitud aprobada en nivel `president` **no existe**: solo el pastor aprueba (D-24). `ApprovalFlow` (T058) es el único que crea y resuelve filas, y el modelo la rechaza al guardar (data-model.md §5, RF-018). **La regla no baja a la migración**: es política de aprobación, no esquema, y es la más propensa a cambiar.
+      Verifica: `php artisan test --filter=ApprovalFlowTest` — guardar una solicitud aprobada en nivel `president` lanza excepción.
 
 **Checkpoint**: cimiento listo. El filtro de alcance existe, está probado y tiene red de
 seguridad, y el esquema compartido ya está en pie. A partir de aquí **ninguna historia espera una
@@ -559,12 +559,12 @@ presidente, comprobando qué queda cerrado y qué escala al pastor.
 
 - [x] T058 [US06] · `ApprovalFlow`: la cadena de escalamiento en un solo lugar
       Archivos: `app/Support/Approvals/ApprovalFlow.php`
-      Las reglas de `data-model.md` §5 (RF-016 a RF-018, RN-02, RN-03, RN-04), **incluida la corrección V-04**: el gasto del propio comité del presidente **no crea solicitud** — lo autoriza él y se registra el movimiento con su nombre y la fecha. Es el **único** que crea filas en `approvals`, y nunca el par `type` = `expense` con `level` = `pastor` (T057).
+      Las reglas de `data-model.md` §5 (RF-016 a RF-018, RN-02, RN-03, RN-04). **Solo el pastor aprueba (D-24)**: el visto bueno del presidente sube cualquier solicitud al pastor, y devolverla la cierra con el motivo. Es el **único** que crea filas en `approvals`, y nunca deja una aprobada en manos del presidente (T057).
       Verifica: `php artisan test --filter=ApprovalFlowTest`
 
 - [x] T059 [US06] · Prueba: las reglas de escalamiento, incluida la que no cierra
       Archivos: `tests/Unit/Approvals/ApprovalFlowTest.php`
-      Verifica: `php artisan test --filter=ApprovalFlowTest` — el presidente aprueba una actividad y la solicitud **sigue pendiente**, ahora en el pastor. Un gasto de un líder, de cualquier monto, lo cierra el presidente (RN-04) y **cierra en ese paso**, sin quedar pendiente del pastor. Un gasto del presidente mismo no genera solicitud (RF-018). Crear una solicitud con `type` = `expense` y `level` = `pastor` falla al guardar, rechazada por el modelo `Approval` (data-model.md §5).
+      Verifica: `php artisan test --filter=ApprovalFlowTest` — el visto bueno del presidente deja la solicitud **pendiente**, ahora en el pastor, sea una actividad, un gasto de cualquier monto, una tarea o un cambio de fecha. El gasto del presidente mismo también le llega al pastor. Guardar una solicitud aprobada en nivel `president` falla, rechazada por el modelo `Approval` (D-24, data-model.md §5).
 
 - [x] T060 [US19] · Inmutabilidad de lo resuelto
       Archivos: `app/Models/Approval.php`
@@ -1074,14 +1074,14 @@ el saldo y revisar la vista del pastor.
       RF-050. El presidente ve asignado, gastado, disponible, porcentaje usado y el reparto entre sus sub-comités.
       Verifica: `php artisan test --filter=BudgetAssignmentTest` — un presidente no asigna fuera de su comité · a 360 px.
 
-- [ ] T168 [US16] · Gasto del propio presidente, sin pasar por el pastor
+- [ ] T168 [US16] · Gasto del propio presidente: lo aprueba el pastor
       Archivos: `app/Support/Approvals/ApprovalFlow.php` · `app/Http/Controllers/BudgetMovementController.php`
-      Vacío V-04 (RF-018, RN-04). Un gasto del propio comité del presidente **no crea solicitud**: se registra el movimiento con su nombre y la fecha, cualquiera sea el monto, y el pastor lo ve en el presupuesto, no en su bandeja.
+      D-24 (RF-018, RN-04), que reemplaza a V-04. El gasto del propio comité del presidente **crea solicitud** y le llega al pastor, cualquiera sea el monto; al aprobarse se registra el movimiento con el nombre del pastor y la fecha.
       Verifica: `php artisan test --filter=PresidentOwnExpenseTest`
 
-- [ ] T169 [US16] · Prueba: el gasto del presidente no llega a la bandeja del pastor
+- [ ] T169 [US16] · Prueba: el gasto del presidente llega a la bandeja del pastor
       Archivos: `tests/Feature/Budget/PresidentOwnExpenseTest.php`
-      Verifica: `php artisan test --filter=PresidentOwnExpenseTest` — tras registrarlo, la bandeja del pastor sigue vacía y el movimiento queda con el nombre del presidente; el gasto **de un líder** sí llega a su presidente.
+      Verifica: `php artisan test --filter=PresidentOwnExpenseTest` — el gasto del presidente llega a la bandeja del pastor y no mueve el saldo hasta que el pastor lo aprueba; el gasto **de un líder** llega primero a su presidente, que solo puede darle el visto bueno o devolverlo.
 
 - [ ] T137 [US16] · Advertencia por exceder el saldo, que permite continuar
       Archivos: `app/Http/Controllers/ApprovalController.php` · `resources/js/components/domain/OverBudgetNotice.tsx`

@@ -17,6 +17,23 @@ interface Props {
     counts: { inbox: number; escalated: number };
 }
 
+/** Lo que dice la bandeja según quién la abre: el pastor aprueba; el presidente revisa (D-24). */
+const TEXTS = {
+    pastor: {
+        title: 'Aprobar solicitudes',
+        subtitle: 'Usted es quien aprueba. Esto es lo que espera su decisión.',
+        inbox: 'Por aprobar',
+        empty: 'No tiene solicitudes por aprobar. Todo está al día.',
+    },
+    president: {
+        title: 'Revisar solicitudes',
+        subtitle: 'Usted les da el visto bueno o las devuelve. El pastor es quien aprueba.',
+        inbox: 'Por revisar',
+        empty: 'No tiene solicitudes por revisar. Todo está al día.',
+    },
+    others: { title: 'Solicitudes', subtitle: 'En qué van las solicitudes de su comité.', inbox: '', empty: '' },
+};
+
 /**
  * La bandeja (T068). Quien decide ve primero lo que espera su decisión; los demás, en qué van las
  * solicitudes de su comité. Debajo, lo que está en manos de otra persona y lo ya resuelto.
@@ -24,12 +41,10 @@ interface Props {
 export default function ApprovalsIndex({ inbox, escalated, history, counts }: Props) {
     const { auth, scope, errors } = usePage<SharedProps & { errors: Record<string, string> }>().props;
     const decides = decidesApprovals(auth.user?.isPastor, scope.activeRole?.role);
+    const texts = TEXTS[auth.user?.isPastor ? 'pastor' : decides ? 'president' : 'others'];
 
     return (
-        <MainLayout
-            title={decides ? 'Aprobar solicitudes' : 'Solicitudes'}
-            subtitle={decides ? 'Lo que espera su decisión y lo que ya resolvió.' : 'En qué van las solicitudes de su comité.'}
-        >
+        <MainLayout title={texts.title} subtitle={texts.subtitle}>
             {errors.approval && (
                 <p role="alert" className="mb-6 rounded-2xl bg-alerta/10 p-4 text-lg font-semibold text-alerta">
                     {errors.approval}
@@ -44,8 +59,8 @@ export default function ApprovalsIndex({ inbox, escalated, history, counts }: Pr
             )}
 
             {decides && (
-                <SectionBlock title={`Por resolver (${counts.inbox})`}>
-                    <CardList items={inbox} empty="No tiene solicitudes por resolver. Todo está al día." withActions />
+                <SectionBlock title={`${texts.inbox} (${counts.inbox})`}>
+                    <CardList items={inbox} empty={texts.empty} withActions />
                 </SectionBlock>
             )}
 

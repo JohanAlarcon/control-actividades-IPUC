@@ -16,9 +16,15 @@ export default function ActivityForm({ recipient }: { recipient: string | null }
                 <div className="mb-5">
                     <InfoNote icon={Send}>
                         {recipient ? (
-                            <>
-                                Su propuesta le llegará a <strong>{recipient}</strong>, que es quien la revisa.
-                            </>
+                            scope.activeRole?.role === 'president' ? (
+                                <>
+                                    Su propuesta le llegará a <strong>{recipient}</strong>, que es quien aprueba.
+                                </>
+                            ) : (
+                                <>
+                                    Primero la revisa <strong>{recipient}</strong>. Si le da el visto bueno, pasa al pastor, que es quien aprueba.
+                                </>
+                            )
                         ) : (
                             'Su comité todavía no tiene quién revise las propuestas. Puede enviarla igual: le llegará a la persona que el pastor nombre.'
                         )}

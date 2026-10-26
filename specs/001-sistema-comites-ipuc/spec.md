@@ -41,7 +41,8 @@ responder por toda la congregación sin pedirle cuentas a nadie por WhatsApp.
 - Q: Cuando el presidente de un comité quiere hacer un gasto de su propio comité, ¿necesita que el
   pastor lo apruebe, o lo autoriza él mismo dejando el registro? (RF-018) → A: Lo autoriza él
   mismo, cualquiera sea el monto. Queda registrado con su nombre y la fecha, y el pastor lo ve en
-  el presupuesto, no en su bandeja.
+  el presupuesto, no en su bandeja. *Reemplazada el 2026-10-26: también lo aprueba el pastor (ver
+  la sesión de ese día y D-24).*
 - Q: ¿La ficha de seguimiento de un simpatizante la ven todos los cargos del Comité de
   Evangelismo, o únicamente su presidente? (RF-040) → A: Únicamente el presidente del Comité de
   Evangelismo, además del pastor, que ve toda la congregación.
@@ -82,6 +83,15 @@ enmendó a 2.1.0 para incorporarlas.
   un archivo de algo ya cumplido o autorizado no se borra: se marca como reemplazado.
 - Q: ¿Quién cierra un acta? → A: El secretario la redacta, el presidente la cierra. Desde el cierre
   no se edita: se corrige con un acta nueva.
+
+### Session 2026-10-26
+
+- Q: ¿Qué puede dejar resuelto el presidente sin que pase por el pastor? → A: Nada. **Solo el
+  pastor aprueba.** El presidente revisa: le da su visto bueno y la solicitud sube al pastor, o la
+  devuelve a quien la propuso con el motivo, y entonces no llega al pastor. Vale para los cuatro
+  tipos —actividad nueva, gasto, tarea y cambio de fecha— y también para el gasto del propio comité
+  del presidente: reemplaza la respuesta del 2026-10-18 sobre ese gasto. Cambian RF-017, RF-018,
+  RN-04 y los escenarios 1 y 3 de HU-06 (D-24).
 
 ## Escenarios de Usuario y Pruebas *(obligatorio)*
 
@@ -256,24 +266,27 @@ cruce de fechas.
 
 ### Historia de Usuario 6 — HU-06 · Revisar lo que proponen mis sub-comités (Prioridad: P1)
 
-Como presidente de comité quiero revisar y resolver lo que proponen mis líderes, para responder por
-lo que hace mi comité.
+Como presidente de comité quiero revisar lo que proponen mis líderes —darle mi visto bueno o
+devolverlo con el motivo—, para responder por lo que hace mi comité. Quien aprueba es el pastor.
 
 **Por qué esta prioridad**: es el primer nivel de la aprobación en dos niveles. Sin él, el pastor
 recibiría todo directamente y se perdería la responsabilidad del presidente.
 
 **Prueba independiente**: se puede probar sola enviando los cuatro tipos de solicitud desde un
-líder y resolviéndolas como presidente, comprobando qué queda cerrado y qué escala al pastor.
+líder y revisándolas como presidente, comprobando que todo lo que recibe su visto bueno escala al
+pastor y que lo devuelto vuelve al líder con su motivo.
 
 **Escenarios de Aceptación**:
 
-1. **Dado** que un líder me envió una solicitud de gasto, tarea o cambio de fecha, **cuando** la
-   apruebo, **entonces** queda resuelta en ese momento y el líder ve el resultado con mi nombre y
-   la fecha.
-2. **Dado** que un líder me envió una propuesta de actividad nueva, **cuando** la apruebo,
-   **entonces** no queda cerrada: pasa al pastor, y el sistema se lo informa a quien la propuso.
-3. **Dado** que decido no aprobar una solicitud, **cuando** la rechazo, **entonces** el sistema me
-   exige escribir el motivo, y ese motivo queda visible para quien la propuso.
+1. **Dado** que un líder me envió una solicitud de gasto, tarea o cambio de fecha, **cuando** le
+   doy mi visto bueno, **entonces** no queda resuelta: pasa al pastor, que es quien aprueba, y el
+   líder ve que ya pasó por mí, con mi nombre y la fecha.
+2. **Dado** que un líder me envió una propuesta de actividad nueva, **cuando** le doy mi visto
+   bueno, **entonces** no queda cerrada: pasa al pastor, y el sistema se lo informa a quien la
+   propuso.
+3. **Dado** que no estoy de acuerdo con una solicitud, **cuando** la devuelvo, **entonces** el
+   sistema me exige escribir el motivo, la solicitud no llega al pastor, y ese motivo queda visible
+   para quien la propuso, que puede corregirla y volver a proponerla.
 4. **Dado** que tengo varias solicitudes esperando, **cuando** abro mi pantalla de inicio,
    **entonces** veo cuántas son y desde cuándo esperan, antes que cualquier otra cosa.
 
@@ -294,9 +307,8 @@ pastor y resolviéndolas una a una y en bloque, verificando el efecto en el cron
 
 1. **Dado** que tengo solicitudes esperando mi decisión, **cuando** abro la bandeja, **entonces**
    veo de qué comité viene cada una, quién la pidió, por quién ya pasó, qué efecto tiene en el
-   cronograma y, cuando es una propuesta de actividad, su presupuesto estimado. Ningún gasto llega
-   a esta bandeja: el gasto del propio comité lo autoriza su presidente y el del líder lo resuelve
-   su presidente (RF-018); yo los veo en el presupuesto del comité, no aquí.
+   cronograma y, cuando es una propuesta de actividad, su presupuesto estimado. Los gastos también
+   llegan a esta bandeja, con su monto: solo yo apruebo (RF-018).
 2. **Dado** que apruebo una propuesta de actividad, **cuando** confirmo, **entonces** la actividad
    entra al cronograma del año como aprobada, con mi nombre y la fecha.
 3. **Dado** que no apruebo una propuesta, **cuando** escribo el motivo y confirmo, **entonces** la
@@ -891,12 +903,12 @@ RF-080).
 
 - **RF-015**: Son objeto de aprobación: actividad nueva, gasto, tarea y cambio de fecha.
 - **RF-016**: Lo propuesto por un líder llega al presidente de su comité.
-- **RF-017**: Lo propuesto por un presidente llega al pastor, salvo el gasto de su propio comité,
-  que él mismo autoriza (RF-018).
-- **RF-018**: Una actividad nueva aprobada por el presidente escala al pastor; el gasto, la tarea y
-  el cambio de fecha propuestos por un líder quedan resueltos por el presidente. El gasto del
-  propio comité lo autoriza el presidente sin pasar por el pastor, cualquiera sea su monto: queda
-  registrado con su nombre y la fecha, y el pastor lo ve en el presupuesto, no en su bandeja.
+- **RF-017**: Lo propuesto por un presidente llega directamente al pastor.
+- **RF-018**: Solo el pastor aprueba. El presidente revisa lo que proponen sus líderes: si le da
+  su visto bueno, la solicitud escala al pastor, sea una actividad nueva, un gasto, una tarea o un
+  cambio de fecha; si no está de acuerdo, la devuelve con el motivo (RF-020) y no llega al pastor.
+  El gasto del propio comité del presidente también lo aprueba el pastor, cualquiera sea su monto
+  (decisión del autor del 2026-10-26, D-24).
 - **RF-019**: El paso de un simpatizante a miembro lo propone el presidente del Comité de
   Evangelismo y lo aprueba el pastor.
 - **RF-020**: Todo rechazo exige un motivo escrito, visible para quien propuso.
@@ -1052,8 +1064,8 @@ RF-080).
 - **RN-01**: El pastor ve toda la congregación porque responde por ella.
 - **RN-02**: Un presidente responde por lo que hacen sus sub-comités.
 - **RN-03**: Lo que venía en el plan anual no requiere nueva aprobación; lo que se sale de él, sí.
-- **RN-04**: El monto de un gasto no determina quién lo aprueba: el presidente autoriza los gastos
-  de su comité, cualquiera sea su valor.
+- **RN-04**: El monto de un gasto no determina quién lo aprueba: todo gasto lo aprueba el pastor,
+  cualquiera sea su valor, después de la revisión del presidente cuando lo pide un líder.
 - **RN-05**: El presupuesto es una guía, no un tope rígido: se puede exceder, pero el sistema lo
   advierte y queda registrado.
 - **RN-06**: Nadie pasa a ser miembro sin aprobación del pastor.

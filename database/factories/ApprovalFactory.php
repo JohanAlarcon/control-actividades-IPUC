@@ -41,8 +41,9 @@ class ApprovalFactory extends Factory
 
     public function resolved(string $status = Approval::APPROVED): static
     {
-        return $this->state(fn () => [
+        return $this->state(fn (array $atributos) => [
             'status' => $status,
+            'level' => $status === Approval::APPROVED ? Approval::LEVEL_PASTOR : $atributos['level'],
             'resolved_at' => now(),
             'reason' => $status === Approval::REJECTED ? 'No alcanza el presupuesto este mes.' : null,
         ]);
