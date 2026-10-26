@@ -1,35 +1,18 @@
-import { decidesApprovals } from '@/lib/roles';
+import { navItems, type MenuItem } from '@/lib/navigation';
 import type { SharedProps } from '@/types/shared';
 import { Link, usePage } from '@inertiajs/react';
-import { House, Inbox, Network, UsersRound, type LucideIcon } from 'lucide-react';
-
-interface Item {
-    href: string;
-    label: string;
-    icon: LucideIcon;
-    badge?: number;
-}
 
 /**
- * El menú del prototipo: abajo, siempre a la vista, con la palabra debajo de cada icono.
- * Solo trae las secciones que ya existen; Cronograma y Dinero se suman cuando estén.
- * El número va sobre las solicitudes: lo que espera la decisión del cargo (RF-055).
+ * El menú del prototipo en el celular: abajo, siempre a la vista, con la palabra debajo de cada
+ * icono. En el escritorio se esconde y el mismo menú va al costado (side-nav.tsx).
  */
 export default function BottomNav() {
     const { props, url } = usePage<SharedProps>();
-    const decides = decidesApprovals(props.auth.user?.isPastor, props.scope.activeRole?.role);
-
-    const items: Item[] = [
-        { href: '/dashboard', label: 'Inicio', icon: House },
-        { href: '/approvals', label: decides ? 'Aprobar' : 'Solicitudes', icon: Inbox, badge: props.pendingCount },
-        { href: '/committees', label: 'Comités', icon: Network },
-        ...(props.auth.user?.isPastor ? [{ href: '/users', label: 'Cuentas', icon: UsersRound }] : []),
-    ];
 
     return (
-        <nav aria-label="Menú principal" className="fixed inset-x-0 bottom-0 z-10 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-barra backdrop-blur">
+        <nav aria-label="Menú principal" className="fixed inset-x-0 bottom-0 z-10 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-barra backdrop-blur lg:hidden">
             <ul className="mx-auto flex max-w-2xl px-2">
-                {items.map((item) => (
+                {navItems(props).map((item) => (
                     <NavItem key={item.href} item={item} active={url.startsWith(item.href)} />
                 ))}
             </ul>
@@ -37,7 +20,7 @@ export default function BottomNav() {
     );
 }
 
-function NavItem({ item, active }: { item: Item; active: boolean }) {
+function NavItem({ item, active }: { item: MenuItem; active: boolean }) {
     const Icon = item.icon;
 
     return (

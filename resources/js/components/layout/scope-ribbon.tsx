@@ -14,7 +14,7 @@ export default function ScopeRibbon() {
     const [switching, setSwitching] = useState(false);
 
     return (
-        <div className="rounded-2xl bg-white/10 p-3 ring-1 ring-white/15">
+        <div className="rounded-2xl bg-white/10 p-3 ring-1 ring-white/15 lg:max-w-2xl">
             {scope.mustChoose ? (
                 <p className="px-1 text-lg font-semibold">Usted tiene {auth.roles.length} cargos. Escoja con cuál quiere trabajar:</p>
             ) : (

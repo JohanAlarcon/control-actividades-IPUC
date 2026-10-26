@@ -9,7 +9,11 @@ export default function TopBar({ user }: { user: { name: string } | null }) {
     return (
         <>
             <div className="flex h-16 items-center justify-between gap-3">
-                <Link href="/dashboard" className="flex items-center gap-2 rounded-lg focus-visible:outline-2 focus-visible:outline-white">
+                {/* En el escritorio, con sesión, el logo va en el menú del costado. */}
+                <Link
+                    href="/dashboard"
+                    className={`flex items-center gap-2 rounded-lg focus-visible:outline-2 focus-visible:outline-white ${user ? 'lg:hidden' : ''}`}
+                >
                     <img src="/img/logo-ipuc.webp" alt="" width={46} height={32} className="h-8 w-auto" />
                     {/* En un celular de menos de 360 px no cabe junto a «Mi cuenta»: queda el logo, y el nombre para los lectores de pantalla. */}
                     <span className="text-base font-bold tracking-wide max-[359px]:sr-only">Comités IPUC</span>
@@ -21,7 +25,7 @@ export default function TopBar({ user }: { user: { name: string } | null }) {
                         onClick={() => setOpen(!open)}
                         aria-expanded={open}
                         aria-controls="mi-cuenta"
-                        className="flex h-12 items-center gap-2 rounded-full bg-white/10 py-1 pr-4 pl-2 text-lg ring-1 ring-white/20 focus-visible:outline-2 focus-visible:outline-white"
+                        className="ml-auto flex h-12 items-center gap-2 rounded-full bg-white/10 py-1 pr-4 pl-2 text-lg ring-1 ring-white/20 focus-visible:outline-2 focus-visible:outline-white"
                     >
                         <InitialsAvatar name={user.name} size="sm" tone="light" />
                         Mi cuenta

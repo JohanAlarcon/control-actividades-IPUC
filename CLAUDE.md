@@ -143,8 +143,13 @@ construirlo.
 Toda pantalla interna va dentro de `resources/js/layouts/main-layout.tsx` y empieza con
 `PageHeader`. El molde pone la barra de arriba, la cinta con el cargo activo, los avisos y el menú
 de abajo, como en el prototipo. Una sección nueva se suma al menú en
-`components/layout/bottom-nav.tsx` el día que existe su pantalla, nunca antes: un botón que lleva
-a la nada confunde más que uno que falta.
+`lib/navigation.ts` el día que existe su pantalla, nunca antes: un botón que lleva a la nada
+confunde más que uno que falta.
+
+**En el escritorio**, de 1024 px en adelante, el mismo menú pasa al costado (`side-nav.tsx`) y el
+contenido se abre hasta `max-w-5xl`. Las listas de tarjetas van en dos columnas
+(`lg:grid-cols-2`), y una ficha con dos bloques los pone lado a lado. Todo lo del escritorio lleva
+el prefijo `lg:`, para que lo del celular no cambie (D-23).
 
 ### Límites de tamaño en React
 

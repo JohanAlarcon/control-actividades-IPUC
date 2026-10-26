@@ -14,7 +14,7 @@ export default function UpdateBanner() {
     if (!isNew) return null;
 
     return (
-        <div role="status" className="fixed inset-x-0 bottom-24 z-20 px-4">
+        <div role="status" className="fixed inset-x-0 bottom-24 z-20 px-4 lg:bottom-6 lg:left-72">
             <div className={`mx-auto flex max-w-2xl items-center gap-3 p-4 ring-1 ring-ipuc-dorado/40 ${cardClass}`}>
                 <span aria-hidden className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-ipuc-dorado/25 text-tinta">
                     <Sparkles className="size-6" />

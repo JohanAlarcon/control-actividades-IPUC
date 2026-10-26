@@ -25,27 +25,29 @@ export default function CommitteeShow({ committee, responsible, secretary, treas
 
     return (
         <MainLayout title={committee.name} subtitle={subtitle} back={{ href: '/committees', label: 'Comités' }}>
-            <SectionBlock title="Quiénes lo encabezan">
-                <ul className={`divide-y divide-ipuc/5 ${cardClass}`}>
-                    <PersonRow role={roleLabelFor(responsibleRole(committee.depth), responsible)} name={responsible} />
-                    {committee.depth === 1 && <PersonRow role={roleLabelFor('secretary', secretary)} name={secretary} />}
-                    {committee.depth === 1 && <PersonRow role={roleLabelFor('treasurer', treasurer)} name={treasurer} />}
-                </ul>
-            </SectionBlock>
-
-            <SectionBlock title={hasChildren ? childrenTitle(committee.depth) : 'Cómo se organiza'}>
-                {hasChildren ? (
-                    <ul className={`divide-y divide-ipuc/5 overflow-hidden ${cardClass}`}>
-                        {children.map((child) => (
-                            <li key={child.id}>
-                                <CommitteeRow committee={child} />
-                            </li>
-                        ))}
+            <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-6">
+                <SectionBlock title="Quiénes lo encabezan">
+                    <ul className={`divide-y divide-ipuc/5 ${cardClass}`}>
+                        <PersonRow role={roleLabelFor(responsibleRole(committee.depth), responsible)} name={responsible} />
+                        {committee.depth === 1 && <PersonRow role={roleLabelFor('secretary', secretary)} name={secretary} />}
+                        {committee.depth === 1 && <PersonRow role={roleLabelFor('treasurer', treasurer)} name={treasurer} />}
                     </ul>
-                ) : (
-                    <InfoNote icon={Info}>{withoutChildrenText(committee.depth)}</InfoNote>
-                )}
-            </SectionBlock>
+                </SectionBlock>
+
+                <SectionBlock title={hasChildren ? childrenTitle(committee.depth) : 'Cómo se organiza'}>
+                    {hasChildren ? (
+                        <ul className={`divide-y divide-ipuc/5 overflow-hidden ${cardClass}`}>
+                            {children.map((child) => (
+                                <li key={child.id}>
+                                    <CommitteeRow committee={child} />
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <InfoNote icon={Info}>{withoutChildrenText(committee.depth)}</InfoNote>
+                    )}
+                </SectionBlock>
+            </div>
         </MainLayout>
     );
 }

@@ -67,7 +67,7 @@ function CardList({ items, empty, withActions = false, showWhoDecides = false }:
     }
 
     return (
-        <ul className="flex flex-col gap-4">
+        <ul className="grid gap-4 lg:grid-cols-2 lg:items-start">
             {items.map((item) => (
                 <li key={item.id}>
                     <ApprovalCard item={item} showWhoDecides={showWhoDecides}>

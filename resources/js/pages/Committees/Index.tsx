@@ -21,7 +21,7 @@ export default function CommitteesIndex({ tree, reviewer }: Props) {
         <MainLayout title="Comités" subtitle={tree.length > 0 ? structureSummary(tree) : undefined}>
             {reviewer && <ReviewerCard name={reviewer} />}
 
-            <div className="flex flex-col gap-4">
+            <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
                 {tree.map((root) => (
                     <CommitteeGroup key={root.id} root={root} />
                 ))}

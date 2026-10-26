@@ -26,16 +26,18 @@ export default function UsersIndex({ accounts }: { accounts: Account[] }) {
 
     return (
         <MainLayout title="Cuentas" subtitle={subtitle}>
-            <Link href="/users/create" className={buttonClass.primary}>
-                <UserPlus aria-hidden className="mr-2 size-6" />
-                Crear una cuenta
-            </Link>
+            <div className="lg:flex lg:flex-row-reverse lg:items-start lg:gap-4">
+                <Link href="/users/create" className={`${buttonClass.primary} lg:w-auto lg:shrink-0 lg:px-6`}>
+                    <UserPlus aria-hidden className="mr-2 size-6" />
+                    Crear una cuenta
+                </Link>
 
-            <div className="mt-4">
-                <AccountSearch value={query} onChange={setQuery} />
-                <p aria-live="polite" className="mt-2 px-1 text-lg text-tinta-suave">
-                    {searching && `${found.length} de ${accounts.length} cuentas`}
-                </p>
+                <div className="mt-4 lg:mt-0 lg:flex-1">
+                    <AccountSearch value={query} onChange={setQuery} />
+                    <p aria-live="polite" className="mt-2 px-1 text-lg text-tinta-suave">
+                        {searching && `${found.length} de ${accounts.length} cuentas`}
+                    </p>
+                </div>
             </div>
 
             {searching && found.length === 0 && (
@@ -59,7 +61,7 @@ function AccountGroup({ title, hint, accounts }: { title: string; hint?: string;
                 {title} <span className="font-normal text-tinta-suave">({accounts.length})</span>
             </h2>
             {hint && <p className="mt-1 px-1 text-lg text-tinta-suave">{hint}</p>}
-            <ul className="mt-3 flex flex-col gap-3">
+            <ul className="mt-3 grid gap-3 lg:grid-cols-2 lg:items-start">
                 {accounts.map((account) => (
                     <AccountCard key={account.id} account={account} />
                 ))}

@@ -46,7 +46,7 @@ export default function Dashboard() {
             )}
 
             <SectionBlock title="¿Qué quiere hacer?">
-                <ul className={`divide-y divide-ipuc/5 overflow-hidden ${cardClass}`}>
+                <ul className={`divide-y divide-ipuc/5 overflow-hidden ${cardClass} lg:grid lg:grid-cols-2 lg:gap-4 lg:divide-y-0 lg:overflow-visible lg:bg-transparent lg:shadow-none`}>
                     <Shortcut
                         href="/approvals"
                         icon={Inbox}
@@ -65,8 +65,8 @@ export default function Dashboard() {
 
 function Shortcut({ href, icon: Icon, title, text }: { href: string; icon: LucideIcon; title: string; text: string }) {
     return (
-        <li>
-            <Link href={href} className="flex items-center gap-4 p-4 hover:bg-ipuc/5 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ipuc active:bg-ipuc/10">
+        <li className="lg:overflow-hidden lg:rounded-2xl lg:bg-white lg:shadow-tarjeta">
+            <Link href={href} className="flex items-center gap-4 p-4 hover:bg-ipuc/5 lg:h-full focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ipuc active:bg-ipuc/10">
                 <span aria-hidden className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-ipuc text-white">
                     <Icon className="size-6" />
                 </span>
