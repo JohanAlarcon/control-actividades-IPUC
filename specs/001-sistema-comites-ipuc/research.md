@@ -245,7 +245,7 @@ prohíbe RF-043.
    la persona y guardar la sesión—, que se miden aparte con su propia aserción. El reparto
    normativo lo fija el Constitution Check de [plan.md](./plan.md), y es el único válido: **tres**
    consultas como máximo para el bloque compartido —los cargos vigentes, sus comités y el
-   sub-árbol del cargo activo— y **dos** para la pantalla. `scope.hidden` y `pendingCount` dejan de viajar en toda respuesta:
+   sub-árbol del cargo activo— y **dos** para la pantalla. `scopeHidden` y `pendingCount` dejan de viajar en toda respuesta:
    pasan a ser **propiedades diferidas** de Inertia, se resuelven solo donde se muestran y se miden
    en su propia petición (A-09).
 2. Las relaciones se cargan por adelantado siempre (`with`), nunca dentro de un bucle.
@@ -342,7 +342,7 @@ Tres condiciones hacen parte de la excepción y no se pueden leer por separado:
   el filtro del cargo activo.
 
 El **nombre del comité responsable sí se comparte** por esta excepción: es uno de los siete datos
-enumerados. La reserva de RF-009 se refiere a los conteos de `scope.hidden`, que informan cuánto
+enumerados. La reserva de RF-009 se refiere a los conteos de `scopeHidden`, que informan cuánto
 queda fuera del ámbito sin listar nunca cuáles son; no convierte el nombre de un comité en dato
 reservado.
 

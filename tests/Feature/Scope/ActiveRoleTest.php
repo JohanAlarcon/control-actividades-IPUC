@@ -76,14 +76,41 @@ it('un cargo ya cerrado no se puede escoger', function () {
         ->assertSessionHas('flash.type', 'error');
 });
 
+/** Lo que manda el navegador al pedir una propiedad diferida, version incluida: sin ella Inertia responde 409. */
+function pedidoParcial(string $propiedad): array
+{
+    return [
+        'X-Inertia' => 'true',
+        'X-Inertia-Version' => (string) app(App\Http\Middleware\HandleInertiaRequests::class)->version(request()),
+        'X-Inertia-Partial-Component' => 'dashboard',
+        'X-Inertia-Partial-Data' => $propiedad,
+    ];
+}
+
 it('los conteos de lo oculto llevan números, nunca nombres', function () {
     $this->actingAs($this->hermano)->post('/role/switch', ['roleId' => $this->enAlabanza->id]);
 
     $respuesta = $this->actingAs($this->hermano)
-        ->withHeaders(['X-Inertia' => 'true', 'X-Inertia-Partial-Component' => 'dashboard', 'X-Inertia-Partial-Data' => 'scope.hidden'])
-        ->get('/dashboard');
+        ->withHeaders(pedidoParcial('scopeHidden'))
+        ->get('/dashboard')
+        ->assertOk();
 
     $contenido = $respuesta->getContent();
 
     expect($contenido)->not->toContain($this->damas->name);
+});
+
+it('el conteo diferido llega aparte y no borra el cargo activo al mezclarse', function () {
+    $this->actingAs($this->hermano)->post('/role/switch', ['roleId' => $this->enAlabanza->id]);
+
+    $props = $this->actingAs($this->hermano)
+        ->withHeaders(pedidoParcial('scopeHidden'))
+        ->get('/dashboard')
+        ->assertOk()
+        ->json('props');
+
+    // El navegador mezcla solo el primer nivel: si la respuesta trajera «scope»,
+    // reemplazaria el que ya tiene y se perderian el cargo activo y la etiqueta.
+    expect($props)->toHaveKey('scopeHidden.committees')
+        ->and($props)->not->toHaveKey('scope');
 });

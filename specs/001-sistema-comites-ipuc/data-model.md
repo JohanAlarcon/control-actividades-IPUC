@@ -328,7 +328,7 @@ controlador las lee aquí:
   el filtro del cargo activo.
 
 El **nombre del comité responsable sí se comparte**: es uno de los siete datos enumerados. La
-reserva de RF-009 se refiere a los conteos de `scope.hidden`, que nunca listan cuáles son los
+reserva de RF-009 se refiere a los conteos de `scopeHidden`, que nunca listan cuáles son los
 comités ajenos; no convierte el nombre de un comité en dato reservado.
 
 **Qué hay que probar**: una prueba de **lista blanca**. Se compara el juego completo de llaves que

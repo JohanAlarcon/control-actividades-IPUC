@@ -1,7 +1,7 @@
 # Contrato — Pantallas, ruta por ruta
 
 Rutas en inglés (R-03, corrección C-02). Toda respuesta incluye además el bloque compartido de
-[shared-props.md](./shared-props.md), salvo `scope.hidden` y `pendingCount`, que son propiedades
+[shared-props.md](./shared-props.md), salvo `scopeHidden` y `pendingCount`, que son propiedades
 diferidas y viajan en su propia petición parcial. La columna **No debe viajar** es la que la prueba
 de aislamiento verifica sobre la carga de la respuesta.
 
@@ -52,7 +52,7 @@ presidente**, porque es quien revisa lo que propone (HU-03 esc. 4).
 El **nombre** de un comité ajeno no es dato reservado: el cronograma compartido lo publica como
 responsable de una actividad (RF-010). Esta pantalla, de todos modos, no lista los comités fuera del
 ámbito; lo que nunca viaja de ellos son sus **datos**: sus miembros, su presupuesto y su avance. La
-reserva de RF-009 se refiere a los conteos de `scope.hidden`, que nunca dicen cuáles son; no
+reserva de RF-009 se refiere a los conteos de `scopeHidden`, que nunca dicen cuáles son; no
 convierte el nombre de un comité en dato reservado.
 
 ## Aprobaciones

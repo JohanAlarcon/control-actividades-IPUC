@@ -65,7 +65,9 @@ class HandleInertiaRequests extends Middleware
             ],
             // Diferidas: no viajan en la primera carga de ninguna pantalla,
             // para que el bloque compartido no se coma el presupuesto (A-3).
-            'scope.hidden' => Inertia::defer(fn () => $this->conteosOcultos($scope)),
+            // En primer nivel y no dentro de «scope»: el navegador mezcla solo el primer
+            // nivel, y una llave anidada reemplazaria «scope» entero al llegar.
+            'scopeHidden' => Inertia::defer(fn () => $this->conteosOcultos($scope)),
             'pendingCount' => Inertia::defer(fn () => $this->pendientes($scope)),
         ]);
     }

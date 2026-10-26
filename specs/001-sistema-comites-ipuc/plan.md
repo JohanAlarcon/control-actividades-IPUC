@@ -115,7 +115,7 @@ la constitución dice también **qué se cuenta**. Queda fijado así.
 - **El bloque compartido cuesta 3 consultas y ninguna más**, con su propia aserción en
   `QueryBudgetTest`: (1) los cargos vigentes, (2) el comité de cada uno, por carga anticipada, y
   (3) el sub-árbol del cargo activo.
-- **`scope.hidden` y `pendingCount` son propiedades diferidas de Inertia.** Dejan de viajar en
+- **`scopeHidden` y `pendingCount` son propiedades diferidas de Inertia.** Dejan de viajar en
   toda respuesta y se resuelven solo donde se muestran —la cinta de alcance y la pantalla
   principal—, en una petición aparte. RF-009 pide informar cuánta información queda fuera, no
   informarlo en cada pantalla, y la regla de
@@ -209,7 +209,7 @@ nuevas.**
 
 | Principio | Qué lo sostiene en el diseño |
 |---|---|
-| I | Tabla de cobertura del filtro en data-model §9: 8 tablas con filtro de cargo, 8 que se consultan desde su padre, 1 lista blanca justificada. Una sola excepción con nombre (`forSharedCalendar`), **de solo lectura**, con los siete datos del cronograma enumerados y una prueba de **lista blanca** que compara el juego de llaves: una columna nueva en `activities` pone la prueba roja hasta que alguien decida si se comparte. La policy de `Activity` sigue negando toda escritura sobre una actividad ajena. `scope.hidden` lleva solo conteos y viaja como propiedad diferida. Policy más estrecha para simpatizantes. |
+| I | Tabla de cobertura del filtro en data-model §9: 8 tablas con filtro de cargo, 8 que se consultan desde su padre, 1 lista blanca justificada. Una sola excepción con nombre (`forSharedCalendar`), **de solo lectura**, con los siete datos del cronograma enumerados y una prueba de **lista blanca** que compara el juego de llaves: una columna nueva en `activities` pone la prueba roja hasta que alguien decida si se comparte. La policy de `Activity` sigue negando toda escritura sobre una actividad ajena. `scopeHidden` lleva solo conteos y viaja como propiedad diferida. Policy más estrecha para simpatizantes. |
 | II | `quickstart.md` §4 obliga a hacer cada comprobación a 360 px primero, y §4.9 mide la apertura con red limitada. |
 | III | Bitácora en 7 modelos; `approvals` resueltas y `budget_movements` inmutables por regla de modelo, no de interfaz; transiciones de estado registradas; el historial se lee por la relación del modelo, nunca de la tabla del paquete. |
 | IV | Rutas en inglés, tablas y columnas en inglés, textos y nombres de pantalla en español. `flash.message` explica en una frase qué pasó y qué hacer. |
