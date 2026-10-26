@@ -76,9 +76,10 @@ Objetivos verificables:
 - El texto de contenido mide 18 px como mínimo.
 - El contraste entre texto y fondo cumple el nivel AA de las pautas de accesibilidad.
 - Los colores salen de la paleta de la IPUC definida en `resources/css/app.css` y se usan por su
-  nombre, nunca escritos a mano. Unica excepcion: la barra de carga en `resources/js/app.tsx`,
-  que es un valor de JavaScript y Tailwind no lo alcanza. El azul claro y el dorado no llevan
-  texto encima, porque no alcanzan el contraste AA.
+  nombre, nunca escritos a mano. La excepción es lo que no pasa por ese CSS: la barra de carga en
+  `resources/js/app.tsx`, el manifiesto de la aplicación instalable y la página sin señal, que
+  funciona sin conexión. Esos tres llevan una copia de los valores y una nota que remite a
+  `app.css`. El azul claro y el dorado no llevan texto encima, porque no alcanzan el contraste AA.
 - La aplicación se instala como PWA y abre su pantalla principal en menos de 3 segundos
   sobre una red 3G simulada.
 - Las tablas anchas se convierten en tarjetas en pantallas angostas; no se desbordan.
@@ -249,6 +250,15 @@ mantener cualquier archivo de este proyecto sin que nadie se lo explique.
 
 ### Registro de enmiendas
 
+**2.3.2 · 2026-10-26 · Dos excepciones más a los colores escritos a mano**
+
+- Qué cambia: la regla de la paleta nombraba una sola excepción, la barra de carga. Se suman el
+  manifiesto de la aplicación instalable, que por su formato lleva los colores escritos, y la
+  página sin señal, que se muestra sin conexión y no recibe el CSS compilado.
+- Por qué: la aplicación instalable (T046). Sin esas copias la página sin señal saldría sin los
+  colores de la iglesia, y el manifiesto no admite otra forma de escribirlos.
+- Salto de versión: PATCH. Precisa el alcance de una regla existente; la regla no cambia.
+
 **2.3.1 · 2026-10-24 · Qué cuenta en el presupuesto de consultas**
 
 - Qué cambia: se precisa la restricción de las cinco consultas. Cuentan las de la pantalla —lo
@@ -348,4 +358,4 @@ mantener cualquier archivo de este proyecto sin que nadie se lo explique.
   cambio de fondo. Toda la demás cobertura del principio I sigue igual, y ninguna otra
   salida del filtro queda autorizada.
 
-**Versión**: 2.3.1 | **Ratificada**: 2026-10-14 | **Última enmienda**: 2026-10-24
+**Versión**: 2.3.2 | **Ratificada**: 2026-10-14 | **Última enmienda**: 2026-10-26

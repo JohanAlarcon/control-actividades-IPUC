@@ -5,7 +5,7 @@ aquí **no sustituye** a `.specify/memory/constitution.md`: la resume para tener
 las reglas de trabajo del día a día. Si algo de aquí contradice la constitución, manda la
 constitución.
 
-Constitución vigente: **2.3.1** (ratificada 2026-10-14; enmendada 2026-10-18, 2026-10-24).
+Constitución vigente: **2.3.2** (ratificada 2026-10-14; enmendada 2026-10-18, 2026-10-24, 2026-10-26).
 
 ---
 
@@ -61,6 +61,10 @@ de la clase de Tailwind. **Ninguna pantalla escribe un `#código` a mano.**
 | `text-alerta` | `#8a2b12` | errores | 9:1 |
 | `bg-fondo` | `#f2f5fa` | el fondo de las pantallas, detrás de las tarjetas | — |
 | `shadow-tarjeta` `shadow-barra` | el azul, apenas | tarjetas y menú de abajo, sin bordes duros | — |
+
+Lo que no pasa por el CSS compilado lleva una copia de los valores y una nota que remite a
+`app.css`: la barra de carga (`resources/js/app.tsx`), `public/manifest.webmanifest` y
+`public/offline.html`, que se muestra sin señal.
 
 El azul claro y el dorado **no llevan texto encima**: 3:1 y 2:1 están por debajo del 4,5:1 que
 exige el principio II. Sirven para bordes, iconos y adorno, o con texto oscuro encima.

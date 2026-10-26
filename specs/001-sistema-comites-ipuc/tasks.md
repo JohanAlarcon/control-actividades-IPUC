@@ -517,19 +517,23 @@ pantalla de inicio del teléfono y tiempo de apertura.
 - [ ] T045 [P] [US20] · Componente tabla-tarjeta
       Archivos: `resources/js/components/ui/CardTable.tsx`
       Verifica: a 360 px una tabla de seis columnas se presenta en tarjetas legibles; a 1280 px como tabla. Ninguna tabla se corta.
+      **Se construye con la primera tabla de verdad**, la de miembros (T096): hoy ninguna pantalla tiene una, y un componente sin quien lo use es una capa «por si acaso» (CLAUDE.md). Las cuentas y los comités ya se muestran en tarjetas.
 
 - [ ] T046 [P] [US20] · Aplicación instalable en el celular
       Archivos: `vite.config.ts` · `public/manifest.webmanifest` · `public/icons/`
       Verifica: Chrome en el celular ofrece «Instalar» · Lighthouse marca la aplicación como instalable.
+      **Hecha sin dependencias nuevas; falta verificarla en el servidor.** El navegador solo instala con https, y el computador de desarrollo usa http, así que «Instalar» se comprueba después de T007. Manifiesto, iconos con el degradado del encabezado, y un trabajador de fondo que solo muestra una página amable sin señal: no guarda pantallas ni datos de la congregación. `InstallableAppTest` vigila el manifiesto, los iconos, las copias de la paleta y esa promesa. No hizo falta tocar `vite.config.ts`.
 
-- [ ] T047 [US20] · Aviso de versión nueva dentro de la aplicación
+- [x] T047 [US20] · Aviso de versión nueva dentro de la aplicación
       Archivos: `resources/js/lib/update-check.ts` · `resources/js/layouts/AppLayout.tsx`
       Mitiga RG-06: la PWA sirviendo una versión vieja después de un despliegue.
+      **Verificada el 2026-10-26 simulando un despliegue**: con la pantalla abierta se cambió el archivo de compilación, apareció «Hay una versión nueva» y al pulsar «Actualizar» recargó y el aviso no volvió. Compara la huella con que se sirvió la pantalla con la que publica `/version`; `UpdateCheckTest` vigila que sean la misma.
       Verifica: tras un despliegue, una pestaña ya abierta muestra «hay una versión nueva» y recarga al confirmar.
 
 - [ ] T048 [US20] · Medición de apertura en red lenta
       Archivos: `docs/pruebas-rendimiento.md`
       Verifica: Lighthouse móvil con red 3G simulada, primera pintura con contenido **por debajo de 3 segundos**. El resultado queda anotado con fecha en el documento.
+      **Se mide en el servidor (después de T007)**: en el computador de desarrollo los archivos vienen del servidor de Vite sin comprimir, y una medición ahí no dice nada del celular de un hermano.
 
 - [ ] T152 [US20] · Afinar la aplicación instalada
       Archivos: `vite.config.ts` · `public/manifest.webmanifest` · `resources/js/lib/update-check.ts`

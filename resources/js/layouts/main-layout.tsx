@@ -3,6 +3,7 @@ import BottomNav from '@/components/layout/bottom-nav';
 import PageTitle from '@/components/layout/page-title';
 import ScopeRibbon from '@/components/layout/scope-ribbon';
 import TopBar from '@/components/layout/top-bar';
+import UpdateBanner from '@/components/layout/update-banner';
 import type { SharedProps } from '@/types/shared';
 import { Head, usePage } from '@inertiajs/react';
 import type { ReactNode } from 'react';
@@ -43,6 +44,7 @@ export default function MainLayout({ title, subtitle, back, children }: Props) {
                 </div>
             </main>
 
+            {user && <UpdateBanner />}
             {user && <BottomNav />}
         </div>
     );

@@ -29,3 +29,9 @@ createInertiaApp({
 
 // This will set light / dark mode on load...
 initializeTheme();
+
+// La aplicacion instalable (T046). El navegador solo lo permite con https, asi que en el
+// computador de desarrollo (http://control-actividades.test) no se registra.
+if ('serviceWorker' in navigator && window.isSecureContext) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+}

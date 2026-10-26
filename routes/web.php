@@ -9,6 +9,10 @@ use Inertia\Inertia;
 
 Route::get('/', fn () => redirect()->route(auth()->check() ? 'dashboard' : 'login'))->name('home');
 
+// La version que esta instalada: cada pantalla la compara con la suya para avisar que hay una
+// nueva (T047). No revela nada: es la huella del archivo de compilacion.
+Route::get('version', fn () => response()->json(['version' => Inertia::getVersion()]))->name('version');
+
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');

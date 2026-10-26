@@ -178,8 +178,10 @@ it('lo fijo de Laravel por petición son tres consultas, y se mide aparte', func
 
     [$propias] = contarConsultas(fn () => $this->actingAs($presidente)->get('/dashboard'));
 
-    // Ahora como en el servidor: sesiones en la base y una entrada de verdad.
-    config(['session.driver' => 'database']);
+    // Ahora como en el servidor: sesiones en la base y una entrada de verdad. La limpieza de
+    // sesiones vencidas corre al azar en 2 de cada 100 peticiones y suma una consulta: se apaga,
+    // porque lo que se mide aqui es lo que pagan todas las peticiones.
+    config(['session.driver' => 'database', 'session.lottery' => [0, 100]]);
     app('auth')->forgetGuards();
     $this->post('/login', ['username' => 'presidente.medicion', 'password' => 'clave1234']);
     app('auth')->forgetGuards();

@@ -7,6 +7,7 @@
 
         <link rel="icon" href="/favicon.ico" sizes="48x48">
         <link rel="apple-touch-icon" href="/img/icono-ipuc.png">
+        <link rel="manifest" href="/manifest.webmanifest">
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 

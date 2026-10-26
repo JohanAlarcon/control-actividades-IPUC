@@ -108,7 +108,9 @@ la constitución dice también **qué se cuenta**. Queda fijado así.
   solo lograría que el costo se mudara allí.
 - **No cuentan las tres fijas de Laravel** en cada petición: leer la sesión, cargar a la persona
   autenticada y guardar la sesión. Ninguna pantalla las puede agregar ni quitar, así que no se
-  pueden esconder costos en ellas; `QueryBudgetTest` verifica aparte que sigan siendo tres.
+  pueden esconder costos en ellas; `QueryBudgetTest` verifica aparte que sigan siendo tres. En
+  2 de cada 100 peticiones Laravel además borra las sesiones vencidas: una consulta más, al azar,
+  que tampoco es de la pantalla (medido el 2026-10-26: 4 de 200 peticiones).
 - **El número no crece con los datos.** `QueryBudgetTest` mide cada pantalla como el pastor, un
   presidente y un líder, con datos en los tres niveles; luego multiplica los datos por diez y
   exige el mismo número. Una consulta dentro de un bucle la pone roja.
