@@ -76,6 +76,9 @@ class UserController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'username' => $user->username,
+                'active' => $user->active,
+                'isPastor' => $user->is_pastor,
+                'mustChangePassword' => $user->must_change_password,
             ],
             'roles' => $user->currentRoles()->get(['id', 'role', 'committee_id'])
                 ->map(fn ($cargo) => [
@@ -91,7 +94,7 @@ class UserController extends Controller
     {
         $user->update($request->validated());
 
-        return redirect()->route('users.index')->with('notice', 'Los datos quedaron guardados.');
+        return redirect()->route('users.edit', $user)->with('notice', 'Los datos quedaron guardados.');
     }
 
     public function resetPassword(User $user): RedirectResponse
@@ -110,7 +113,7 @@ class UserController extends Controller
 
         $user->update(['active' => false]);
 
-        return redirect()->route('users.index')
+        return redirect()->route('users.edit', $user)
             ->with('notice', $user->name.' ya no puede entrar. Su nombre sigue en la historia.');
     }
 
@@ -130,7 +133,7 @@ class UserController extends Controller
      */
     private function conLaClave(User $persona, string $clave, string $aviso): RedirectResponse
     {
-        return redirect()->route('users.index')
+        return redirect()->route('users.edit', $persona)
             ->with('notice', $aviso)
             ->with('temporaryPassword', [
                 'name' => $persona->name,

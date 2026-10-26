@@ -37,7 +37,7 @@ function RoleRow({ role, committeeName }: { role: CurrentRole; committeeName: st
         });
 
     return (
-        <li className="rounded-lg border-2 border-linea p-4">
+        <li className="rounded-lg border border-linea/40 p-4 shadow-sm">
             <p className="text-lg font-semibold">
                 {ROLE_LABELS[role.role]} · {committeeName}
             </p>

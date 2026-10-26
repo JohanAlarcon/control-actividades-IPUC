@@ -43,7 +43,7 @@ it('la cuenta no se borra y su nombre sigue en lo que pidió', function () {
     $solicitud = Approval::factory()->forCommittee($comite)->create(['requested_by_user_id' => $this->lider->id]);
 
     $this->actingAs($this->pastor)->post("/users/{$this->lider->id}/revoke")
-        ->assertRedirect('/users')
+        ->assertRedirect("/users/{$this->lider->id}/edit")
         ->assertSessionHas('notice');
 
     expect(User::find($this->lider->id))->not->toBeNull()

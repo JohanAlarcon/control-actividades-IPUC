@@ -380,7 +380,7 @@ no entra mientras su nombre permanece en el historial.
       Archivos: `app/Policies/UserPolicy.php` · `app/Providers/AppServiceProvider.php`
       Verifica: `php artisan test --filter=UserPolicyTest` — un presidente no crea, no modifica y no retira cuentas.
 
-- [ ] T035 [US02] · Pantalla y controlador de usuarios: crear con clave temporal, modificar, retirar
+- [x] T035 [US02] · Pantalla y controlador de usuarios: crear con clave temporal, modificar, retirar
       Archivos: `app/Http/Controllers/UserController.php` · `app/Http/Requests/StoreUserRequest.php`, `UpdateUserRequest.php` · `resources/js/pages/Users/Index.tsx`, `Users/Form.tsx` · ruta `/users`
       Verifica: `php artisan test --filter=UserManagementTest` · revisada a 360 px en tarjetas.
 

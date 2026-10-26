@@ -13,12 +13,12 @@ beforeEach(function () {
 });
 
 it('el pastor crea una cuenta con clave temporal que exige cambiarse al entrar', function () {
-    $this->actingAs($this->pastor)
+    $respuesta = $this->actingAs($this->pastor)
         ->post('/users', ['name' => 'Hermano Rigoberto Páez', 'username' => 'rigoberto.paez'])
-        ->assertRedirect('/users')
         ->assertSessionHas('temporaryPassword');
 
     $cuenta = User::where('username', 'rigoberto.paez')->first();
+    $respuesta->assertRedirect("/users/{$cuenta->id}/edit");
 
     expect($cuenta)->not->toBeNull()
         ->and($cuenta->site_id)->toBe($this->site->id)
@@ -44,7 +44,7 @@ it('crear la cuenta con cargo y comité la deja asignada (HU-02, escenario 1)', 
         'username' => 'gustavo.rengifo',
         'committee_id' => $this->alabanza->id,
         'role' => CommitteeUser::PRESIDENT,
-    ])->assertRedirect('/users');
+    ])->assertSessionHasNoErrors();
 
     $cargo = User::where('username', 'gustavo.rengifo')->first()->currentRoles()->first();
 
@@ -118,7 +118,7 @@ it('el pastor corrige el nombre y el usuario', function () {
 
     $this->actingAs($this->pastor)
         ->patch("/users/{$cuenta->id}", ['name' => 'Hermano Corregido', 'username' => 'nombre.nuevo'])
-        ->assertRedirect('/users');
+        ->assertRedirect("/users/{$cuenta->id}/edit");
 
     expect($cuenta->fresh())
         ->name->toBe('Hermano Corregido')
@@ -140,6 +140,18 @@ it('la lista muestra los cargos vigentes de cada cuenta, no los terminados', fun
                 return count($cuenta['roles']) === 1
                     && $cuenta['roles'][0]['committeeName'] === 'Comité de Alabanza';
             })
+        );
+});
+
+it('la ficha de una cuenta trae su estado de acceso', function () {
+    $cuenta = User::factory()->create(['site_id' => $this->site->id, 'active' => false, 'must_change_password' => true]);
+
+    $this->actingAs($this->pastor)->get("/users/{$cuenta->id}/edit")
+        ->assertInertia(fn ($page) => $page
+            ->component('Users/Form')
+            ->where('account.active', false)
+            ->where('account.isPastor', false)
+            ->where('account.mustChangePassword', true)
         );
 });
 

@@ -16,7 +16,7 @@ beforeEach(function () {
 
 it('el pastor restablece la clave y la vieja deja de servir', function () {
     $this->actingAs($this->pastor)->post("/users/{$this->hermana->id}/reset-password")
-        ->assertRedirect('/users')
+        ->assertRedirect("/users/{$this->hermana->id}/edit")
         ->assertSessionHas('temporaryPassword');
 
     $hermana = $this->hermana->fresh();

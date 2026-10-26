@@ -14,6 +14,9 @@ export interface EditableAccount {
     id: number;
     name: string;
     username: string;
+    active: boolean;
+    isPastor: boolean;
+    mustChangePassword: boolean;
 }
 
 export interface CommitteeOption {
