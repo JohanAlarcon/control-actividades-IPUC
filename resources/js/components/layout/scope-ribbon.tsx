@@ -1,5 +1,5 @@
 import RoleSwitcher from '@/components/layout/role-switcher';
-import { ROLE_LABELS } from '@/lib/roles';
+import { roleLabelFor } from '@/lib/roles';
 import type { SharedProps } from '@/types/shared';
 import { usePage } from '@inertiajs/react';
 import { BadgeCheck } from 'lucide-react';
@@ -39,7 +39,7 @@ export default function ScopeRibbon() {
             )}
 
             {(scope.mustChoose || switching) && (
-                <RoleSwitcher roles={auth.roles} activeId={scope.activeRole?.id ?? null} onCancel={scope.mustChoose ? undefined : () => setSwitching(false)} />
+                <RoleSwitcher roles={auth.roles} activeId={scope.activeRole?.id ?? null} personName={auth.user?.name} onCancel={scope.mustChoose ? undefined : () => setSwitching(false)} />
             )}
         </div>
     );
@@ -49,5 +49,5 @@ function actingAs({ auth, scope }: Pick<SharedProps, 'auth' | 'scope'>): string 
     if (auth.user?.isPastor) return 'Pastor · Toda la congregación';
     if (!scope.activeRole) return 'Todavía sin cargo asignado';
 
-    return `${ROLE_LABELS[scope.activeRole.role]} · ${scope.activeRole.committeeName}`;
+    return `${roleLabelFor(scope.activeRole.role, auth.user?.name)} · ${scope.activeRole.committeeName}`;
 }

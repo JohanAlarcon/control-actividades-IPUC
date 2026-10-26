@@ -1,4 +1,5 @@
-import { responsibleTitle } from '@/lib/committees';
+import { responsibleRole, responsibleTitle } from '@/lib/committees';
+import { roleLabelFor } from '@/lib/roles';
 import type { CommitteeSummary } from '@/types/committees';
 import { Link } from '@inertiajs/react';
 import { ChevronRight, UserRound } from 'lucide-react';
@@ -44,7 +45,7 @@ export default function CommitteeRow({ committee, prominent = false, detail }: P
                     <p className="mt-0.5 flex items-start gap-1.5 text-lg text-tinta-suave">
                         <UserRound aria-hidden className="mt-1 size-4 shrink-0" />
                         <span>
-                            <span className="sr-only">{title}: </span>
+                            <span className="sr-only">{roleLabelFor(responsibleRole(committee.depth), committee.responsible)}: </span>
                             {committee.responsible}
                         </span>
                     </p>

@@ -1,7 +1,7 @@
 import AccountCard from '@/components/users/account-card';
 import AccountSearch from '@/components/users/account-search';
 import MainLayout from '@/layouts/main-layout';
-import { ROLE_LABELS } from '@/lib/roles';
+import { ROLE_LABELS, roleLabelFor } from '@/lib/roles';
 import { matchesEveryWord } from '@/lib/search';
 import { buttonClass } from '@/lib/styles';
 import type { Account } from '@/types/accounts';
@@ -10,7 +10,7 @@ import { UserPlus } from 'lucide-react';
 
 /** Todo lo que se puede buscar de una cuenta: el nombre, el usuario, sus cargos y sus comités. */
 function searchableText(account: Account): string {
-    const cargos = account.roles.map((cargo) => `${ROLE_LABELS[cargo.role]} ${cargo.committeeName ?? ''}`);
+    const cargos = account.roles.map((cargo) => `${ROLE_LABELS[cargo.role]} ${roleLabelFor(cargo.role, account.name)} ${cargo.committeeName ?? ''}`);
 
     return [account.name, account.username, account.isPastor ? 'pastor' : '', ...cargos].join(' ');
 }

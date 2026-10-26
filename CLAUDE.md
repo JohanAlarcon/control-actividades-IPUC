@@ -30,7 +30,7 @@ del cliente.
 Todas deben pasar:
 
 1. `php artisan test` en verde, incluidas `ScopeCoverageTest`, `NoRawQueriesTest` y
-   `QueryBudgetTest`.
+   `QueryBudgetTest`. Y `npm run test:js` en verde.
 2. `php artisan migrate:fresh --seed` corre sobre base de datos en limpio, sin errores.
 3. Cada pantalla nueva tiene al menos una prueba de aislamiento: un cargo ajeno **no** la ve.
 4. La pantalla se verificó a **360 px** de ancho.
@@ -176,13 +176,15 @@ find resources/js -name "*.tsx" | xargs wc -l | sort -rn | head
 
 ## Pruebas
 
-Pest con factories sobre la base de datos de pruebas. Tres familias:
+Cuatro familias: tres con Pest, que prueban el servidor con factories sobre la base de pruebas, y
+una con Vitest, que prueba lo que corre en el celular:
 
 | Familia | Qué prueba |
 |---|---|
 | `tests/Feature/` | La mayoría. Entran por ruta HTTP como un cargo concreto: ejercitan ruta, policy y filtro juntos |
 | `tests/Unit/` | Cálculos puros: compromiso, avance, estadísticas, saldos, sub-árbol |
 | `tests/Architecture/` | `ScopeCoverageTest`, `NoRawQueriesTest`, `QueryBudgetTest` |
+| `tests/js/` | Lo que corre en el celular, con Vitest: la búsqueda, cómo se dice cada cargo, los resúmenes |
 
 Cobertura obligatoria: el filtro de alcance, el flujo completo de aprobaciones, los cálculos de
 estadísticas y de presupuesto, y las reglas de validación de los formularios.
@@ -194,6 +196,7 @@ que la especificación enumera (`spec.md` → Casos Límite), no solo el camino 
 php artisan test                    # todo
 php artisan test --filter=Scope     # aislamiento entre comités
 php artisan test tests/Architecture # las tres redes de seguridad
+npm run test:js                     # lo que corre en el celular (Vitest)
 ```
 
 ---

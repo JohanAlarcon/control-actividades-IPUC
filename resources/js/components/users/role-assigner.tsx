@@ -8,9 +8,10 @@ import { FormEventHandler } from 'react';
 interface Props {
     userId: number;
     committees: CommitteeOption[];
+    personName: string;
 }
 
-export default function RoleAssigner({ userId, committees }: Props) {
+export default function RoleAssigner({ userId, committees, personName }: Props) {
     const form = useForm({ user_id: userId, committee_id: '', role: '', handover: false });
 
     const send = (handover: boolean) => {
@@ -34,7 +35,7 @@ export default function RoleAssigner({ userId, committees }: Props) {
     return (
         <form onSubmit={submit} className="mt-6 flex flex-col gap-5 border-t border-ipuc/10 pt-6">
             <h3 className="text-lg font-bold">Asignar otro cargo</h3>
-            <RolePicker committees={committees} committeeId={form.data.committee_id} role={form.data.role} errors={form.errors} onChange={pick} />
+            <RolePicker committees={committees} committeeId={form.data.committee_id} role={form.data.role} errors={form.errors} onChange={pick} personName={personName} />
 
             {form.errors.handover ? (
                 <HandoverQuestion

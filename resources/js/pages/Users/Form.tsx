@@ -34,8 +34,8 @@ export default function UserForm({ account, roles, committees }: Props) {
                                 <p className="text-lg text-tinta-suave">El pastor ve toda la congregación: no necesita cargo en un comité.</p>
                             ) : (
                                 <>
-                                    <CurrentRoles roles={roles} committees={committees} />
-                                    <RoleAssigner userId={account.id} committees={committees} />
+                                    <CurrentRoles roles={roles} committees={committees} personName={account.name} />
+                                    <RoleAssigner userId={account.id} committees={committees} personName={account.name} />
                                 </>
                             )}
                         </div>

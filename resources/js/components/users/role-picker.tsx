@@ -1,4 +1,4 @@
-import { ROLE_LABELS, rolesForDepth } from '@/lib/roles';
+import { roleLabelFor, rolesForDepth } from '@/lib/roles';
 import { errorClass, fieldClass } from '@/lib/styles';
 import type { CommitteeOption } from '@/types/accounts';
 
@@ -9,9 +9,10 @@ interface Props {
     errors: { committee_id?: string; role?: string };
     onChange: (committeeId: string, role: string) => void;
     optional?: boolean;
+    personName?: string;
 }
 
-export default function RolePicker({ committees, committeeId, role, errors, onChange, optional = false }: Props) {
+export default function RolePicker({ committees, committeeId, role, errors, onChange, optional = false, personName }: Props) {
     const chosen = committees.find((committee) => String(committee.id) === committeeId);
     const roles = chosen ? rolesForDepth(chosen.depth) : [];
 
@@ -51,7 +52,7 @@ export default function RolePicker({ committees, committeeId, role, errors, onCh
                         {roles.length > 1 && <option value="">Escoja el cargo</option>}
                         {roles.map((option) => (
                             <option key={option} value={option}>
-                                {ROLE_LABELS[option]}
+                                {roleLabelFor(option, personName)}
                             </option>
                         ))}
                     </select>

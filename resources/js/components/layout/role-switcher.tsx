@@ -1,4 +1,4 @@
-import { ROLE_LABELS } from '@/lib/roles';
+import { roleLabelFor } from '@/lib/roles';
 import type { SharedRole } from '@/types/shared';
 import { router } from '@inertiajs/react';
 import { ChevronRight } from 'lucide-react';
@@ -6,11 +6,12 @@ import { ChevronRight } from 'lucide-react';
 interface Props {
     roles: SharedRole[];
     activeId: number | null;
+    personName?: string | null;
     onCancel?: () => void;
 }
 
 /** Los otros cargos de la persona, para escoger uno. Va sobre el azul del encabezado. */
-export default function RoleSwitcher({ roles, activeId, onCancel }: Props) {
+export default function RoleSwitcher({ roles, activeId, personName, onCancel }: Props) {
     return (
         <div className="mt-3 flex flex-col gap-2">
             {roles
@@ -23,7 +24,7 @@ export default function RoleSwitcher({ roles, activeId, onCancel }: Props) {
                         className="flex min-h-12 w-full items-center justify-between gap-3 rounded-xl bg-white px-4 py-2 text-left text-lg text-tinta focus-visible:outline-2 focus-visible:outline-white"
                     >
                         <span>
-                            <span className="font-semibold">{ROLE_LABELS[cargo.role]}</span> · {cargo.committeeName}
+                            <span className="font-semibold">{roleLabelFor(cargo.role, personName)}</span> · {cargo.committeeName}
                         </span>
                         <ChevronRight aria-hidden className="size-5 shrink-0 text-ipuc" />
                     </button>

@@ -3,8 +3,8 @@ import InfoNote from '@/components/info-note';
 import PersonRow from '@/components/person-row';
 import SectionBlock from '@/components/section-block';
 import MainLayout from '@/layouts/main-layout';
-import { childrenTitle, levelOf, responsibleTitle, structureSummary, withoutChildrenText } from '@/lib/committees';
-import { ROLE_LABELS } from '@/lib/roles';
+import { childrenTitle, levelOf, responsibleRole, structureSummary, withoutChildrenText } from '@/lib/committees';
+import { roleLabelFor } from '@/lib/roles';
 import { cardClass } from '@/lib/styles';
 import type { CommitteeSummary } from '@/types/committees';
 import { Info } from 'lucide-react';
@@ -27,9 +27,9 @@ export default function CommitteeShow({ committee, responsible, secretary, treas
         <MainLayout title={committee.name} subtitle={subtitle} back={{ href: '/committees', label: 'Comités' }}>
             <SectionBlock title="Quiénes lo encabezan">
                 <ul className={`divide-y divide-ipuc/5 ${cardClass}`}>
-                    <PersonRow role={responsibleTitle(committee.depth)} name={responsible} />
-                    {committee.depth === 1 && <PersonRow role={ROLE_LABELS.secretary} name={secretary} />}
-                    {committee.depth === 1 && <PersonRow role={ROLE_LABELS.treasurer} name={treasurer} />}
+                    <PersonRow role={roleLabelFor(responsibleRole(committee.depth), responsible)} name={responsible} />
+                    {committee.depth === 1 && <PersonRow role={roleLabelFor('secretary', secretary)} name={secretary} />}
+                    {committee.depth === 1 && <PersonRow role={roleLabelFor('treasurer', treasurer)} name={treasurer} />}
                 </ul>
             </SectionBlock>
 

@@ -48,6 +48,7 @@ export default function AccountForm({ account, committees }: Props) {
                 value={form.data.name}
                 onChange={(e) => form.setData('name', e.target.value)}
                 error={form.errors.name}
+                hint="Como se le dice en la iglesia. Por ejemplo: Hermana Luz Mary Quintero."
                 autoComplete="off"
                 autoFocus={!account}
             />
@@ -71,6 +72,7 @@ export default function AccountForm({ account, committees }: Props) {
                     role={form.data.role}
                     errors={form.errors}
                     onChange={pick}
+                    personName={form.data.name}
                 />
             )}
 

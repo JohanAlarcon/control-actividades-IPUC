@@ -30,8 +30,9 @@ constitución; no se actualizan sin decisión explícita.
 **Primary Dependencies**: Laravel 12, Inertia.js 2, React 19, Tailwind CSS 4, Vite. Base: kit
 inicial oficial de Laravel 12 para React. Tres dependencias añadidas con justificación escrita
 (ver Constitution Check y [research.md](./research.md)): bitácora de cambios
-(`spatie/laravel-activitylog`), generador de hojas de cálculo (`maatwebsite/excel`), generador de
-PWA (`vite-plugin-pwa`).
+(`spatie/laravel-activitylog`), generador de hojas de cálculo (`maatwebsite/excel`) y, solo para
+las pruebas del código que corre en el celular, `vitest`. La aplicación instalable se hizo sin
+dependencia (ver Constitution Check).
 
 **Storage**: MySQL 8. Las migraciones son la única fuente de verdad del esquema; la base no se
 modifica a mano. Los archivos adjuntos —evidencias de actividad y soportes de gasto— van al **disco
@@ -513,5 +514,6 @@ que quede el rastro.
 |-----------|------------|-------------------------------------|
 | Dependencia: bitácora de cambios (`spatie/laravel-activitylog`) | El principio III y RF-056 exigen conservar qué decía antes, quién lo cambió y cuándo, en siete modelos. | Una tabla de auditoría propia son ~2 días de trabajo y deja casos sin cubrir (relaciones, valores anteriores de campos derivados). |
 | Dependencia: generador de hojas de cálculo (`maatwebsite/excel`) | RF-038 exige descarga en hoja de cálculo respetando filtros y ámbito; el pastor lleva esas cifras a reuniones de distrito. | Un CSV nativo no da un archivo presentable en una reunión de distrito, que es el propósito declarado de CE-07 y HU-12. |
-| Dependencia: generador de PWA (`vite-plugin-pwa`) | El principio II exige instalación en el celular y apertura bajo 3 s en red lenta (RF-059). | Un trabajador de servicio y un manifiesto a mano son fuente conocida de fallas difíciles de reproducir, justo en el canal principal de uso. |
-| Prueba de arquitectura que cuenta consultas (`QueryBudgetTest`) | La constitución fija un máximo de 5 consultas por pantalla; la unidad de medida es la petición completa (ver Constitution Check) y un límite que no se mide no se cumple. | La revisión a ojo no detecta una consulta N+1 introducida en una pantalla que ya existía. |
+| Dependencia: generador de PWA (`vite-plugin-pwa`). **No se agregó** (2026-10-26) | El principio II exige instalación en el celular y apertura bajo 3 s en red lenta (RF-059). | Se hizo a mano, por decisión del autor. El trabajador de fondo quedó mínimo: solo muestra la página sin señal y no guarda nada, así que no aplica el riesgo que se temía, fallas difíciles de reproducir por lo que se guarda en el teléfono. Si T152 lo hace crecer, se reconsidera. |
+| Dependencia de desarrollo: pruebas del código del celular (`vitest`) | El principio V exige pruebas, y parte de la lógica corre en el celular: el buscador de cuentas, los cargos dichos como «Presidenta», los resúmenes de la estructura. Pest solo prueba lo que pasa en el servidor. Aprobada por el autor el 2026-10-26. | Probar a mano en el navegador no queda escrito ni se repite. Node trae su propio corredor de pruebas, pero la versión instalada (20) no lee TypeScript. Vitest usa la configuración de Vite que el proyecto ya tiene, y no viaja al celular. |
+| Prueba de arquitectura que cuenta consultas (`QueryBudgetTest`) | La constitución fija un máximo de 5 consultas por pantalla; cuentan las propias de la pantalla, sin las tres fijas de Laravel (constitución 2.3.1), y un límite que no se mide no se cumple. | La revisión a ojo no detecta una consulta N+1 introducida en una pantalla que ya existía. |

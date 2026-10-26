@@ -1,4 +1,4 @@
-import { ROLE_LABELS } from '@/lib/roles';
+import { ROLE_LABELS, type Role } from '@/lib/roles';
 
 const LEVELS: Record<number, string> = { 1: 'Comité', 2: 'Sub-comité', 3: 'Equipo' };
 
@@ -12,8 +12,12 @@ export function levelOf(depth: number): string {
 }
 
 /** Un comité lo encabeza su presidente; un sub-comité o un equipo, su líder (RF-013). */
+export function responsibleRole(depth: number): Role {
+    return depth === 1 ? 'president' : 'leader';
+}
+
 export function responsibleTitle(depth: number): string {
-    return depth === 1 ? ROLE_LABELS.president : ROLE_LABELS.leader;
+    return ROLE_LABELS[responsibleRole(depth)];
 }
 
 export function childrenTitle(depth: number): string {

@@ -1,5 +1,5 @@
 import InitialsAvatar from '@/components/initials-avatar';
-import { ROLE_LABELS } from '@/lib/roles';
+import { roleLabelFor } from '@/lib/roles';
 import { cardClass } from '@/lib/styles';
 import type { Account } from '@/types/accounts';
 import { Link } from '@inertiajs/react';
@@ -42,7 +42,7 @@ function Roles({ account }: { account: Account }) {
         <ul className="mt-1 text-lg">
             {account.roles.map((cargo) => (
                 <li key={cargo.id}>
-                    <span className="font-semibold text-ipuc">{ROLE_LABELS[cargo.role]}</span> · {cargo.committeeName}
+                    <span className="font-semibold text-ipuc">{roleLabelFor(cargo.role, account.name)}</span> · {cargo.committeeName}
                 </li>
             ))}
         </ul>
