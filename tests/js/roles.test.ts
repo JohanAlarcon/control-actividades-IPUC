@@ -1,4 +1,4 @@
-import { roleLabelFor, rolesForDepth } from '@/lib/roles';
+import { decidesApprovals, roleLabelFor, rolesForDepth } from '@/lib/roles';
 import { describe, expect, it } from 'vitest';
 
 describe('roleLabelFor: el cargo dicho como se le dice a la persona', () => {
@@ -43,5 +43,15 @@ describe('rolesForDepth: qué cargos tiene cada nivel (RF-013)', () => {
     it('un sub-comité y un equipo tienen líder', () => {
         expect(rolesForDepth(2)).toEqual(['leader']);
         expect(rolesForDepth(3)).toEqual(['leader']);
+    });
+});
+
+describe('decidesApprovals', () => {
+    it('deciden el pastor y quien actúa como presidente; nadie más', () => {
+        expect(decidesApprovals(true, undefined)).toBe(true);
+        expect(decidesApprovals(false, 'president')).toBe(true);
+        expect(decidesApprovals(false, 'secretary')).toBe(false);
+        expect(decidesApprovals(false, 'leader')).toBe(false);
+        expect(decidesApprovals(undefined, undefined)).toBe(false);
     });
 });

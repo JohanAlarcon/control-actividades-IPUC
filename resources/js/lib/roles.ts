@@ -26,3 +26,8 @@ export function roleLabelFor(role: Role, name?: string | null): string {
 export function rolesForDepth(depth: number): Role[] {
     return depth === 1 ? ['president', 'secretary', 'treasurer'] : ['leader'];
 }
+
+/** Quien decide solicitudes: el pastor y quien actúa como presidente (RF-016, RF-017). La misma regla de ApprovalPolicy. */
+export function decidesApprovals(isPastor: boolean | undefined, activeRole: Role | undefined): boolean {
+    return Boolean(isPastor) || activeRole === 'president';
+}

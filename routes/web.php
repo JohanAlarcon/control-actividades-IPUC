@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\CommitteeController;
 use App\Http\Controllers\CommitteeUserController;
 use App\Http\Controllers\RoleSwitchController;
@@ -34,6 +35,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('committees/{committee}/roles', [CommitteeUserController::class, 'store'])->name('roles.store');
     Route::delete('roles/{role}', [CommitteeUserController::class, 'destroy'])->name('roles.destroy');
+
+    Route::get('approvals', [ApprovalController::class, 'index'])->name('approvals.index');
+    Route::post('approvals/{approval}/approve', [ApprovalController::class, 'approve'])->whereNumber('approval')->name('approvals.approve');
+    Route::post('approvals/{approval}/reject', [ApprovalController::class, 'reject'])->whereNumber('approval')->name('approvals.reject');
 });
 
 require __DIR__.'/auth.php';

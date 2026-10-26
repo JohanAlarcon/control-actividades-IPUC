@@ -1,7 +1,7 @@
 # Contrato — Propiedades compartidas
 
-El bloque compartido viaja en **toda** respuesta de Inertia, desde el middleware, con dos
-excepciones: `scopeHidden` y `pendingCount` son **propiedades diferidas** y viajan en su propia
+El bloque compartido viaja en **toda** respuesta de Inertia, desde el middleware, con tres
+excepciones: `scopeHidden`, `pendingCount` y `pendingSince` son **propiedades diferidas** y viajan en su propia
 petición parcial, no en la primera carga. Unas y otras reflejan la corrección C-01: el ámbito es el
 de **un solo cargo activo**, nunca la unión de dos.
 
@@ -29,6 +29,9 @@ scopeHidden       { committees, subcommittees, members, activities }
 
 pendingCount       número de solicitudes esperando la decisión del cargo activo (RF-055)
                    se pide aparte; no viaja en la primera carga de ninguna pantalla
+
+pendingSince       desde cuándo espera la más antigua de esas (HU-06 esc. 4); nula si no hay
+                   sale de la misma consulta que pendingCount: se piden juntas
 ```
 
 ## Reglas
@@ -44,7 +47,7 @@ pendingCount       número de solicitudes esperando la decisión del cargo activ
 | 6 | Toda pantalla muestra `scope.label` de forma visible: la persona siempre sabe con qué cargo actúa. | RF-007, CL-05 |
 | 7 | `flash.message` va en español, explica en una frase qué pasó y qué hacer. | RF-060 |
 | 8 | El bloque compartido se arma con **dos consultas como máximo**: la persona, y sus cargos vigentes con su comité. A la pantalla le quedan tres. | Constitución, plan.md |
-| 9 | `scopeHidden` y `pendingCount` son **propiedades diferidas**: se piden aparte y esa petición paga también las dos consultas del bloque compartido. | RF-009, RF-055 |
+| 9 | `scopeHidden`, `pendingCount` y `pendingSince` son **propiedades diferidas**: se piden aparte y esa petición paga también las dos consultas del bloque compartido. | RF-009, RF-055 |
 
 ## Presupuesto de consultas
 
@@ -57,7 +60,7 @@ de cinco consultas. El reparto normativo es este:
 |---|---|
 | bloque compartido: los cargos vigentes, sus comités, y el sub-árbol del cargo activo | **3** como máximo |
 | la pantalla, con sus propiedades propias | 2 |
-| `scopeHidden` y `pendingCount` | propiedad diferida, petición aparte |
+| `scopeHidden`, `pendingCount` y `pendingSince` | propiedad diferida, petición aparte |
 
 > **Corregido el 2026-10-24, al medirlo.** Este documento decía 2 para el bloque compartido y 3
 > para la pantalla. Al implementarlo, la medición real dio **6**: los cargos se consultaban dos

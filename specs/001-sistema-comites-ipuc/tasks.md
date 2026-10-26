@@ -557,12 +557,12 @@ presidente, comprobando qué queda cerrado y qué escala al pastor.
 > bloque 2.3. La prueba independiente arma las solicitudes con sus factories, así que no espera la
 > pantalla de propuesta.
 
-- [ ] T058 [US06] · `ApprovalFlow`: la cadena de escalamiento en un solo lugar
+- [x] T058 [US06] · `ApprovalFlow`: la cadena de escalamiento en un solo lugar
       Archivos: `app/Support/Approvals/ApprovalFlow.php`
       Las reglas de `data-model.md` §5 (RF-016 a RF-018, RN-02, RN-03, RN-04), **incluida la corrección V-04**: el gasto del propio comité del presidente **no crea solicitud** — lo autoriza él y se registra el movimiento con su nombre y la fecha. Es el **único** que crea filas en `approvals`, y nunca el par `type` = `expense` con `level` = `pastor` (T057).
       Verifica: `php artisan test --filter=ApprovalFlowTest`
 
-- [ ] T059 [US06] · Prueba: las reglas de escalamiento, incluida la que no cierra
+- [x] T059 [US06] · Prueba: las reglas de escalamiento, incluida la que no cierra
       Archivos: `tests/Unit/Approvals/ApprovalFlowTest.php`
       Verifica: `php artisan test --filter=ApprovalFlowTest` — el presidente aprueba una actividad y la solicitud **sigue pendiente**, ahora en el pastor. Un gasto de un líder, de cualquier monto, lo cierra el presidente (RN-04) y **cierra en ese paso**, sin quedar pendiente del pastor. Un gasto del presidente mismo no genera solicitud (RF-018). Crear una solicitud con `type` = `expense` y `level` = `pastor` falla al guardar, rechazada por el modelo `Approval` (data-model.md §5).
 
@@ -571,24 +571,24 @@ presidente, comprobando qué queda cerrado y qué escala al pastor.
       El evento `updating` rechaza el cambio si la solicitud ya está resuelta (RF-021, RF-057, RN-07). Se hace cumplir **en el modelo, no en la interfaz**.
       Verifica: `php artisan test --filter=ApprovalImmutabilityTest` — editar una aprobación resuelta lanza excepción.
 
-- [ ] T067 [US06] · Policy de aprobaciones por nivel
+- [x] T067 [US06] · Policy de aprobaciones por nivel
       Archivos: `app/Policies/ApprovalPolicy.php`
       Verifica: `php artisan test --filter=ApprovalPolicyTest` — un presidente no resuelve lo de nivel pastor ni lo de otro comité.
 
-- [ ] T068 [US06] · Bandeja de aprobaciones: por resolver, escaladas e historia
-      Archivos: `app/Http/Controllers/ApprovalController.php` · `resources/js/pages/Approvals/Index.tsx` · `resources/js/components/domain/ApprovalCard.tsx` · ruta `/approvals`
+- [x] T068 [US06] · Bandeja de aprobaciones: por resolver, escaladas e historia
+      Archivos: `app/Http/Controllers/ApprovalController.php` · `resources/js/pages/Approvals/Index.tsx` · `resources/js/components/approvals/approval-card.tsx` · `approval-actions.tsx` · ruta `/approvals`
       Cada tarjeta dice de qué comité viene, quién la pidió, por quién ya pasó, qué monto implica, qué efecto tiene en el cronograma y **desde cuándo espera**.
       Verifica: `php artisan test --filter=ApprovalInboxTest` · a 360 px la tarjeta se lee completa sin abrir nada.
 
-- [ ] T069 [US06] · Aprobar: aplica `ApprovalFlow` y el efecto sobre el objeto apuntado
+- [x] T069 [US06] · Aprobar: aplica `ApprovalFlow` y el efecto sobre el objeto apuntado
       Archivos: `app/Http/Controllers/ApprovalController.php` · ruta `POST /approvals/{approval}/approve`
       Verifica: `php artisan test --filter=ApproveTest` — aprobar una actividad la deja aprobada en el cronograma con nombre y fecha.
 
-- [ ] T070 [US06] · Rechazar con motivo obligatorio y visible
+- [x] T070 [US06] · Rechazar con motivo obligatorio y visible
       Archivos: `app/Http/Requests/RejectApprovalRequest.php` · `app/Http/Controllers/ApprovalController.php` · ruta `POST /approvals/{approval}/reject`
       Verifica: `php artisan test --filter=RejectTest` — sin motivo no pasa (RF-020); el motivo le aparece a quien propuso.
 
-- [ ] T071 [US06] · Prueba: los cuatro escenarios de HU-06
+- [x] T071 [US06] · Prueba: los cuatro escenarios de HU-06
       Archivos: `tests/Feature/Approvals/PresidentReviewTest.php`
       Verifica: `php artisan test --filter=PresidentReviewTest` — incluye la aprobación que no cierra y escala al pastor.
 

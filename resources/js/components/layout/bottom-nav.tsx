@@ -1,6 +1,7 @@
+import { decidesApprovals } from '@/lib/roles';
 import type { SharedProps } from '@/types/shared';
 import { Link, usePage } from '@inertiajs/react';
-import { House, Network, UsersRound, type LucideIcon } from 'lucide-react';
+import { House, Inbox, Network, UsersRound, type LucideIcon } from 'lucide-react';
 
 interface Item {
     href: string;
@@ -12,13 +13,15 @@ interface Item {
 /**
  * El menú del prototipo: abajo, siempre a la vista, con la palabra debajo de cada icono.
  * Solo trae las secciones que ya existen; Cronograma y Dinero se suman cuando estén.
- * El número sobre «Inicio» es lo que espera la decisión del cargo (RF-055).
+ * El número va sobre las solicitudes: lo que espera la decisión del cargo (RF-055).
  */
 export default function BottomNav() {
     const { props, url } = usePage<SharedProps>();
+    const decides = decidesApprovals(props.auth.user?.isPastor, props.scope.activeRole?.role);
 
     const items: Item[] = [
-        { href: '/dashboard', label: 'Inicio', icon: House, badge: props.pendingCount },
+        { href: '/dashboard', label: 'Inicio', icon: House },
+        { href: '/approvals', label: decides ? 'Aprobar' : 'Solicitudes', icon: Inbox, badge: props.pendingCount },
         { href: '/committees', label: 'Comités', icon: Network },
         ...(props.auth.user?.isPastor ? [{ href: '/users', label: 'Cuentas', icon: UsersRound }] : []),
     ];

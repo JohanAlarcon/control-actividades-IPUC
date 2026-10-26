@@ -1,6 +1,10 @@
 /** Las clases que se repiten. Todo control mide 48 px de alto y su texto 18 px (principio II). */
-export const fieldClass =
-    'mt-2 h-12 w-full rounded-xl border border-linea bg-white px-4 text-lg focus:border-ipuc focus:ring-2 focus:ring-ipuc-claro focus:outline-none';
+const field = 'mt-2 w-full rounded-xl border border-linea bg-white px-4 text-lg focus:border-ipuc focus:ring-2 focus:ring-ipuc-claro focus:outline-none';
+
+export const fieldClass = `${field} h-12`;
+
+/** Para escribir más de una línea, como el motivo de un rechazo. */
+export const textAreaClass = `${field} min-h-28 py-3`;
 
 export const errorClass = 'mt-2 text-lg font-semibold text-alerta';
 

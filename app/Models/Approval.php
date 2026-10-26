@@ -21,6 +21,12 @@ class Approval extends Model
     public const LEVEL_PRESIDENT = 'president';
     public const LEVEL_PASTOR = 'pastor';
 
+    public const TYPE_ACTIVITY = 'activity';
+    public const TYPE_EXPENSE = 'expense';
+    public const TYPE_TASK = 'task';
+    public const TYPE_DATE_CHANGE = 'date_change';
+    public const TYPE_NEW_MEMBER = 'new_member';
+
     protected $fillable = [
         'site_id',
         'committee_id',
@@ -28,6 +34,8 @@ class Approval extends Model
         'approvable_id',
         'type',
         'level',
+        'escalated_by_user_id',
+        'escalated_at',
         'status',
         'title',
         'detail',
@@ -46,6 +54,7 @@ class Approval extends Model
         return [
             'amount' => 'decimal:2',
             'requested_at' => 'datetime',
+            'escalated_at' => 'datetime',
             'resolved_at' => 'datetime',
             'transferred_at' => 'datetime',
         ];
@@ -53,6 +62,18 @@ class Approval extends Model
 
     protected static function booted(): void
     {
+        static::saving(function (Approval $approval) {
+            // RF-018: ningun gasto llega al pastor. ApprovalFlow nunca arma este par; aqui se
+            // cierra la puerta por si alguien crea la fila por otro camino (data-model §5).
+            if ($approval->type === self::TYPE_EXPENSE && $approval->level === self::LEVEL_PASTOR) {
+                throw new RuntimeException('Un gasto no llega al pastor: lo cierra el presidente del comité (RF-018).');
+            }
+
+            if ($approval->status === self::REJECTED && blank($approval->reason)) {
+                throw new RuntimeException('Un rechazo sin motivo no se guarda: quien propuso tiene que saber por qué (RF-020).');
+            }
+        });
+
         static::updating(function (Approval $approval) {
             if ($approval->getOriginal('status') !== self::PENDING) {
                 throw new RuntimeException(
@@ -79,6 +100,16 @@ class Approval extends Model
     public function requestedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'requested_by_user_id');
+    }
+
+    public function escalatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'escalated_by_user_id');
+    }
+
+    public function resolvedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'resolved_by_user_id');
     }
 
     public function isPending(): bool

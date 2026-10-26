@@ -391,12 +391,14 @@ registrando el cambio, que la bitácora conserva (principio III).
 | `approvable_type`, `approvable_id` | relación polimórfica | el objeto que la solicitud afecta |
 | `type` | enum | `activity` \| `expense` \| `task` \| `date_change` \| `new_member` (RF-015, RF-019) |
 | `level` | enum | `president` \| `pastor` — quién debe resolver **ahora**; nunca `pastor` si `type` = `expense` |
+| `escalated_by_user_id` | fk → `users`, nulo | el presidente que la aprobó y la pasó al pastor: la tarjeta dice «por quién ya pasó» (T068). `restrict`, como toda llave hacia una persona (D-22) |
+| `escalated_at` | datetime, nulo | cuándo subió al pastor |
 | `status` | enum | `pending` \| `approved` \| `rejected` |
 | `title` | string | obligatorio |
 | `detail` | text, nulo | |
 | `amount` | decimal(14,2), nulo | obligatorio si `type` = `expense` |
 | `requested_by_user_id` | fk → `users` | |
-| `requested_at` | datetime | de aquí sale «desde cuándo espera» (RF-054) |
+| `requested_at` | datetime | de aquí sale «desde cuándo espera» (RF-054); si ya subió al pastor, sale de `escalated_at` |
 | `resolved_by_user_id` | fk → `users`, nulo | |
 | `resolved_at` | datetime, nulo | |
 | `reason` | text, nulo | **obligatorio si `status` = `rejected`** (RF-020) |
@@ -439,7 +441,8 @@ Al crear la solicitud:
 
 Al resolver:
   presidente aprueba type = activity → NO cierra: level pasa a pastor, status sigue pending,
-                                       y se avisa a quien la propuso (HU-06 escenario 2)
+                                       quedan escalated_by_user_id y escalated_at, y quien
+                                       la propuso lo ve en su bandeja (HU-06 escenario 2)
   presidente aprueba expense | task | date_change → cierra
   presidente rechaza                 → cierra con motivo obligatorio
   pastor aprueba                     → cierra y aplica el efecto sobre el objeto apuntado
@@ -448,6 +451,16 @@ Al resolver:
 
 El pastor puede resolver varias solicitudes del mismo tipo en una sola acción, confirmando una vez
 (RF-022, HU-07 escenario 4).
+
+**Al resolver, `ApprovalFlow` vuelve a leer la fila bloqueada** y confirma que sigue como la vio la
+persona: pendiente y en el mismo nivel. Un doble toque en «Aprobar» no produce dos decisiones, y un
+presidente no cierra lo que ya había subido al pastor (RF-057). Lo ya resuelto responde con una
+explicación —quién lo resolvió—, no con un error.
+
+La solicitud se resuelve por **nivel y comité**, no por persona: la de nivel presidente la resuelve
+quien actúa como presidente del comité de origen o de uno que lo contiene; la de nivel pastor, el
+pastor (`ApprovalPolicy`). Nadie decide a nombre de otro: el pastor no resuelve lo que le toca a un
+presidente.
 
 ---
 

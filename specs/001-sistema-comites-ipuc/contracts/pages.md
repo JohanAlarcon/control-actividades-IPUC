@@ -65,6 +65,12 @@ convierte el nombre de un comité en dato reservado.
 | `/approvals/{approval}/reject` | POST | — | **exige `reason`** (RF-020) |
 | `/approvals/bulk-approve` | POST | — | varias del mismo tipo, una sola confirmación (RF-022) |
 
+**Qué trae cada lista**: `inbox[]`, lo que el cargo activo resuelve; `escalated[]`, lo pendiente
+que está en manos de otra persona —el pastor, o la presidencia del comité para quien no decide—;
+`history[]`, las 20 decisiones más recientes de su ámbito, con quién, cuándo y el motivo si no se
+aprobó; `counts` = `{ inbox, escalated }`. La pantalla hace dos consultas propias, tenga las
+solicitudes que tenga: una para lo pendiente y otra para lo resuelto.
+
 **Reglas**: cada elemento de `inbox[]` lleva de qué comité viene, quién la pidió, por quién ya pasó,
 qué monto implica y qué efecto tiene en el cronograma (HU-07 esc. 1), más `waitingSince`. Un
 presidente que aprueba una actividad **no la cierra**: pasa al pastor y se avisa a quien la propuso

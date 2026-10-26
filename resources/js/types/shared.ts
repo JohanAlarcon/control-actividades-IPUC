@@ -8,7 +8,7 @@ export interface SharedRole {
     role: Role;
 }
 
-/** Lo que el servidor manda en toda pantalla (contracts/shared-props.md). Los dos últimos llegan aparte, después. */
+/** Lo que el servidor manda en toda pantalla (contracts/shared-props.md). Los tres últimos llegan aparte, después. */
 export type SharedProps = {
     auth: {
         user: { id: number; name: string; username: string; isPastor: boolean } | null;
@@ -22,5 +22,6 @@ export type SharedProps = {
     };
     flash: Flash;
     pendingCount?: number;
+    pendingSince?: string | null;
     scopeHidden?: { committees: number };
 };

@@ -7,6 +7,7 @@ use App\Models\CommitteeUser;
 use App\Support\Scope\CurrentScope;
 use App\Support\Scope\HiddenCounts;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Middleware;
 
@@ -20,6 +21,8 @@ class HandleInertiaRequests extends Middleware
      * @var string
      */
     protected $rootView = 'app';
+
+    private ?Collection $pendientes = null;
 
     /**
      * Determines the current asset version.
@@ -69,7 +72,8 @@ class HandleInertiaRequests extends Middleware
             // En primer nivel y no dentro de «scope»: el navegador mezcla solo el primer
             // nivel, y una llave anidada reemplazaria «scope» entero al llegar.
             'scopeHidden' => Inertia::defer(fn () => $this->conteosOcultos($scope)),
-            'pendingCount' => Inertia::defer(fn () => $this->pendientes($scope)),
+            'pendingCount' => Inertia::defer(fn () => $this->pendientes($scope)->count()),
+            'pendingSince' => Inertia::defer(fn () => $this->pendientes($scope)->min()?->toIso8601String()),
         ]);
     }
 
@@ -128,18 +132,25 @@ class HandleInertiaRequests extends Middleware
      * nivel y un presidente lo del suyo. Un lider, un secretario o un tesorero no
      * deciden solicitudes, asi que para ellos no hay nada esperando.
      */
-    private function pendientes(CurrentScope $scope): int
+    /**
+     * Desde cuando espera cada solicitud que le toca decidir al cargo activo. Una sola consulta da
+     * el numero del menu y la fecha de la mas antigua (HU-06, escenario 4).
+     */
+    private function pendientes(CurrentScope $scope): Collection
     {
+        if ($this->pendientes !== null) {
+            return $this->pendientes;
+        }
+
         $nivel = match (true) {
             $scope->isPastor() => Approval::LEVEL_PASTOR,
             $scope->activeRole()?->role === CommitteeUser::PRESIDENT => Approval::LEVEL_PRESIDENT,
             default => null,
         };
 
-        if (! $nivel) {
-            return 0;
-        }
-
-        return Approval::where('status', Approval::PENDING)->where('level', $nivel)->count();
+        return $this->pendientes = $nivel === null ? collect() : Approval::where('status', Approval::PENDING)
+            ->where('level', $nivel)
+            ->get(['requested_at', 'escalated_at'])
+            ->map(fn (Approval $solicitud) => $solicitud->escalated_at ?? $solicitud->requested_at);
     }
 }
