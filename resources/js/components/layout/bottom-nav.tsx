@@ -12,9 +12,11 @@ export default function BottomNav() {
     return (
         <nav aria-label="Menú principal" className="fixed inset-x-0 bottom-0 z-10 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-barra backdrop-blur lg:hidden">
             <ul className="mx-auto flex max-w-2xl px-2">
-                {navItems(props).map((item) => (
-                    <NavItem key={item.href} item={item} active={url.startsWith(item.href)} />
-                ))}
+                {navItems(props)
+                    .filter((item) => item.onPhone)
+                    .map((item) => (
+                        <NavItem key={item.href} item={item} active={url.startsWith(item.href)} />
+                    ))}
             </ul>
         </nav>
     );

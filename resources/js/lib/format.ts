@@ -1,5 +1,5 @@
 /** Fechas y plata como se dicen en la congregación. Siempre en hora de Colombia, esté donde esté el celular. */
-const ZONE = 'America/Bogota';
+export const ZONE = 'America/Bogota';
 const DAY = 24 * 60 * 60 * 1000;
 
 const pesos = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });

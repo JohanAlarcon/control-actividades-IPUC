@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Approval;
+use App\Support\Approvals\ApprovalCards;
 use App\Models\CommitteeUser;
 use App\Support\Scope\CurrentScope;
 use App\Support\Scope\HiddenCounts;
@@ -142,11 +143,7 @@ class HandleInertiaRequests extends Middleware
             return $this->pendientes;
         }
 
-        $nivel = match (true) {
-            $scope->isPastor() => Approval::LEVEL_PASTOR,
-            $scope->activeRole()?->role === CommitteeUser::PRESIDENT => Approval::LEVEL_PRESIDENT,
-            default => null,
-        };
+        $nivel = ApprovalCards::levelDecidedBy($scope);
 
         return $this->pendientes = $nivel === null ? collect() : Approval::where('status', Approval::PENDING)
             ->where('level', $nivel)

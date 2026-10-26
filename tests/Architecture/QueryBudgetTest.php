@@ -40,6 +40,7 @@ const RUTAS_FUERA_DE_MEDICION = [
 const MEDIDAS_EN_SU_PRUEBA = [
     'users.edit' => 'tests/Feature/Users/UserManagementTest.php',
     'committees.show' => 'tests/Feature/Committees/CommitteeShowTest.php',
+    'activities.show' => 'tests/Feature/Activities/ActivityShowTest.php',
 ];
 
 function rutasQueSirvenPantalla(): array

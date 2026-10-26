@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Models\Concerns\BelongsToCommitteeScope;
 use App\Models\Concerns\BelongsToSite;
+use App\Support\Activities\ActivityStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -36,6 +38,7 @@ class Activity extends Model
         'approved_at',
         'rejection_reason',
         'completed_at',
+        'completed_by_user_id',
     ];
 
     /** Para que el modelo recien creado ya sepa su estado, sin tener que releerlo. */
@@ -92,6 +95,37 @@ class Activity extends Model
         $cumplidas = $this->tasks()->where('done', true)->count();
 
         $this->progress = $total === 0 ? 0 : (int) round($cumplidas / $total * 100);
+        $this->status = ActivityStatus::afterTasks($this, $total);
+
+        if ($this->status === self::COMPLETED) {
+            $this->completed_at ??= now();
+        }
+
         $this->saveQuietly();
+    }
+
+    /**
+     * La unica salida del filtro de alcance que enumera la constitucion (principio I, enmienda del
+     * 2026-10-18; RF-010, D-15): el cronograma compartido. Retira el filtro del cargo, nunca el de
+     * la sede, y trae a mano solo los siete datos que se comparten —titulo, descripcion, fecha y
+     * hora, lugar, estado y el nombre del comite— mas el numero para abrirla. Nunca el presupuesto
+     * ni las tareas. Solo lee: no sirve de base para modificar, borrar ni descargar, y no da
+     * permiso de nada; la policy sigue negando toda escritura sobre lo ajeno. SharedCalendarTest
+     * lo vigila con una lista blanca.
+     */
+    public static function forSharedCalendar(): Builder
+    {
+        return static::query()
+            ->withoutGlobalScope('committee')
+            ->join('committees', 'committees.id', '=', 'activities.committee_id')
+            ->select([
+                'activities.id',
+                'activities.title',
+                'activities.description',
+                'activities.scheduled_at',
+                'activities.location',
+                'activities.status',
+                'committees.name as committee_name',
+            ]);
     }
 }

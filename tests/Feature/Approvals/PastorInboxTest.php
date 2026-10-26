@@ -23,6 +23,7 @@ beforeEach(function () {
             'time' => '19:00',
             'location' => 'Templo central',
             'budget' => '350.000',
+            'confirm_conflict' => true,
         ]);
         $solicitud = Approval::withoutGlobalScopes()->where('title', $titulo)->sole();
         $this->actingAs($this->e['presidente'])->post("/approvals/{$solicitud->id}/approve");

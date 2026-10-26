@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\ActivityTaskController;
+use App\Http\Controllers\AnnualPlanController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ActivityTypeController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\CommitteeController;
@@ -17,9 +20,7 @@ Route::get('/', fn () => redirect()->route(auth()->check() ? 'dashboard' : 'logi
 Route::get('version', fn () => response()->json(['version' => Inertia::getVersion()]))->name('version');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+    Route::get('dashboard', DashboardController::class)->name('dashboard');
 
     Route::post('role/switch', [RoleSwitchController::class, 'store'])->name('role.switch');
 
@@ -38,8 +39,16 @@ Route::middleware(['auth'])->group(function () {
     Route::post('committees/{committee}/roles', [CommitteeUserController::class, 'store'])->name('roles.store');
     Route::delete('roles/{role}', [CommitteeUserController::class, 'destroy'])->name('roles.destroy');
 
+    Route::get('activities', [ActivityController::class, 'index'])->name('activities.index');
     Route::get('activities/create', [ActivityController::class, 'create'])->name('activities.create');
     Route::post('activities', [ActivityController::class, 'store'])->name('activities.store');
+    Route::get('activities/{activity}', [ActivityController::class, 'show'])->whereNumber('activity')->name('activities.show');
+    Route::post('activities/{activity}/complete', [ActivityController::class, 'complete'])->whereNumber('activity')->name('activities.complete');
+    Route::post('activities/{activity}/tasks', [ActivityTaskController::class, 'store'])->whereNumber('activity')->name('activities.tasks.store');
+    Route::post('activities/{activity}/tasks/{task}/toggle', [ActivityTaskController::class, 'toggle'])->whereNumber(['activity', 'task'])->name('activities.tasks.toggle');
+
+    Route::post('annual-plan/{year}/activities', [AnnualPlanController::class, 'storeActivity'])->whereNumber('year')->name('annual-plan.activities.store');
+    Route::post('annual-plan/{year}/approve', [AnnualPlanController::class, 'approve'])->whereNumber('year')->name('annual-plan.approve');
 
     Route::get('activity-types', [ActivityTypeController::class, 'index'])->name('activity-types.index');
     Route::post('activity-types', [ActivityTypeController::class, 'store'])->name('activity-types.store');

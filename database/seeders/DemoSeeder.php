@@ -28,6 +28,7 @@ class DemoSeeder extends Seeder
         $comites = $this->crearEstructura($sede);
         $this->crearCuentas($sede, $comites);
         $this->call(DemoApprovalsSeeder::class);
+        $this->call(DemoCalendarSeeder::class);
 
         $this->command->newLine();
         $this->command->info('Datos de demostración listos. La clave de todas las cuentas es: '.self::CLAVE);

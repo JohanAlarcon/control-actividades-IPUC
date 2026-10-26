@@ -617,7 +617,7 @@ llegó cada una, las validaciones y el aviso de cruce.
       Título obligatorio; `scheduled_at` **dentro del año en curso y no pasada** (CL-07); mensajes que señalan exactamente qué campo corregir.
       Verifica: `php artisan test --filter=ActivityValidationTest` — título vacío y fecha de otro año se rechazan con el campo nombrado.
 
-- [ ] T064 [US05] · Detector de cruce de fecha, hora y lugar
+- [x] T064 [US05] · Detector de cruce de fecha, hora y lugar
       Archivos: `app/Support/Activities/ScheduleConflict.php`
       Usa `Activity::forSharedCalendar()`; devuelve qué actividad es y de qué comité (RF-028, CL-08, CE-04). Es un aviso, no un bloqueo.
       Verifica: `php artisan test --filter=ScheduleConflictTest` — advierte el cruce con un comité ajeno **sin revelar su presupuesto**.
@@ -627,10 +627,10 @@ llegó cada una, las validaciones y el aviso de cruce.
       El aviso nombra a la persona: «Su propuesta le llegó al hermano…» (RF-016, RF-017).
       Verifica: `php artisan test --filter=ProposeActivityTest` · a 360 px el formulario se llena con una mano.
 
-- [ ] T066 [US05] · Prueba: los cinco escenarios de HU-05, con líder y con presidente
+- [x] T066 [US05] · Prueba: los cinco escenarios de HU-05, con líder y con presidente
       Archivos: `tests/Feature/Activities/ProposeActivityTest.php` · `tests/Feature/Activities/ScheduleConflictTest.php`
       Verifica: `php artisan test --filter="ProposeActivityTest|ScheduleConflictTest"`
-      Estado: los escenarios 1 a 4 en verde; el 5 queda como pendiente (`todo`) hasta T064, en la Phase 12.
+      Estado: los cinco escenarios en verde; el quinto se adelantó con T064 y T078.
 
 - [x] T208 [US05] · Clases de actividad en una tabla que administra el pastor (D-25)
       Archivos: `database/migrations/2026_10_26_140000_create_activity_types_table.php` · `app/Models/ActivityType.php` · `app/Http/Controllers/ActivityTypeController.php` · `resources/js/pages/ActivityTypes/Index.tsx` · `components/activity-types/`
@@ -682,22 +682,22 @@ verificar que queda sellado con nombre y fecha.
 > La tabla `annual_plans` (T053) ya existe: se levanta en la Phase 2, bloque 2.3, porque
 > `activities` lleva `annual_plan_id`. Esta fase construye la aprobación, no el esquema.
 
-- [ ] T074 [US08] · Aprobación del plan anual en un solo acto
+- [x] T074 [US08] · Aprobación del plan anual en un solo acto
       Archivos: `app/Http/Controllers/AnnualPlanController.php` · ruta `POST /annual-plan/{year}/approve`
       Solo el pastor. Deja `approved_by_user_id` y `approved_at`, y marca aprobadas todas sus actividades (RF-025, CE-02).
       Verifica: `php artisan test --filter=AnnualPlanApprovalTest` — **todas** las actividades del plan quedan aprobadas con un solo acto y una sola fila de aprobación; la prueba cuenta las que creó su propio escenario, no un total fijo (con la semilla de T087 son 38).
 
-- [ ] T075 [US08] · Distinguir el plan original de la propuesta posterior
+- [x] T075 [US08] · Distinguir el plan original de la propuesta posterior
       Archivos: `app/Models/Activity.php` · `resources/js/components/domain/ActivityBadge.tsx`
       `annual_plan_id` nulo = propuesta durante el año (RF-024, RN-03).
       Verifica: `php artisan test --filter=AnnualPlanApprovalTest` · la distinción es visible a 360 px sin pasar el dedo por encima.
 
-- [ ] T076 [US08] · Cambio de año calendario
+- [x] T076 [US08] · Cambio de año calendario
       Archivos: `app/Http/Controllers/AnnualPlanController.php` · `resources/js/pages/Activities/Index.tsx`
       El plan del año anterior queda consultable; el nuevo empieza sin aprobar (CL-13).
       Verifica: `php artisan test --filter=YearRolloverTest`
 
-- [ ] T077 [US08] · Prueba: los tres escenarios de HU-08 más CL-13
+- [x] T077 [US08] · Prueba: los tres escenarios de HU-08 más CL-13
       Archivos: `tests/Feature/Activities/AnnualPlanApprovalTest.php` · `tests/Feature/Activities/YearRolloverTest.php`
       Verifica: `php artisan test --filter="AnnualPlanApprovalTest|YearRolloverTest"`
 
@@ -722,41 +722,41 @@ cumplimiento y lo que ve un cargo ajeno al comité responsable.
       Archivos: `tests/Unit/Activities/ProgressCalculationTest.php`
       Verifica: `php artisan test --filter=ProgressCalculationTest` — cero tareas da 0 y no divide por cero.
 
-- [ ] T166 [US09] · Transiciones de estado de una actividad
+- [x] T166 [US09] · Transiciones de estado de una actividad
       Archivos: `app/Support/Activities/ActivityStatus.php` · `app/Models/Activity.php`
       Vacío V-05, regla definida en `research.md` R-04. `pending`→`approved` al aprobar el pastor o el plan anual · `pending`→`rejected` con motivo · `approved`→`in_progress` al cumplirse la primera tarea **o al llegar `scheduled_at`, lo que ocurra primero** · `in_progress`→`completed` al llegar `progress` a 100 · sin tareas, el responsable la marca cumplida. **Sin transiciones hacia atrás.**
       Verifica: `php artisan test --filter=ActivityStatusTest`
 
-- [ ] T167 [US09] · Prueba: las seis transiciones y las que no se permiten
+- [x] T167 [US09] · Prueba: las seis transiciones y las que no se permiten
       Archivos: `tests/Unit/Activities/ActivityStatusTest.php`
       Verifica: `php artisan test --filter=ActivityStatusTest` — una actividad cumplida no vuelve a «en curso»; una aprobada cuya fecha llegó aparece «en curso» aunque no tenga tareas cumplidas.
 
-- [ ] T078 [US09] · `Activity::forSharedCalendar()`
+- [x] T078 [US09] · `Activity::forSharedCalendar()`
       Archivos: `app/Models/Activity.php`
       Retira el filtro de **comité** —el de sede no se retira nunca— y **selecciona a mano** los siete datos que enumera RF-010: título, descripción, fecha, hora, lugar, comité responsable y estado (`title`, `description`, `scheduled_at`, `location`, `status` y el nombre del comité). **Nunca `budget_amount`, nunca tareas.** **El método solo lee**: no se usa como base de un `update`, de un `delete` ni de una descarga, y **no concede autorización** — la policy de `Activity` (T062) sigue negando toda escritura sobre una actividad ajena. Es la única salida del filtro en todo el proyecto, y está **amparada por la constitución v2.0.0**: la enmienda del principio I del 2026-10-18 la enumera con sus datos, su método con nombre propio y su prueba obligatoria (R-11, D-15).
       Verifica: `php artisan test --filter=SharedCalendarTest`
 
-- [ ] T079 [US09] · Prueba obligatoria de la excepción
+- [x] T079 [US09] · Prueba obligatoria de la excepción
       Archivos: `tests/Feature/Scope/SharedCalendarTest.php`
       Mitiga RG-03. Es **lista blanca, no lista negra**: comprueba que la carga de una actividad ajena trae **exactamente** los siete datos enumerados y ningún otro, comparando el juego de llaves ordenado de la propiedad, no buscando llaves prohibidas. Una columna nueva en `activities` deja la prueba roja hasta que alguien decida expresamente si se comparte. Incluye el caso de **escritura**: un presidente que ve una actividad ajena en el cronograma intenta modificarla y marcarla cumplida.
       Verifica: `php artisan test --filter=SharedCalendarTest` — un presidente consulta el cronograma, ve la actividad de otro comité y el conjunto de llaves es exactamente el de los siete datos, en la lista y en la ficha (`assertSame` sobre las llaves ordenadas, nunca `assertJsonMissing`) · las dos escrituras sobre la actividad ajena responden «no disponible» (RF-008).
 
-- [ ] T080 [US09] · Pantalla del cronograma: doce meses, lista, resumen y barra de cumplimiento
+- [x] T080 [US09] · Pantalla del cronograma: doce meses, lista, resumen y barra de cumplimiento
       Archivos: `app/Http/Controllers/ActivityController.php` · `resources/js/pages/Activities/Index.tsx` · `resources/js/components/domain/MonthGrid.tsx` · ruta `/activities`
       Distingue cumplidas, en camino, aprobadas sin empezar y esperando aprobación.
       Verifica: `php artisan test --filter=ScheduleIndexTest` · a 360 px los doce meses se recorren en vertical, sin barra horizontal.
 
-- [ ] T081 [US09] · Filtros de comité, sub-comité, mes y estado, con recálculo de los totales
+- [x] T081 [US09] · Filtros de comité, sub-comité, mes y estado, con recálculo de los totales
       Archivos: `app/Http/Controllers/ActivityController.php` · `resources/js/pages/Activities/Index.tsx`
       Los filtros viajan en la dirección, de modo que una pantalla filtrada se puede compartir (RF-029, RF-030).
       Verifica: `php artisan test --filter=ScheduleFilterTest` — al filtrar por un comité, el resumen y el porcentaje de cumplimiento cambian con él.
 
-- [ ] T082 [US09] · Ficha de actividad: tareas, rastro de decisiones y marcar cumplida
+- [x] T082 [US09] · Ficha de actividad: tareas, rastro de decisiones y marcar cumplida
       Archivos: `app/Http/Controllers/ActivityController.php` · `app/Http/Controllers/ActivityTaskController.php` · `resources/js/pages/Activities/Show.tsx` · ruta `/activities/{activity}`
       La ajena muestra solo lo compartido; `canEdit` lo resuelve el servidor, nunca la pantalla.
       Verifica: `php artisan test --filter=ActivityShowTest` — marcar una tarea recalcula el avance sin que nadie lo escriba · a 360 px.
 
-- [ ] T083 [US09] · Prueba: los cuatro escenarios de HU-09
+- [x] T083 [US09] · Prueba: los cuatro escenarios de HU-09
       Archivos: `tests/Feature/Activities/ScheduleIndexTest.php` · `tests/Feature/Activities/ActivityShowTest.php` · `tests/Feature/Activities/ScheduleFilterTest.php`
       Verifica: `php artisan test tests/Feature/Activities`
 
@@ -772,17 +772,17 @@ externos (S-01), es el único mecanismo por el que alguien se entera de lo que d
 **Independent Test**: dejar solicitudes pendientes para cada cargo y comprobar qué aparece primero
 en la pantalla de inicio y en el contador del menú.
 
-- [ ] T084 [US17] · Pantalla de inicio: primero lo que espera su decisión, y desde cuándo
+- [x] T084 [US17] · Pantalla de inicio: primero lo que espera su decisión, y desde cuándo
       Archivos: `app/Http/Controllers/DashboardController.php` · `resources/js/pages/Dashboard/Index.tsx` · ruta `/`
       `kpis` y `pendingApprovals[]` en la primera carga; `myRequests[]`, `committeeProgress[]`, `upcoming[]` y `pendingProfiles` como **propiedades diferidas**, cada una en su petición parcial con su propio presupuesto (RF-054, S-01). Es una de las **dos excepciones declaradas** del presupuesto de cinco consultas (T150), y el reparto se declara aquí, no se improvisa.
       Verifica: `php artisan test --filter=DashboardTest` · a 360 px lo pendiente queda por encima del pliegue, antes de cualquier otra cosa.
 
-- [ ] T085 [US17] · Contador del menú y estado de lo que yo envié
+- [x] T085 [US17] · Contador del menú y estado de lo que yo envié
       Archivos: `app/Http/Middleware/HandleInertiaRequests.php` · `resources/js/layouts/AppLayout.tsx` · `resources/js/pages/Dashboard/Index.tsx`
       El líder ve en qué va su solicitud, quién debe resolverla y, si ya se resolvió, el resultado con su motivo (RF-055). `pendingCount` es **propiedad diferida** (T028): el menú la pide aparte, no viaja en toda respuesta.
       Verifica: `php artisan test --filter=PendingCountTest` — **el contador es del cargo activo**, no de la congregación ni de la suma de los cargos · la propiedad diferida se mide con su propio presupuesto.
 
-- [ ] T086 [US17] · Prueba: los tres escenarios de HU-17 por los tres cargos
+- [x] T086 [US17] · Prueba: los tres escenarios de HU-17 por los tres cargos
       Archivos: `tests/Feature/Dashboard/DashboardTest.php`
       Verifica: `php artisan test --filter=DashboardTest`
 
@@ -1389,7 +1389,7 @@ cierre de cada hito se ejecutan al terminar las fases de ese hito, no todas al f
       Verifica: las ocho puertas de calidad pasan · la URL de producción sirve el hito · revisión en un celular real anotada en el documento.
       **Documento escrito; faltan tres cosas para cerrarla**: publicar (T007), revisar el diseño nuevo en un celular real, y la aprobación del autor. Nueve de las diez puertas pasan.
 
-- [ ] T087 · Semilla del cronograma: 38 actividades, plan del año y solicitudes de ejemplo
+- [x] T087 · Semilla del cronograma: 38 actividades, plan del año y solicitudes de ejemplo
       Archivos: `database/seeders/ActivitySeeder.php` · `database/seeders/ApprovalSeeder.php`
       Verifica: `php artisan migrate:fresh --seed` · el cronograma muestra los doce meses con datos y la bandeja de cada cargo trae solicitudes.
 

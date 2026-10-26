@@ -23,3 +23,12 @@ export function groupsForBulk(items: ApprovalItem[]): { type: ApprovalType; ids:
 
     return [...groups].filter(([, ids]) => ids.length > 1).map(([type, ids]) => ({ type, ids }));
 }
+
+/** En qué va una solicitud, dicho para quien la pidió (HU-17, escenario 3). */
+export function requestState(item: ApprovalItem): string {
+    if (item.status === 'approved') return `Aprobada por ${item.resolvedBy}`;
+    if (item.status === 'rejected') return `${item.level === 'president' ? 'Devuelta' : 'No aprobada'} por ${item.resolvedBy}`;
+    if (item.level === 'pastor') return item.escalatedBy ? `Con el visto bueno de ${item.escalatedBy}, ahora la tiene el pastor` : 'La tiene el pastor';
+
+    return 'La está revisando la presidencia del comité';
+}

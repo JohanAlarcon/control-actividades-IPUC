@@ -1,4 +1,4 @@
-import { bulkLabel, groupsForBulk } from '@/lib/approvals';
+import { bulkLabel, groupsForBulk, requestState } from '@/lib/approvals';
 import type { ApprovalItem, ApprovalType } from '@/types/approvals';
 import { describe, expect, it } from 'vitest';
 
@@ -21,5 +21,22 @@ describe('groupsForBulk', () => {
 
     it('sin repetidas no hay nada para aprobar en lote', () => {
         expect(groupsForBulk([item(1, 'expense'), item(2, 'activity')])).toEqual([]);
+    });
+});
+
+describe('requestState', () => {
+    const base = { status: 'pending', level: 'president', escalatedBy: null, resolvedBy: null } as unknown as ApprovalItem;
+
+    it('dice quién la tiene mientras espera', () => {
+        expect(requestState(base)).toBe('La está revisando la presidencia del comité');
+        expect(requestState({ ...base, level: 'pastor', escalatedBy: 'Hermano Rigoberto Páez' })).toBe(
+            'Con el visto bueno de Hermano Rigoberto Páez, ahora la tiene el pastor',
+        );
+    });
+
+    it('dice cómo se resolvió y quién: devuelta por el presidente, o aprobada o no por el pastor', () => {
+        expect(requestState({ ...base, status: 'rejected', resolvedBy: 'Hermano Rigoberto Páez' })).toBe('Devuelta por Hermano Rigoberto Páez');
+        expect(requestState({ ...base, status: 'rejected', level: 'pastor', resolvedBy: 'Pastor Hernán Ospina' })).toBe('No aprobada por Pastor Hernán Ospina');
+        expect(requestState({ ...base, status: 'approved', level: 'pastor', resolvedBy: 'Pastor Hernán Ospina' })).toBe('Aprobada por Pastor Hernán Ospina');
     });
 });

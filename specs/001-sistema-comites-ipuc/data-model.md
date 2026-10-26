@@ -310,6 +310,7 @@ pastor aprueba, en un acto único, y queda identificado con quién y cuándo (RF
 | `approved_at` | datetime, nulo | |
 | `rejection_reason` | text, nulo | obligatorio si `status` = `rejected` (RF-020) |
 | `completed_at` | datetime, nulo | |
+| `completed_by_user_id` | fk → `users`, nulo | quien la marcó cumplida a mano, si no tenía tareas (R-04); `restrict` (D-22) |
 
 **Ámbito**: sede+comité, **con la única excepción que enumera la constitución** —la enmienda del
 principio I del 2026-10-18, constitución v2.0.0—: `Activity::forSharedCalendar()` retira el filtro

@@ -16,18 +16,25 @@ function props(isPastor: boolean, role: 'president' | 'leader' | null, pendingCo
 }
 
 const labels = (items: ReturnType<typeof navItems>) => items.map((item) => item.label);
+const onPhone = (items: ReturnType<typeof navItems>) => labels(items.filter((item) => item.onPhone));
 
 describe('navItems', () => {
-    it('el pastor aprueba y administra las cuentas', () => {
-        expect(labels(navItems(props(true, null)))).toEqual(['Inicio', 'Aprobar', 'Comités', 'Cuentas']);
+    it('al costado, el pastor ve todo: aprueba y administra las cuentas', () => {
+        expect(labels(navItems(props(true, null)))).toEqual(['Inicio', 'Cronograma', 'Aprobar', 'Comités', 'Cuentas']);
     });
 
     it('un presidente revisa, no aprueba, y no administra cuentas', () => {
-        expect(labels(navItems(props(false, 'president')))).toEqual(['Inicio', 'Revisar', 'Comités']);
+        expect(labels(navItems(props(false, 'president')))).toEqual(['Inicio', 'Cronograma', 'Revisar', 'Comités']);
     });
 
     it('un líder no aprueba: ve en qué van sus solicitudes', () => {
-        expect(labels(navItems(props(false, 'leader')))).toEqual(['Inicio', 'Solicitudes', 'Comités']);
+        expect(labels(navItems(props(false, 'leader')))).toEqual(['Inicio', 'Cronograma', 'Solicitudes', 'Comités']);
+    });
+
+    it('en el celular caben tres: quien decide lleva la bandeja; los demás, los comités', () => {
+        expect(onPhone(navItems(props(true, null)))).toEqual(['Inicio', 'Cronograma', 'Aprobar']);
+        expect(onPhone(navItems(props(false, 'president')))).toEqual(['Inicio', 'Cronograma', 'Revisar']);
+        expect(onPhone(navItems(props(false, 'leader')))).toEqual(['Inicio', 'Cronograma', 'Comités']);
     });
 
     it('el número de lo que espera va sobre las solicitudes, no sobre el inicio', () => {

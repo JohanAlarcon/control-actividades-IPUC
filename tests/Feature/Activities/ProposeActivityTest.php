@@ -8,8 +8,8 @@ use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia as Assert;
 
 /*
- * Los escenarios de HU-05, con lider y con presidente (T066). El quinto, el aviso de cruce, llega
- * con T064 en la Phase 12: necesita el cronograma compartido (T078).
+ * Los escenarios de HU-05, con lider y con presidente (T066). El quinto, el aviso de cruce, se
+ * prueba a fondo en ScheduleConflictTest.
  */
 
 beforeEach(function () {
@@ -73,7 +73,18 @@ test('4. con el nombre vacío o una fecha de otro año no se envía, y se señal
         ->and(Approval::count())->toBe(0);
 });
 
-test('5. si la fecha coincide con otra actividad, se advierte cuál es y de qué comité')->todo();
+test('5. si la fecha coincide con otra actividad, se advierte cuál es y de qué comité', function () {
+    Activity::factory()->forCommittee($this->e['damas'])->create([
+        'title' => 'Retiro de damas',
+        'status' => Activity::APPROVED,
+        'scheduled_at' => Carbon::parse('2026-04-18 19:00', 'America/Bogota'),
+        'location' => 'Templo central',
+    ]);
+
+    $this->actingAs($this->e['liderSonido'])->post('/activities', $this->propuesta)->assertSessionHasErrors('conflict');
+
+    expect(session('errors')->first('conflict'))->toContain('«Retiro de damas» de Comité de Damas Dorcas');
+});
 
 test('si el comité no tiene presidente, la propuesta queda registrada y se dice que espera al reemplazo', function () {
     CommitteeUser::where('user_id', $this->e['presidente']->id)->sole()->update(['ended_at' => now()]);
