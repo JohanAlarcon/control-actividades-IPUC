@@ -21,14 +21,14 @@ export default function AccountSearch({ value, onChange }: Props) {
                 placeholder="Nombre, usuario o comité"
                 enterKeyHint="search"
                 autoComplete="off"
-                className="h-12 w-full rounded-lg border border-linea bg-white pr-12 pl-12 text-lg placeholder:text-tinta-suave focus:border-ipuc focus:ring-2 focus:ring-ipuc-claro focus:outline-none [&::-webkit-search-cancel-button]:appearance-none"
+                className="h-14 w-full rounded-2xl border border-linea bg-white pr-12 pl-12 text-lg shadow-tarjeta placeholder:text-tinta-suave focus:border-ipuc focus:ring-2 focus:ring-ipuc-claro focus:outline-none [&::-webkit-search-cancel-button]:appearance-none"
             />
             {value && (
                 <button
                     type="button"
                     onClick={() => onChange('')}
                     aria-label="Borrar la búsqueda"
-                    className="absolute top-0 right-0 flex size-12 items-center justify-center rounded-lg text-tinta-suave"
+                    className="absolute top-1 right-1 flex size-12 items-center justify-center rounded-xl text-tinta-suave"
                 >
                     <X aria-hidden className="size-6" />
                 </button>

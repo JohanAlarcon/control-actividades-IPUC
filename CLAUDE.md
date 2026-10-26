@@ -59,6 +59,8 @@ de la clase de Tailwind. **Ninguna pantalla escribe un `#código` a mano.**
 | `text-tinta-suave` | `#5a5852` | texto de apoyo | 7:1 |
 | `border-linea` | `#6e6a62` | borde de los campos | 5:1 |
 | `text-alerta` | `#8a2b12` | errores | 9:1 |
+| `bg-fondo` | `#f2f5fa` | el fondo de las pantallas, detrás de las tarjetas | — |
+| `shadow-tarjeta` `shadow-barra` | el azul, apenas | tarjetas y menú de abajo, sin bordes duros | — |
 
 El azul claro y el dorado **no llevan texto encima**: 3:1 y 2:1 están por debajo del 4,5:1 que
 exige el principio II. Sirven para bordes, iconos y adorno, o con texto oscuro encima.

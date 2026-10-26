@@ -2,6 +2,11 @@ import { ROLE_LABELS } from '@/lib/roles';
 
 const LEVELS: Record<number, string> = { 1: 'Comité', 2: 'Sub-comité', 3: 'Equipo' };
 
+interface Countable {
+    depth: number;
+    children?: Countable[];
+}
+
 export function levelOf(depth: number): string {
     return LEVELS[depth] ?? LEVELS[1];
 }
@@ -9,6 +14,10 @@ export function levelOf(depth: number): string {
 /** Un comité lo encabeza su presidente; un sub-comité o un equipo, su líder (RF-013). */
 export function responsibleTitle(depth: number): string {
     return depth === 1 ? ROLE_LABELS.president : ROLE_LABELS.leader;
+}
+
+export function childrenTitle(depth: number): string {
+    return depth === 1 ? 'Sub-comités' : 'Equipos';
 }
 
 /** RF-012 y CL-01: sin hijos, la ficha lo dice expresamente en vez de mostrar una sección vacía. */
@@ -19,8 +28,23 @@ export function withoutChildrenText(depth: number): string {
     return 'Un equipo es el último nivel: su líder coordina directamente a sus miembros.';
 }
 
-export function childrenText(depth: number, count: number): string {
-    const kind = depth === 1 ? ['sub-comité', 'sub-comités'] : ['equipo', 'equipos'];
+/** Todos los nodos del árbol en una lista, cada uno seguido de lo que cuelga de él. */
+export function flattenTree<T extends Countable>(nodes: T[]): T[] {
+    return nodes.flatMap((node) => [node, ...flattenTree((node.children ?? []) as T[])]);
+}
 
-    return `Tiene ${count} ${count === 1 ? kind[0] : kind[1]}:`;
+/** Cuántos hay de cada nivel: «6 comités · 4 sub-comités · 1 equipo». */
+export function structureSummary(nodes: Countable[]): string {
+    const all = flattenTree(nodes);
+    const count = (depth: number) => all.filter((node) => node.depth === depth).length;
+    const parts: [number, string, string][] = [
+        [count(1), 'comité', 'comités'],
+        [count(2), 'sub-comité', 'sub-comités'],
+        [count(3), 'equipo', 'equipos'],
+    ];
+
+    return parts
+        .filter(([total]) => total > 0)
+        .map(([total, one, many]) => `${total} ${total === 1 ? one : many}`)
+        .join(' · ');
 }

@@ -41,7 +41,7 @@ export default function AccountAccess({ account }: { account: EditableAccount })
     };
 
     return (
-        <div className="mt-3">
+        <div>
             <p className="text-lg">{statusOf(account)}</p>
 
             <div className="mt-4">
@@ -96,7 +96,7 @@ function Question({ action, sending, onYes, onNo }: QuestionProps) {
     const question = QUESTIONS[action];
 
     return (
-        <div className="rounded-lg border-2 border-ipuc-claro p-4">
+        <div className="rounded-xl bg-ipuc-claro/10 p-4">
             <p className="text-lg">{question.text}</p>
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 <button type="button" disabled={sending} onClick={onYes} className={question.danger ? buttonClass.danger : buttonClass.primary}>

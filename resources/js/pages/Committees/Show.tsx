@@ -1,10 +1,13 @@
-import CommitteeCard from '@/components/committees/committee-card';
-import PageHeader from '@/components/page-header';
+import CommitteeRow from '@/components/committees/committee-row';
+import InfoNote from '@/components/info-note';
+import PersonRow from '@/components/person-row';
+import SectionBlock from '@/components/section-block';
 import MainLayout from '@/layouts/main-layout';
-import { childrenText, levelOf, responsibleTitle, withoutChildrenText } from '@/lib/committees';
+import { childrenTitle, levelOf, responsibleTitle, structureSummary, withoutChildrenText } from '@/lib/committees';
 import { ROLE_LABELS } from '@/lib/roles';
+import { cardClass } from '@/lib/styles';
 import type { CommitteeSummary } from '@/types/committees';
-import { Head } from '@inertiajs/react';
+import { Info } from 'lucide-react';
 
 interface Props {
     committee: { id: number; name: string; depth: number; active: boolean };
@@ -16,55 +19,33 @@ interface Props {
 }
 
 export default function CommitteeShow({ committee, responsible, secretary, treasurer, hasChildren, children }: Props) {
+    const subtitle = [levelOf(committee.depth), hasChildren ? structureSummary(children) : null, committee.active ? null : 'ya no está activo']
+        .filter(Boolean)
+        .join(' · ');
+
     return (
-        <MainLayout>
-            <Head title={committee.name} />
-            <PageHeader title={committee.name} backHref="/committees" backLabel="Comités" />
+        <MainLayout title={committee.name} subtitle={subtitle} back={{ href: '/committees', label: 'Comités' }}>
+            <SectionBlock title="Quiénes lo encabezan">
+                <ul className={`divide-y divide-ipuc/5 ${cardClass}`}>
+                    <PersonRow role={responsibleTitle(committee.depth)} name={responsible} />
+                    {committee.depth === 1 && <PersonRow role={ROLE_LABELS.secretary} name={secretary} />}
+                    {committee.depth === 1 && <PersonRow role={ROLE_LABELS.treasurer} name={treasurer} />}
+                </ul>
+            </SectionBlock>
 
-            <p className="-mt-4 text-lg text-tinta-suave">
-                {levelOf(committee.depth)}
-                {!committee.active && ' · ya no está activo'}
-            </p>
-
-            <section aria-labelledby="encabezan" className="mt-6">
-                <h2 id="encabezan" className="text-xl font-bold">
-                    Quiénes lo encabezan
-                </h2>
-                <dl className="mt-3 flex flex-col gap-3">
-                    <Holder title={responsibleTitle(committee.depth)} name={responsible} />
-                    {committee.depth === 1 && <Holder title={ROLE_LABELS.secretary} name={secretary} />}
-                    {committee.depth === 1 && <Holder title={ROLE_LABELS.treasurer} name={treasurer} />}
-                </dl>
-            </section>
-
-            <section aria-labelledby="organiza" className="mt-8 border-t border-linea/40 pt-6">
-                <h2 id="organiza" className="text-xl font-bold">
-                    Cómo se organiza
-                </h2>
+            <SectionBlock title={hasChildren ? childrenTitle(committee.depth) : 'Cómo se organiza'}>
                 {hasChildren ? (
-                    <>
-                        <p className="mt-3 text-lg">{childrenText(committee.depth, children.length)}</p>
-                        <ul className="mt-3 flex flex-col gap-3">
-                            {children.map((child) => (
-                                <li key={child.id}>
-                                    <CommitteeCard committee={child} />
-                                </li>
-                            ))}
-                        </ul>
-                    </>
+                    <ul className={`divide-y divide-ipuc/5 overflow-hidden ${cardClass}`}>
+                        {children.map((child) => (
+                            <li key={child.id}>
+                                <CommitteeRow committee={child} />
+                            </li>
+                        ))}
+                    </ul>
                 ) : (
-                    <p className="mt-3 text-lg">{withoutChildrenText(committee.depth)}</p>
+                    <InfoNote icon={Info}>{withoutChildrenText(committee.depth)}</InfoNote>
                 )}
-            </section>
+            </SectionBlock>
         </MainLayout>
-    );
-}
-
-function Holder({ title, name }: { title: string; name: string | null }) {
-    return (
-        <div>
-            <dt className="text-lg text-tinta-suave">{title}</dt>
-            <dd className={`text-lg ${name ? 'font-semibold' : 'text-tinta-suave'}`}>{name ?? 'Sin asignar'}</dd>
-        </div>
     );
 }

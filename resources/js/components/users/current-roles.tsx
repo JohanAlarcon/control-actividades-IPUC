@@ -11,13 +11,13 @@ interface Props {
 
 export default function CurrentRoles({ roles, committees }: Props) {
     if (roles.length === 0) {
-        return <p className="mt-3 text-lg text-tinta-suave">Todavía no tiene cargo.</p>;
+        return <p className="text-lg text-tinta-suave">Todavía no tiene cargo.</p>;
     }
 
     const nameOf = (id: number) => committees.find((committee) => committee.id === id)?.name ?? 'Comité retirado';
 
     return (
-        <ul className="mt-3 flex flex-col gap-3">
+        <ul className="divide-y divide-ipuc/10">
             {roles.map((role) => (
                 <RoleRow key={role.id} role={role} committeeName={nameOf(role.committeeId)} />
             ))}
@@ -37,7 +37,7 @@ function RoleRow({ role, committeeName }: { role: CurrentRole; committeeName: st
         });
 
     return (
-        <li className="rounded-lg border border-linea/40 p-4 shadow-sm">
+        <li className="py-4 first:pt-0">
             <p className="text-lg font-semibold">
                 {ROLE_LABELS[role.role]} · {committeeName}
             </p>

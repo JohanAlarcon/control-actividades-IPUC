@@ -32,7 +32,7 @@ export default function RoleAssigner({ userId, committees }: Props) {
     };
 
     return (
-        <form onSubmit={submit} className="mt-6 flex flex-col gap-5 rounded-lg border border-linea/40 p-4 shadow-sm">
+        <form onSubmit={submit} className="mt-6 flex flex-col gap-5 border-t border-ipuc/10 pt-6">
             <h3 className="text-lg font-bold">Asignar otro cargo</h3>
             <RolePicker committees={committees} committeeId={form.data.committee_id} role={form.data.role} errors={form.errors} onChange={pick} />
 

@@ -443,10 +443,10 @@ de los tres cargos.
       Archivos: `app/Policies/CommitteePolicy.php`
       Verifica: `php artisan test --filter=CommitteePolicyTest` — `view` cierto para el propio y sus hijos, falso para el ajeno.
 
-- [ ] T041 [US03] · Árbol de comités
+- [x] T041 [US03] · Árbol de comités
       Archivos: `app/Http/Controllers/CommitteeController.php` · `resources/js/pages/Committees/Index.tsx` · `resources/js/components/domain/CommitteeTree.tsx` · ruta `/committees`
       Los ajenos aparecen como no disponibles, sin un solo dato suyo.
-      **Hecha; falta revisarla a 360 px en un celular.** Los comités ajenos no se listan uno por uno: la pantalla dice cuántos hay, con `scopeHidden`, como fija el contrato. A un líder le dice quién revisa lo que propone (HU-03 esc. 4), también si es líder de un equipo. El componente quedó en `components/committees/committee-tree.tsx`, con la convención de nombres del proyecto.
+      **Revisada a ancho de celular por el autor y medida el 2026-10-26: sin desplazamiento horizontal.** Los comités ajenos no se listan uno por uno: la pantalla dice cuántos hay, con `scopeHidden`, como fija el contrato. A un líder le dice quién revisa lo que propone (HU-03 esc. 4), también si es líder de un equipo. El componente quedó en `components/committees/committee-tree.tsx`, con la convención de nombres del proyecto.
       Verifica: `php artisan test --filter=CommitteeIndexTest` · a 360 px el árbol se recorre sin desplazamiento horizontal.
 
 - [ ] T042 [US03] · Ficha de comité con hijos, responsable y miembros
@@ -508,10 +508,10 @@ vías disponibles, y comprobar que ninguna devuelve datos ajenos.
 **Independent Test**: recorrer las pantallas ya construidas a 360 px y comprobar instalación en la
 pantalla de inicio del teléfono y tiempo de apertura.
 
-- [ ] T044 [US20] · Diseño base: barra, menú con contador, cinta de alcance
+- [x] T044 [US20] · Diseño base: barra, menú con contador, cinta de alcance
       Archivos: `resources/js/layouts/AppLayout.tsx` · `resources/js/components/ui/` · `resources/css/app.css`
       Mínimos del principio II, constitución 2.1.0: zona pulsable de **48x48 px**, texto de contenido de **18 px**, contraste **AA**, **cero desplazamiento horizontal**. El público son adultos mayores con poca experiencia en aplicaciones.
-      **Hecha; falta revisarla a 360 px en un celular.** Sigue el prototipo: el menú va abajo, siempre a la vista, y trae solo las secciones que ya existen; Cronograma y Dinero se suman con sus módulos. El contador de RF-055 va sobre «Inicio» y cuenta solo lo que espera la decisión del cargo activo. El molde quedó en `layouts/main-layout.tsx`, para no confundirlo con el `app-layout.tsx` del kit, y sus piezas en `components/layout/`. La raíz y «Salir» llevan a la pantalla de entrada; se retiró la página de bienvenida del kit.
+      **Medida el 2026-10-26 a 375 px: sin desplazamiento horizontal.** La fila más ancha de todas las pantallas, la barra de arriba, necesita 321 px: cabe a 360, y por debajo de 360 el nombre de la aplicación se esconde para que quepa también a 320. Sigue el prototipo: el menú va abajo, siempre a la vista, y trae solo las secciones que ya existen; Cronograma y Dinero se suman con sus módulos. El contador de RF-055 va sobre «Inicio» y cuenta solo lo que espera la decisión del cargo activo. El molde quedó en `layouts/main-layout.tsx`, para no confundirlo con el `app-layout.tsx` del kit, y sus piezas en `components/layout/`. La raíz y «Salir» llevan a la pantalla de entrada; se retiró la página de bienvenida del kit.
       Verifica: a 360 px sin barra horizontal en ninguna de las pantallas existentes · `npm run build` sin advertencias.
 
 - [ ] T045 [P] [US20] · Componente tabla-tarjeta

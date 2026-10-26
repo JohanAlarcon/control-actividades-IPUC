@@ -76,6 +76,13 @@
     --color-tinta-suave: #5a5852; /* texto de apoyo. 7:1 */
     --color-linea: #6e6a62; /* borde de los campos. 5:1 */
     --color-alerta: #8a2b12; /* mensajes de error. 9:1 */
+
+    /* El fondo de las pantallas: el azul de la iglesia, muy suave. El texto encima: 16:1 y 6,5:1 */
+    --color-fondo: #f2f5fa;
+
+    /* Las sombras llevan el mismo azul, apenas: las tarjetas se despegan sin bordes duros */
+    --shadow-tarjeta: 0 1px 2px rgb(0 51 141 / 0.06), 0 6px 16px rgb(0 51 141 / 0.07);
+    --shadow-barra: 0 -6px 20px rgb(0 51 141 / 0.08);
 }
 
 /*

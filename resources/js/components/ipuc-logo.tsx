@@ -4,7 +4,7 @@
  */
 export default function IpucLogo() {
     return (
-        <div className="flex justify-center bg-ipuc px-4 py-6">
+        <div className="flex justify-center bg-linear-to-br from-ipuc to-ipuc-oscuro px-4 py-6">
             <img
                 src="/img/logo-ipuc.webp"
                 alt="Iglesia Pentecostal Unida de Colombia"

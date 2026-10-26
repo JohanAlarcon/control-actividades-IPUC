@@ -1,11 +1,11 @@
-import PageHeader from '@/components/page-header';
+import SectionBlock from '@/components/section-block';
 import AccountAccess from '@/components/users/account-access';
 import AccountForm from '@/components/users/account-form';
 import CurrentRoles from '@/components/users/current-roles';
 import RoleAssigner from '@/components/users/role-assigner';
 import MainLayout from '@/layouts/main-layout';
+import { cardClass } from '@/lib/styles';
 import type { CommitteeOption, CurrentRole, EditableAccount } from '@/types/accounts';
-import { Head } from '@inertiajs/react';
 
 interface Props {
     account: EditableAccount | null;
@@ -14,38 +14,38 @@ interface Props {
 }
 
 export default function UserForm({ account, roles, committees }: Props) {
-    const title = account ? 'Editar la cuenta' : 'Crear una cuenta';
-
     return (
-        <MainLayout>
-            <Head title={title} />
-            <PageHeader title={account?.name ?? title} backHref="/users" backLabel="Cuentas" />
-
-            {account && <h2 className="mb-4 text-xl font-bold">Datos</h2>}
-            <AccountForm account={account} committees={committees} />
+        <MainLayout
+            title={account?.name ?? 'Crear una cuenta'}
+            subtitle={account ? `Usuario: ${account.username}` : 'El sistema le da un usuario y una clave temporal'}
+            back={{ href: '/users', label: 'Cuentas' }}
+        >
+            <SectionBlock title="Datos">
+                <div className={`p-4 ${cardClass}`}>
+                    <AccountForm account={account} committees={committees} />
+                </div>
+            </SectionBlock>
 
             {account && (
                 <>
-                    <section aria-labelledby="cargos" className="mt-10 border-t border-linea/40 pt-8">
-                        <h2 id="cargos" className="text-xl font-bold">
-                            Cargos
-                        </h2>
-                        {account.isPastor ? (
-                            <p className="mt-3 text-lg text-tinta-suave">El pastor ve toda la congregación: no necesita cargo en un comité.</p>
-                        ) : (
-                            <>
-                                <CurrentRoles roles={roles} committees={committees} />
-                                <RoleAssigner userId={account.id} committees={committees} />
-                            </>
-                        )}
-                    </section>
+                    <SectionBlock title="Cargos">
+                        <div className={`p-4 ${cardClass}`}>
+                            {account.isPastor ? (
+                                <p className="text-lg text-tinta-suave">El pastor ve toda la congregación: no necesita cargo en un comité.</p>
+                            ) : (
+                                <>
+                                    <CurrentRoles roles={roles} committees={committees} />
+                                    <RoleAssigner userId={account.id} committees={committees} />
+                                </>
+                            )}
+                        </div>
+                    </SectionBlock>
 
-                    <section aria-labelledby="acceso" className="mt-10 border-t border-linea/40 pt-8">
-                        <h2 id="acceso" className="text-xl font-bold">
-                            Acceso
-                        </h2>
-                        <AccountAccess account={account} />
-                    </section>
+                    <SectionBlock title="Acceso">
+                        <div className={`p-4 ${cardClass}`}>
+                            <AccountAccess account={account} />
+                        </div>
+                    </SectionBlock>
                 </>
             )}
         </MainLayout>

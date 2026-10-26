@@ -2,6 +2,7 @@ import RoleSwitcher from '@/components/layout/role-switcher';
 import { ROLE_LABELS } from '@/lib/roles';
 import type { SharedProps } from '@/types/shared';
 import { usePage } from '@inertiajs/react';
+import { BadgeCheck } from 'lucide-react';
 import { useState } from 'react';
 
 /**
@@ -13,36 +14,33 @@ export default function ScopeRibbon() {
     const [switching, setSwitching] = useState(false);
 
     return (
-        <div className="border-b border-linea/40 bg-ipuc/5">
-            <div className="mx-auto max-w-2xl px-4 py-3">
-                {scope.mustChoose ? (
-                    <p className="text-lg font-semibold">Usted tiene {auth.roles.length} cargos. Escoja con cuál quiere trabajar:</p>
-                ) : (
-                    <div className="flex items-center justify-between gap-3">
-                        <p className="text-lg">
-                            <span className="block text-tinta-suave">Usted está actuando como</span>
-                            <span className="font-semibold">{actingAs({ auth, scope })}</span>
-                        </p>
-                        {scope.canSwitch && !switching && (
-                            <button
-                                type="button"
-                                onClick={() => setSwitching(true)}
-                                className="h-12 shrink-0 rounded-lg px-2 text-lg font-semibold text-ipuc underline underline-offset-4"
-                            >
-                                Cambiar de cargo
-                            </button>
-                        )}
-                    </div>
-                )}
+        <div className="rounded-2xl bg-white/10 p-3 ring-1 ring-white/15">
+            {scope.mustChoose ? (
+                <p className="px-1 text-lg font-semibold">Usted tiene {auth.roles.length} cargos. Escoja con cuál quiere trabajar:</p>
+            ) : (
+                <div className="flex items-center gap-3">
+                    <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/15">
+                        <BadgeCheck className="size-6" />
+                    </span>
+                    <p className="min-w-0 flex-1 text-lg leading-snug">
+                        <span className="block text-white/85">Usted está actuando como</span>
+                        <span className="font-semibold">{actingAs({ auth, scope })}</span>
+                    </p>
+                    {scope.canSwitch && !switching && (
+                        <button
+                            type="button"
+                            onClick={() => setSwitching(true)}
+                            className="h-12 shrink-0 rounded-full bg-white px-4 text-lg font-semibold text-ipuc focus-visible:outline-2 focus-visible:outline-white"
+                        >
+                            Cambiar
+                        </button>
+                    )}
+                </div>
+            )}
 
-                {(scope.mustChoose || switching) && (
-                    <RoleSwitcher
-                        roles={auth.roles}
-                        activeId={scope.activeRole?.id ?? null}
-                        onCancel={scope.mustChoose ? undefined : () => setSwitching(false)}
-                    />
-                )}
-            </div>
+            {(scope.mustChoose || switching) && (
+                <RoleSwitcher roles={auth.roles} activeId={scope.activeRole?.id ?? null} onCancel={scope.mustChoose ? undefined : () => setSwitching(false)} />
+            )}
         </div>
     );
 }

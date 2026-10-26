@@ -1,9 +1,12 @@
-import CommitteeTree from '@/components/committees/committee-tree';
-import PageHeader from '@/components/page-header';
+import CommitteeGroup from '@/components/committees/committee-group';
+import ReviewerCard from '@/components/committees/reviewer-card';
+import InfoNote from '@/components/info-note';
 import MainLayout from '@/layouts/main-layout';
+import { structureSummary } from '@/lib/committees';
 import type { CommitteeNode } from '@/types/committees';
 import type { SharedProps } from '@/types/shared';
-import { Head, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
+import { EyeOff, Info } from 'lucide-react';
 
 interface Props {
     tree: CommitteeNode[];
@@ -12,44 +15,35 @@ interface Props {
 
 export default function CommitteesIndex({ tree, reviewer }: Props) {
     const { auth, scope, scopeHidden } = usePage<SharedProps>().props;
+    const hidden = scopeHidden?.committees ?? 0;
 
     return (
-        <MainLayout>
-            <Head title="Comités" />
-            <PageHeader title="Comités" />
+        <MainLayout title="Comités" subtitle={tree.length > 0 ? structureSummary(tree) : undefined}>
+            {reviewer && <ReviewerCard name={reviewer} />}
 
-            {reviewer && (
-                <p className="mb-6 rounded-lg border-l-4 border-ipuc-claro bg-white py-3 pl-4 text-lg">
-                    Lo que usted propone lo revisa <span className="font-bold">{reviewer}</span>, presidente de su comité.
-                </p>
+            <div className="flex flex-col gap-4">
+                {tree.map((root) => (
+                    <CommitteeGroup key={root.id} root={root} />
+                ))}
+            </div>
+
+            {tree.length === 0 && !scope.mustChoose && (
+                <InfoNote icon={Info}>
+                    {auth.user?.isPastor
+                        ? 'Todavía no hay comités registrados.'
+                        : 'Todavía no tiene cargo en ningún comité. Cuando el pastor le asigne uno, aquí verá su comité.'}
+                </InfoNote>
             )}
 
-            {tree.length > 0 && <CommitteeTree nodes={tree} />}
-            {tree.length === 0 && !scope.mustChoose && <Empty isPastor={auth.user?.isPastor ?? false} />}
-
-            <HiddenNotice count={scopeHidden?.committees ?? 0} />
+            {/* RF-009: cuánto queda fuera del cargo, sin decir qué es. El número llega aparte, después. */}
+            {hidden > 0 && (
+                <div className="mt-4">
+                    <InfoNote icon={EyeOff}>
+                        La congregación tiene {hidden === 1 ? 'un comité más' : `${hidden} comités más`}. No le corresponden a su cargo, por
+                        eso no aparecen aquí.
+                    </InfoNote>
+                </div>
+            )}
         </MainLayout>
-    );
-}
-
-function Empty({ isPastor }: { isPastor: boolean }) {
-    return (
-        <p className="rounded-lg border border-linea/40 p-4 text-lg">
-            {isPastor
-                ? 'Todavía no hay comités registrados.'
-                : 'Todavía no tiene cargo en ningún comité. Cuando el pastor le asigne uno, aquí verá su comité.'}
-        </p>
-    );
-}
-
-/** RF-009: cuánto queda fuera del cargo, sin decir qué es. El número llega aparte, después de la pantalla. */
-function HiddenNotice({ count }: { count: number }) {
-    if (count === 0) return null;
-
-    return (
-        <p className="mt-6 text-lg text-tinta-suave">
-            La congregación tiene {count === 1 ? 'un comité más' : `${count} comités más`}. No le corresponden a su cargo, por eso no
-            aparecen aquí.
-        </p>
     );
 }
