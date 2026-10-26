@@ -5,10 +5,14 @@ namespace App\Providers;
 use App\Models\Activity;
 use App\Models\Approval;
 use App\Models\Committee;
+use App\Models\Member;
+use App\Models\Sympathizer;
 use App\Models\User;
 use App\Policies\ActivityPolicy;
 use App\Policies\ApprovalPolicy;
 use App\Policies\CommitteePolicy;
+use App\Policies\MemberPolicy;
+use App\Policies\SympathizerPolicy;
 use App\Policies\UserPolicy;
 use App\Support\Scope\CurrentScope;
 use Illuminate\Support\Facades\Gate;
@@ -35,6 +39,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Committee::class, CommitteePolicy::class);
         Gate::policy(Approval::class, ApprovalPolicy::class);
         Gate::policy(Activity::class, ActivityPolicy::class);
+        Gate::policy(Member::class, MemberPolicy::class);
+        Gate::policy(Sympathizer::class, SympathizerPolicy::class);
         Gate::define('is-pastor', fn (User $quien) => $quien->is_pastor);
     }
 }

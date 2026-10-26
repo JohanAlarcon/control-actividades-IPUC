@@ -2,13 +2,17 @@
 
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\ActivityTaskController;
-use App\Http\Controllers\AnnualPlanController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ActivityTypeController;
+use App\Http\Controllers\AnnualPlanController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\CommitteeController;
 use App\Http\Controllers\CommitteeUserController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MemberController;
 use App\Http\Controllers\RoleSwitchController;
+use App\Http\Controllers\SympathizerController;
+use App\Http\Controllers\SympathizerStageController;
+use App\Http\Controllers\SympathizerVisitController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -53,6 +57,20 @@ Route::middleware(['auth'])->group(function () {
     Route::get('activity-types', [ActivityTypeController::class, 'index'])->name('activity-types.index');
     Route::post('activity-types', [ActivityTypeController::class, 'store'])->name('activity-types.store');
     Route::patch('activity-types/{activityType}', [ActivityTypeController::class, 'update'])->whereNumber('activityType')->name('activity-types.update');
+
+    Route::get('members', [MemberController::class, 'index'])->name('members.index');
+    Route::get('members/create', [MemberController::class, 'create'])->name('members.create');
+    Route::post('members', [MemberController::class, 'store'])->name('members.store');
+    Route::get('members/{member}/edit', [MemberController::class, 'edit'])->whereNumber('member')->name('members.edit');
+    Route::put('members/{member}', [MemberController::class, 'update'])->whereNumber('member')->name('members.update');
+
+    Route::get('sympathizers', [SympathizerController::class, 'index'])->name('sympathizers.index');
+    Route::get('sympathizers/create', [SympathizerController::class, 'create'])->name('sympathizers.create');
+    Route::post('sympathizers', [SympathizerController::class, 'store'])->name('sympathizers.store');
+    Route::get('sympathizers/{sympathizer}', [SympathizerController::class, 'show'])->whereNumber('sympathizer')->name('sympathizers.show');
+    Route::post('sympathizers/{sympathizer}/stages', [SympathizerStageController::class, 'store'])->whereNumber('sympathizer')->name('sympathizers.stages.store');
+    Route::post('sympathizers/{sympathizer}/visits', [SympathizerVisitController::class, 'store'])->whereNumber('sympathizer')->name('sympathizers.visits.store');
+    Route::post('sympathizers/{sympathizer}/promote', [SympathizerController::class, 'promote'])->whereNumber('sympathizer')->name('sympathizers.promote');
 
     Route::get('approvals', [ApprovalController::class, 'index'])->name('approvals.index');
     Route::post('approvals/bulk-approve', [ApprovalController::class, 'bulkApprove'])->name('approvals.bulk-approve');

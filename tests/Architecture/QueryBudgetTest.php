@@ -41,6 +41,8 @@ const MEDIDAS_EN_SU_PRUEBA = [
     'users.edit' => 'tests/Feature/Users/UserManagementTest.php',
     'committees.show' => 'tests/Feature/Committees/CommitteeShowTest.php',
     'activities.show' => 'tests/Feature/Activities/ActivityShowTest.php',
+    'members.edit' => 'tests/Feature/Members/MemberIndexTest.php',
+    'sympathizers.show' => 'tests/Feature/Sympathizers/SympathizerShowTest.php',
 ];
 
 function rutasQueSirvenPantalla(): array

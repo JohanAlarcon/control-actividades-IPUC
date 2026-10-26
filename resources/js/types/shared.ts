@@ -13,6 +13,8 @@ export type SharedProps = {
     auth: {
         user: { id: number; name: string; username: string; isPastor: boolean } | null;
         roles: SharedRole[];
+        /** Si el cargo activo acompaña a los simpatizantes: el pastor o quien preside ese comité (RF-040). */
+        followsSympathizers: boolean;
     };
     scope: {
         activeRole: SharedRole | null;
@@ -23,5 +25,5 @@ export type SharedProps = {
     flash: Flash;
     pendingCount?: number;
     pendingSince?: string | null;
-    scopeHidden?: { committees: number };
+    scopeHidden?: { committees: number; members: number };
 };

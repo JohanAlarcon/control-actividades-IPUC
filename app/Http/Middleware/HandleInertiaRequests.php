@@ -3,12 +3,13 @@
 namespace App\Http\Middleware;
 
 use App\Models\Approval;
+use App\Models\Sympathizer;
 use App\Support\Approvals\ApprovalCards;
-use App\Models\CommitteeUser;
 use App\Support\Scope\CurrentScope;
 use App\Support\Scope\HiddenCounts;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Middleware;
 
@@ -61,6 +62,7 @@ class HandleInertiaRequests extends Middleware
                     'isPastor' => $usuario->is_pastor,
                 ] : null,
                 'roles' => $this->cargosVigentes($scope),
+                'followsSympathizers' => $usuario !== null && Gate::forUser($usuario)->allows('follow', Sympathizer::class),
             ],
             'scope' => [
                 'activeRole' => $this->cargoActivo($scope),

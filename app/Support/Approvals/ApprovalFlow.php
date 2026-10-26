@@ -5,8 +5,10 @@ namespace App\Support\Approvals;
 use App\Models\Activity;
 use App\Models\Approval;
 use App\Models\CommitteeUser;
+use App\Models\Sympathizer;
 use App\Models\User;
 use App\Support\Committees\SubtreeResolver;
+use App\Support\Sympathizers\ConvertToMember;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -147,19 +149,26 @@ class ApprovalFlow
     }
 
     /**
-     * Lo que cambia en el objeto al cerrarse. Por ahora, la actividad: queda aprobada en el
-     * cronograma con nombre y fecha, o rechazada con su motivo. El gasto, la tarea y el cambio
-     * de fecha aplican su efecto cuando existan sus modulos.
+     * Lo que cambia en el objeto al cerrarse. La actividad queda aprobada en el cronograma con
+     * nombre y fecha, o rechazada con su motivo; el simpatizante aprobado entra a la lista de
+     * miembros (RF-045). El gasto, la tarea y el cambio de fecha aplican su efecto cuando existan
+     * sus modulos.
      */
     private function aplicarEfecto(Approval $solicitud): void
     {
-        $actividad = $solicitud->approvable;
+        $objeto = $solicitud->approvable;
 
-        if ($solicitud->type !== Approval::TYPE_ACTIVITY || ! $actividad instanceof Activity) {
+        if ($solicitud->type === Approval::TYPE_NEW_MEMBER && $objeto instanceof Sympathizer && $solicitud->status === Approval::APPROVED) {
+            ConvertToMember::handle($objeto);
+
             return;
         }
 
-        $actividad->update($solicitud->status === Approval::APPROVED
+        if ($solicitud->type !== Approval::TYPE_ACTIVITY || ! $objeto instanceof Activity) {
+            return;
+        }
+
+        $objeto->update($solicitud->status === Approval::APPROVED
             ? ['status' => Activity::APPROVED, 'approved_by_user_id' => $solicitud->resolved_by_user_id, 'approved_at' => $solicitud->resolved_at]
             : ['status' => Activity::REJECTED, 'rejection_reason' => $solicitud->reason]);
     }

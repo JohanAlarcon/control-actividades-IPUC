@@ -64,6 +64,7 @@ en todo registro histórico (RF-006, RN-09).
 | `color`, `icon` | string, nulo | presentación |
 | `position` | int | orden de despliegue |
 | `active` | bool | por omisión verdadero |
+| `follows_sympathizers` | bool | por omisión falso; marca el comité que acompaña a los simpatizantes, uno por sede (D-28) |
 
 **Ámbito**: sede+comité. Los tres niveles viven en una sola tabla: un solo filtro, una sola policy,
 un solo juego de pantallas (D-02). Un nodo sin hijos resuelve CL-01 sin código especial: la ficha
@@ -134,7 +135,7 @@ guardan al cerrarse (RF-065, CL-19).
 | `name` | string | obligatorio |
 | `birth_date` | date, nulo | fecha de nacimiento; nulo cuando la congregación no la tiene (RF-031) |
 | `age_reported` | int, nulo | edad declarada, solo cuando no se sabe la fecha (RF-031) |
-| `age_reported_at` | date, nulo | fecha de la declaración; **obligatoria si `age_reported`** |
+| `age_reported_at` | date, nulo | fecha de la declaración; **obligatoria si `age_reported`, y al revés**: el modelo no guarda una sin la otra |
 | `gender` | enum | `f` \| `m` |
 | `marital_status` | enum | `single` \| `married` \| `widowed` \| `separated` \| `common_law` |
 | `baptized` | bool | por omisión falso |
@@ -203,9 +204,10 @@ guardan al cerrarse (RF-065, CL-19).
 |---|---|---|
 | `id` | id | |
 | `site_id` | fk → `sites` | obligatorio |
-| `committee_id` | fk → `committees` | **el Comité de Evangelismo** (comité padre), no un sub-comité |
+| `committee_id` | fk → `committees` | **el comité marcado con `follows_sympathizers`** —el Comité de Evangelismo—, no un sub-comité (D-28) |
 | `name` | string | obligatorio |
 | `birth_date` | date, nulo | |
+| `age_reported`, `age_reported_at` | int y date, nulos | la edad que dijo y el día en que la dijo, como en `members` |
 | `gender` | enum | `f` \| `m` |
 | `phone` | string, nulo | |
 | `neighborhood` | string, nulo | |
@@ -228,7 +230,7 @@ descartado en la aclaración; dejar el campo invitaría a construirlo (R-06).
 
 - Al registrar, si ya existe alguien con el mismo nombre y teléfono, el sistema **advierte** y
   permite continuar o cancelar (CL-09, HU-13 escenario 3). No bloquea: dos personas pueden
-  llamarse igual.
+  llamarse igual. La comprobación mira toda la sede, pero solo responde sí o no (D-29).
 - La autorización de tratamiento de datos se guarda igual que en `members`: `data_consent`,
   `data_consent_at`, `data_consent_means`, con las mismas reglas (RF-061).
 - Al aprobarse el paso a miembro (RF-045), se crea la fila en `members` conservando la fecha de

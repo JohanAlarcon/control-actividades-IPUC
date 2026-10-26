@@ -22,11 +22,25 @@ trait BelongsToCommitteeScope
                 return;
             }
 
-            $query->whereIn(
-                $query->getModel()->getTable().'.'.$query->getModel()->committeeScopeColumn(),
-                $scope->committeeIds()
-            );
+            $columna = $query->getModel()->getTable().'.'.$query->getModel()->committeeScopeColumn();
+
+            $query->where(function (Builder $filtro) use ($query, $scope, $columna) {
+                $filtro->whereIn($columna, $scope->committeeIds());
+
+                if ($scope->isPastor() && $query->getModel()->unassignedVisibleToPastor()) {
+                    $filtro->orWhereNull($columna);
+                }
+            });
         });
+    }
+
+    /**
+     * Si el pastor ve tambien las filas sin comite. Solo las fichas de miembros las tienen: quien no
+     * esta en ningun comite sigue contando en los reportes de la congregacion (CL-03).
+     */
+    public function unassignedVisibleToPastor(): bool
+    {
+        return false;
     }
 
     /** El modelo que no guarde el comite en committee_id sobrescribe esto. */

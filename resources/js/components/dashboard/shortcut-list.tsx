@@ -3,7 +3,7 @@ import { canPropose, decidesApprovals } from '@/lib/roles';
 import { cardClass } from '@/lib/styles';
 import type { SharedProps } from '@/types/shared';
 import { Link, usePage } from '@inertiajs/react';
-import { CalendarPlus, ChevronRight, Inbox, Network, Shapes, UsersRound, type LucideIcon } from 'lucide-react';
+import { CalendarPlus, ChevronRight, HeartHandshake, Inbox, Network, Shapes, UserPlus, UserRound, UsersRound, type LucideIcon } from 'lucide-react';
 
 /** «¿Qué quiere hacer?»: los atajos del cargo, incluidos los que no caben en el menú del celular. */
 export default function ShortcutList() {
@@ -30,6 +30,11 @@ export default function ShortcutList() {
                     <Shortcut href="/activities/create" icon={CalendarPlus} title="Proponer una actividad" text="Algo que no estaba en el plan del año." />
                 )}
                 <Shortcut href="/committees" icon={Network} title="Ver los comités" text="Cómo está organizada la congregación y quién encabeza cada parte." />
+                <Shortcut href="/members" icon={UserRound} title="Miembros" text="Los hermanos de su cargo: buscarlos, registrarlos y corregir su ficha." />
+                <Shortcut href="/sympathizers/create" icon={UserPlus} title="Registrar a un simpatizante" text="Alguien que visitó la iglesia, para que no se pierda de vista." />
+                {auth.followsSympathizers && (
+                    <Shortcut href="/sympathizers" icon={HeartHandshake} title="Acompañar a los simpatizantes" text="Cómo va cada persona que visita la iglesia, y quién se está alejando." />
+                )}
                 {isPastor && <Shortcut href="/users" icon={UsersRound} title="Administrar las cuentas" text="Crear cuentas, asignar cargos y restablecer claves." />}
                 {isPastor && (
                     <Shortcut href="/activity-types" icon={Shapes} title="Clases de actividad" text="Las que se ofrecen al proponer: agregar, cambiar el nombre o desactivar." />

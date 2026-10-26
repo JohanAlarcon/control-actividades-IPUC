@@ -3,6 +3,7 @@
 namespace App\Support\Scope;
 
 use App\Models\Committee;
+use App\Models\Member;
 
 /**
  * RF-009: cuanta informacion de la congregacion queda fuera del alcance.
@@ -18,14 +19,17 @@ class HiddenCounts
     public function all(): array
     {
         if (! $this->scope->isActive() || $this->scope->isPastor()) {
-            return ['committees' => 0];
+            return ['committees' => 0, 'members' => 0];
         }
 
-        $visibles = count($this->scope->committeeIds());
-        $total = Committee::withoutGlobalScope('committee')->count();
+        $visibles = $this->scope->committeeIds();
 
         return [
-            'committees' => max(0, $total - $visibles),
+            'committees' => max(0, Committee::withoutGlobalScope('committee')->count() - count($visibles)),
+            'members' => Member::withoutGlobalScope('committee')
+                ->where('active', true)
+                ->where(fn ($fuera) => $fuera->whereNotIn('committee_id', $visibles)->orWhereNull('committee_id'))
+                ->count(),
         ];
     }
 }

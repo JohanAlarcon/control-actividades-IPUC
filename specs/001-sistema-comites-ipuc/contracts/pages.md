@@ -113,15 +113,19 @@ La excepción está amparada por la enmienda del principio I del 2026-10-18, con
 
 | Ruta | Método | Pantalla | Propiedades propias |
 |---|---|---|---|
-| `/members` | GET | `Members/Index` | `members[]`, `stats`, `filters`, `committees[]`, `resultCount`, `totalCount`, `missingConsent`, `canCreate` |
-| `/members` | POST | — | registra |
+| `/members` | GET | `Members/Index` | `members[]`, `filters`, `totalCount`, `missingConsent`, `pendingProfiles`, `canCreate`, `committees[]` (diferida) |
+| `/members/create` | GET | `Members/Form` | `committees[]`, `canLeaveWithoutCommittee` |
+| `/members` | POST | — | registra; avisa los años que tiene, o que su edad queda por completar |
+| `/members/{member}/edit` | GET | `Members/Form` | `member`, `committees[]`, `canLeaveWithoutCommittee` |
 | `/members/{member}` | PUT | — | corrige; conserva el valor anterior (RF-056) |
 | `/members/{member}/history` | GET | `Members/History` | `trail[]` leído por la relación del modelo, nunca de `activity_log` (V-01) |
 | `/members/import` | GET, POST | `Members/Import` | `preview[]`, `errors[]`, `validCount`, `invalidCount`, `duplicates[]` |
 
 **Reglas**: `committees[]` solo trae los del ámbito, también para llenar desplegables. La búsqueda
-ignora mayúsculas y tildes (RF-034). `resultCount`/`totalCount` responden a «cuántos cumplen sobre
-el total» (RF-035). Un líder ve solo los de su sub-comité y el sistema le indica **cuántas**
+ignora mayúsculas y tildes (RF-034) y corre en el teléfono sobre `members[]`, que ya llega filtrada
+por el ámbito (D-30). Cuántos cumplen —el largo de `members[]`, o lo que deja la búsqueda— se
+informa sobre `totalCount` (RF-035). Solo el pastor puede dejar a alguien sin comité
+(`canLeaveWithoutCommittee`, CL-03). Un líder ve solo los de su sub-comité y el sistema le indica **cuántas**
 personas de la congregación no aparecen y por qué (RF-009, HU-04 esc. 3). La importación muestra
 filas correctas y erróneas **antes de guardar nada**, permite cargar solo las correctas y advierte
 duplicados dejando decidir (HU-18, CL-14). El formulario muestra el aviso de privacidad y pide la
@@ -131,19 +135,23 @@ autorización con su fecha y medio (RF-061, RF-062).
 
 | Ruta | Método | Pantalla | Propiedades propias |
 |---|---|---|---|
-| `/sympathizers` | GET | `Sympathizers/Index` | `stats`, `funnel[]`, `list[]`, `pendingMember[]` |
-| `/sympathizers/{sympathizer}` | GET | `Sympathizers/Show` | `sympathizer`, `stages[]`, `visits[]`, `commitment` |
+| `/sympathizers` | GET | `Sympathizers/Index` | `canFollow`; quien acompaña: `stats`, `funnel[]`, `list[]`, `missingConsent`; los demás: solo `followers`, el nombre del comité que acompaña |
+| `/sympathizers/create` | GET | `Sympathizers/Form` | — |
+| `/sympathizers/{sympathizer}` | GET | `Sympathizers/Show` | `sympathizer` (con `commitment`), `stages[]`, `thresholds`, `canPromote`, `visits[]` (diferida) |
 | `/sympathizers` | POST | — | registra; advierte duplicado (CL-09) |
 | `/sympathizers/{sympathizer}/stages` | POST | — | alcanza una etapa con su fecha (RF-042) |
 | `/sympathizers/{sympathizer}/visits` | POST | — | registra visita; recalcula el compromiso |
 | `/sympathizers/{sympathizer}/promote` | POST | — | propone el paso a miembro: va al pastor (RF-019) |
 
 **Reglas — la policy más estrecha del proyecto** (RF-040, R-06): `POST /sympathizers` lo puede
-cualquier cargo; **todo lo demás solo el presidente del Comité de Evangelismo y el pastor**. Ni los
+cualquier cargo; **todo lo demás solo el presidente del Comité de Evangelismo y el pastor**, y el
+comité se reconoce por `follows_sympathizers` (D-28). Ni los
 líderes de los sub-comités de Evangelismo, ni quien registró a la persona. Quien registró recibe la
 explicación de por qué no ve la ficha, sin que parezca un error (HU-13 esc. 2). `commitment` llega
 **calculado** por el servidor, con las señales que lo determinaron para poder explicarlo (RF-043,
-HU-14 esc. 3). El formulario muestra el aviso de privacidad y pide la autorización (RF-061).
+HU-14 esc. 3), y `thresholds` trae los umbrales con que se calculó. El aviso de duplicado responde
+sí o no: nunca trae la ficha ajena (D-29). Cada tarjeta dice si ya espera al pastor para pasar a
+miembro. El formulario muestra el aviso de privacidad y pide la autorización (RF-061).
 
 ## Asistencia
 

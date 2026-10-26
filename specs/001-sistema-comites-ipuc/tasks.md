@@ -486,10 +486,11 @@ vías disponibles, y comprobar que ninguna devuelve datos ajenos.
       **Hecha para comité, actividad y aprobación**, con rutas propias de la prueba. Miembro, reunión y presupuesto están escritas como pendientes (`todo`) hasta que existan sus tablas.
       Verifica: `php artisan test --filter=DirectAccessTest` — comité, miembro, actividad, aprobación, reunión y presupuesto ajenos, los seis.
 
-- [ ] T099 [US04] · Aviso de cuánta información queda fuera del alcance del cargo
+- [x] T099 [US04] · Aviso de cuánta información queda fuera del alcance del cargo
       Archivos: `resources/js/components/domain/ScopeBanner.tsx` · `app/Http/Middleware/HandleInertiaRequests.php`
       RF-009: «Hay N hermanos de la congregación que no aparecen aquí porque pertenecen a otros comités.» **N lo calcula el servidor**: miembros de la sede menos miembros del ámbito del cargo activo, nunca un número escrito en la pantalla (con la semilla de T123, a un líder con 32 miembros le salen 108). **El número, nunca los nombres.** `scopeHidden` viaja como **propiedad diferida** (T028): la cinta la pide en su propia petición parcial, no en toda respuesta. *Se ejecuta cuando exista la lista de miembros (T096).*
       Verifica: `php artisan test --filter=ScopeBannerTest` — el número coincide con esa resta, calculada en la propia prueba, y la respuesta no trae un solo nombre ajeno · a 360 px.
+      **Hecha** como aviso en la lista de miembros, con `app/Support/Scope/HiddenCounts.php`; la prueba vive en `MemberIndexTest`. Ver D-29.
 
 - [ ] T151 [US04] · Prueba de aislamiento por pantalla: una por cada ruta, sin excepción
       Archivos: `tests/Feature/Scope/ScreenIsolationTest.php`
@@ -798,64 +799,72 @@ en la pantalla de inicio y en el contador del menú.
 **Independent Test**: registrar, buscar y filtrar miembros con cada cargo, incluidas las
 validaciones de edad y de bautismo.
 
-- [ ] T090 [US10] · Migración y modelo `members` con fecha de nacimiento o edad declarada
+- [x] T090 [US10] · Migración y modelo `members` con fecha de nacimiento o edad declarada
       Archivos: `database/migrations/<ts>_create_members_table.php` · `app/Models/Member.php` · `database/factories/MemberFactory.php`
       D-09: se guarda `birth_date` (admite nulo) y la edad se calcula. **Se admiten las dos entradas**, porque lo que la congregación tiene escrito en el cuaderno es la edad: `age_reported` (entero, nulo) junto con `age_reported_at` (fecha, nulo), la fecha de la declaración, que es lo que impide que una edad suelta envejezca. `age_reported` exige `age_reported_at`, y al revés. **La edad se calcula de `birth_date` cuando existe y del par `age_reported` + `age_reported_at` cuando no**, y los reportes por rango de edad usan las dos fuentes. Cuando falten las dos, la mayoría de edad confirmada se guarda en `adult_confirmed` (bool) con `adult_confirmed_at` (fecha, nulo, obligatoria si la marca es verdadera), según RF-032. `gender` (`f` | `m`); `marital_status` (`single` | `married` | `widowed` | `separated` | `common_law`); `baptized_at` nulo si no está bautizado. `committee_id` nulo = sin comité (CL-03); si el nodo tiene padre, la persona está en un sub-comité (CL-02, RF-014).
       Verifica: `php artisan test --filter=MemberModelTest` · `ScopeCoverageTest` sigue en verde.
+      **Hecha.** Las columnas de autorización (T172) van en la misma migración, porque la tabla es nueva. El modelo no guarda la edad anotada sin su día, ni la mayoría de edad confirmada sin su fecha: `MemberModelTest`.
 
-- [ ] T091 [US10] · Prueba: la edad se calcula, de la fecha o de la edad declarada
+- [x] T091 [US10] · Prueba: la edad se calcula, de la fecha o de la edad declarada
       Archivos: `tests/Unit/Members/AgeCalculationTest.php`
       Verifica: `php artisan test --filter=AgeCalculationTest` — un miembro nacido ayer hace 18 años tiene 18; el que los cumple mañana tiene 17; el que tiene 40 declarados hace dos años tiene 42, y el que no tiene ninguna de las dos cosas no reporta edad, en vez de reportar cero.
 
-- [ ] T092 [US10] · Policy y validaciones del registro de miembros
+- [x] T092 [US10] · Policy y validaciones del registro de miembros
       Archivos: `app/Policies/MemberPolicy.php` · `app/Http/Requests/StoreMemberRequest.php`, `UpdateMemberRequest.php`
       RF-032: **menor de dieciocho años no puede ser `married`, `widowed`, `separated` ni `common_law`**. Cuando la edad se conoce —por `birth_date` o por el par de edad declarada— la regla se aplica tal cual; cuando no se conoce ninguna de las dos y se marca un estado civil distinto de `single`, el sistema pide **confirmar que la persona es mayor de dieciocho años**, no la fecha, y la confirmación queda anotada en `adult_confirmed` con su fecha: **nunca se bloquea el registro por un dato que la congregación no tiene** (principio IV). RF-033: `baptized_at` obligatoria cuando `baptized` es verdadero, no anterior a `birth_date` ni posterior a hoy.
       Verifica: `php artisan test --filter=MemberValidationTest`
+      **Hecha** con una sola `SaveMemberRequest` para registrar y corregir. Las reglas de edad y de autorización, comunes a miembros y simpatizantes, viven en `app/Http/Requests/Concerns/PersonFields.php`.
 
-- [ ] T093 [US10] · Prueba: las reglas de validación, con su explicación
+- [x] T093 [US10] · Prueba: las reglas de validación, con su explicación
       Archivos: `tests/Feature/Members/MemberValidationTest.php`
       Verifica: `php artisan test --filter=MemberValidationTest` — un menor marcado casado o viudo se rechaza y el mensaje explica por qué, en una frase · un hermano casado sin fecha de nacimiento y sin edad declarada se registra confirmando que es mayor de dieciocho años, y el registro **no** se bloquea.
 
-- [ ] T094 [US10] · Búsqueda que ignora mayúsculas y tildes
+- [x] T094 [US10] · Búsqueda que ignora mayúsculas y tildes
       Archivos: `app/Models/Member.php` · `database/migrations/<ts>_set_members_collation.php`
       Verifica: `php artisan test --filter=MemberSearchTest` — «hernandez» encuentra «Hernández», y «NIÑO» encuentra «Niño».
+      **Hecha en el teléfono** (D-30): `memberMatches` en `resources/js/lib/people.ts`, sobre `lib/search.ts`; se prueba con `npm run test:js`. La intercalación `utf8mb4_unicode_ci` de `name` y `neighborhood` va en la migración de T090 y deja bien el orden alfabético.
 
-- [ ] T095 [US10] · Filtros combinables con conteo sobre el total
+- [x] T095 [US10] · Filtros combinables con conteo sobre el total
       Archivos: `app/Http/Controllers/MemberController.php` · `resources/js/components/domain/FilterBar.tsx`
       Comité, sub-comité, género, estado civil, bautizado y rango de edad —con las dos fuentes de edad (T090)—; quitar todos de una vez (RF-035).
       Verifica: `php artisan test --filter=MemberFilterTest` — informa «32 de 140» y el conteo respeta el ámbito del cargo activo.
+      **Hecha** en `resources/js/components/members/member-filters.tsx`. Filtrar por un comité incluye lo que cuelga de él.
 
-- [ ] T096 [US10] · Lista y formulario de miembros
+- [x] T096 [US10] · Lista y formulario de miembros
       Archivos: `app/Http/Controllers/MemberController.php` · `resources/js/pages/Members/Index.tsx`, `Members/Form.tsx` · ruta `/members`
       `committees[]` solo trae los del ámbito, **también para llenar desplegables**. El formulario pide la fecha de nacimiento y, cuando no se sabe, ofrece **«No la sé — anote la edad»**, que guarda la edad declarada con la fecha de la declaración (T090).
       Verifica: `php artisan test --filter=MemberIndexTest` · a 360 px la lista se presenta en tarjetas, no en tabla cortada · la opción de anotar la edad guarda el par completo.
+      **Hecha.** En el celular cada miembro es una tarjeta (`components/members/member-card.tsx`). Corregir una ficha: `/members/{member}/edit`.
 
-- [ ] T172 [US10] [US13] · Campos de autorización de tratamiento de datos
+- [x] T172 [US10] [US13] · Campos de autorización de tratamiento de datos
       Archivos: `database/migrations/<ts>_add_data_consent_to_members_table.php` · `database/migrations/<ts>_add_data_consent_to_sympathizers_table.php` · `app/Models/Member.php` · `app/Models/Sympathizer.php`
       Vacío V-02 (RF-061). `data_consent` (bool), `data_consent_at` (fecha, **obligatoria si `data_consent`**), `data_consent_means` (`signature` | `verbal` | `message`, **obligatorio si `data_consent`**).
       Verifica: `php artisan test --filter=DataConsentTest` · `ScopeCoverageTest` sigue en verde.
 
-- [ ] T173 [US10] [US13] · Aviso de privacidad en los formularios de personas
+- [x] T173 [US10] [US13] · Aviso de privacidad en los formularios de personas
       Archivos: `resources/js/components/domain/PrivacyNotice.tsx` · `resources/js/pages/Members/Form.tsx` · `resources/js/pages/Sympathizers/Form.tsx`
       RF-062: qué datos se guardan, para qué se usan y a quién dirigirse para consultarlos o corregirlos. El texto lo entrega la congregación (DEP-04).
       Verifica: visible en los dos formularios sin desplazarse · a 360 px · el texto no contiene jerga técnica.
+      **Hecha** en `resources/js/components/people/privacy-notice.tsx`, arriba de los dos formularios, con texto provisional hasta que la congregación entregue el suyo (DEP-04). Verificada a 360 px.
 
-- [ ] T174 [US10] · Conteo de fichas sin autorización y de fichas por completar
+- [x] T174 [US10] · Conteo de fichas sin autorización y de fichas por completar
       Archivos: `app/Http/Controllers/MemberController.php` · `app/Http/Controllers/SympathizerController.php` · `app/Support/Reports/MemberStats.php`
       `missingConsent` y `pendingProfiles` en los listados y en el reporte de la congregación (CE-12, CL-16). **Conteos del ámbito del cargo activo, nunca nombres ajenos.**
       Verifica: `php artisan test --filter=ConsentCountTest`
+      **Hecha en los dos listados**, miembros y simpatizantes. El reporte de la congregación los toma en T100.
 
-- [ ] T175 [US10] · Prueba: autorización, aviso y conteos, en miembros y en simpatizantes
+- [x] T175 [US10] · Prueba: autorización, aviso y conteos, en miembros y en simpatizantes
       Archivos: `tests/Feature/Members/DataConsentTest.php` · `tests/Feature/Members/ConsentCountTest.php` · `tests/Feature/Sympathizers/SympathizerConsentTest.php`
       RF-061 cubre las dos fichas, así que la autorización se prueba sobre las dos tablas.
       Verifica: `php artisan test --filter="DataConsentTest|ConsentCountTest|SympathizerConsentTest"` — en miembros y en simpatizantes, marcar la autorización sin fecha o sin medio se rechaza; el conteo de fichas sin autorización es correcto y respeta el ámbito del cargo activo.
+      **Hecha** en un solo archivo, `tests/Feature/Members/DataConsentTest.php`, que cubre las dos fichas y los conteos.
 
-- [ ] T097 [US10] · Miembro sin comité y miembro sin sub-comité
+- [x] T097 [US10] · Miembro sin comité y miembro sin sub-comité
       Archivos: `app/Models/Member.php` · `resources/js/pages/Members/Index.tsx`
       El que no pertenece a ningún comité **cuenta en los reportes de la congregación** y se señala como oportunidad, no como error (CL-02, CL-03, CE-06).
       Verifica: `php artisan test --filter=MemberEdgeCasesTest`
 
-- [ ] T098 [US10] · Prueba: todos los escenarios de HU-10, más CL-02, CL-03 y CL-16
+- [x] T098 [US10] · Prueba: todos los escenarios de HU-10, más CL-02, CL-03 y CL-16
       Archivos: `tests/Feature/Members/MemberIndexTest.php` · `tests/Feature/Members/MemberEdgeCasesTest.php` · `tests/Feature/Members/MemberFilterTest.php`
       La cuenta de escenarios sale de HU-10 en el spec, no de un número escrito aquí: si la historia gana un escenario, la prueba gana un caso.
       Verifica: `php artisan test tests/Feature/Members` — un caso por cada escenario de HU-10, sin faltar ninguno, incluido el registro con edad declarada en vez de fecha de nacimiento.
@@ -876,6 +885,7 @@ de gráficos con la de tabla.
       Archivos: `app/Support/Reports/MemberStats.php`
       Total, bautizados con porcentaje, estado civil, género, rangos de edad, distribución por comité, bautismos por año, y cuántos no pertenecen a ningún comité (RF-036). Los rangos de edad usan **las dos fuentes de edad** (T090). **Una consulta de agregación por eje**, no conteo de filas en PHP (R-08).
       Verifica: `php artisan test --filter=MemberStatsTest`
+      Incluye los conteos de fichas sin autorización y por completar (T174).
 
 - [ ] T101 [US11] · Prueba: las estadísticas, incluido el grupo vacío
       Archivos: `tests/Unit/Reports/MemberStatsTest.php`
@@ -942,32 +952,35 @@ seguimiento **no** le queda visible a quien lo registró.
 > para las dos fichas. La prueba independiente de esta historia incluye el formulario con su aviso
 > y su autorización.
 
-- [ ] T109 [US13] · Migraciones y modelos de simpatizantes
+- [x] T109 [US13] · Migraciones y modelos de simpatizantes
       Archivos: `database/migrations/<ts>_create_sympathizers_table.php`, `<ts>_create_sympathizer_stages_table.php`, `<ts>_create_sympathizer_visits_table.php` · `app/Models/Sympathizer.php`, `SympathizerStage.php`, `SympathizerVisit.php` · factories
       `committee_id` apunta al **Comité de Evangelismo (comité padre)**, no a un sub-comité. **No existe `assigned_to_user_id`**: repartir simpatizantes entre líderes fue descartado en la aclaración (R-06). `arrival_source` (`invitation` | `refam` | `campaign` | `family` | `neighbor` | `media`); `stage` 1..5; `visited_at` no futura; `type` de visita (`visit` | `call` | `study` | `service`). El nivel de compromiso **no se guarda** (D-10).
       Verifica: `php artisan test --filter=SympathizerModelTest` · `ScopeCoverageTest` en verde.
+      **Hecha.** Además, `committees.follows_sympathizers` marca el comité que acompaña (D-28), y la ficha guarda la edad anotada igual que la de miembros.
 
-- [ ] T110 [US13] · Registro por cualquier cargo
+- [x] T110 [US13] · Registro por cualquier cargo
       Archivos: `app/Http/Controllers/SympathizerController.php` · `app/Http/Requests/StoreSympathizerRequest.php` · `resources/js/pages/Sympathizers/Form.tsx` · ruta `POST /sympathizers`
       Nombre, edad, género, teléfono, barrio, cómo llegó, quién lo invitó y la fecha del primer contacto (RF-041). Quien registra conserva la constancia en `invited_by_user_id` (S-07).
       Verifica: `php artisan test --filter=RegisterSympathizerTest` — el seguimiento queda a cargo del presidente del Comité de Evangelismo · a 360 px.
 
-- [ ] T111 [US13] · Aviso de duplicado, con continuar o cancelar
+- [x] T111 [US13] · Aviso de duplicado, con continuar o cancelar
       Archivos: `app/Support/Sympathizers/DuplicateCheck.php` · `resources/js/pages/Sympathizers/Form.tsx`
       CL-09. **Advierte, no bloquea**: dos personas pueden llamarse igual.
       Verifica: `php artisan test --filter=SympathizerDuplicateTest` — advierte por nombre y teléfono, y deja decidir sin perder lo escrito.
+      **Hecha** con `app/Support/Sympathizers/DuplicateCheck.php`: responde sí o no, sin traer la ficha ajena (D-29).
 
-- [ ] T112 [US13] · El seguimiento es solo del presidente del Comité de Evangelismo
+- [x] T112 [US13] · El seguimiento es solo del presidente del Comité de Evangelismo
       Archivos: `app/Policies/SympathizerPolicy.php` · `resources/js/pages/Sympathizers/Index.tsx`
       **La policy más estrecha del proyecto** (RF-040, R-06): pastor, o presidente del Comité de Evangelismo. Ningún otro cargo, **ni los líderes de los sub-comités de Evangelismo**, ni quien registró a la persona.
       Verifica: `php artisan test --filter=SympathizerScopeTest` — quien lo registró no ve su ficha de seguimiento y recibe una explicación que no parece un error.
+      **Hecha** con `SympathizerPolicy::follow`: el pastor y quien preside, con cargo activo, el comité marcado (D-28).
 
-- [ ] T176 [US13] · Prueba: ni el líder de Evangelismo ni quien registró abren la ficha
+- [x] T176 [US13] · Prueba: ni el líder de Evangelismo ni quien registró abren la ficha
       Archivos: `tests/Feature/Sympathizers/SympathizerScopeTest.php`
       Corrección R-06, por identificador directo además de por lista.
       Verifica: `php artisan test --filter=SympathizerScopeTest` — un líder de sub-comité de Evangelismo recibe «no disponible» al abrir la ficha por su identificador; quien la registró, también.
 
-- [ ] T113 [US13] · Prueba: los cuatro escenarios de HU-13
+- [x] T113 [US13] · Prueba: los cuatro escenarios de HU-13
       Archivos: `tests/Feature/Sympathizers/RegisterSympathizerTest.php` · `tests/Feature/Sympathizers/SympathizerScopeTest.php`
       Verifica: `php artisan test --filter="RegisterSympathizerTest|SympathizerScopeTest"`
 
@@ -983,32 +996,33 @@ darse cuenta a tiempo de quién se está alejando. **Hito 3.**
 **Independent Test**: con simpatizantes cargados, recorrer sus etapas, registrar visitas y
 comprobar que el nivel de compromiso se recalcula sin intervención manual.
 
-- [ ] T114 [US14] · Cálculo del nivel de compromiso
+- [x] T114 [US14] · Cálculo del nivel de compromiso
       Archivos: `app/Support/Sympathizers/CommitmentLevel.php`
       Umbrales de `research.md` R-07, **declarados como constantes de `CommitmentLevel` y en ningún otro lugar**: visitas recientes = contactos de los últimos **60 días**; creciendo = 3 o más visitas recientes y menos de **15 días** sin contacto; estable = al menos 1 visita reciente y menos de **45 días** sin contacto; alejándose = 45 días o más sin contacto, o ninguna visita reciente. Nadie lo escribe a mano (RF-043). *Valores de partida defendibles pero **sin confirmar por el cliente** (A-01): ajustarlos es editar esas constantes y nada más, porque la pantalla y la prueba las leen de ahí.*
       Verifica: `php artisan test --filter=CommitmentTest` — la prueba arma sus casos a partir de las constantes, así que cambiar un umbral no obliga a reescribirla.
 
-- [ ] T115 [US14] · Prueba: creciendo, estable, alejándose, y el que vuelve meses después
+- [x] T115 [US14] · Prueba: creciendo, estable, alejándose, y el que vuelve meses después
       Archivos: `tests/Unit/Sympathizers/CommitmentTest.php`
       CL-10: su historia no se reinicia.
       Verifica: `php artisan test --filter=CommitmentTest` — el que vuelve conserva sus etapas y sus fechas anteriores.
 
-- [ ] T116 [US14] · Pantalla de simpatizantes: embudo de cinco etapas y semáforo
+- [x] T116 [US14] · Pantalla de simpatizantes: embudo de cinco etapas y semáforo
       Archivos: `app/Http/Controllers/SympathizerController.php` · `resources/js/pages/Sympathizers/Index.tsx` · `resources/js/components/domain/StepPath.tsx` · ruta `/sympathizers`
       Cuántos acompañamos, cuántos creciendo, cuántos estables, cuántos alejándose.
       Verifica: `php artisan test --filter=SympathizerIndexTest` · a 360 px el embudo se presenta en vertical, legible.
 
-- [ ] T117 [US14] · Ficha con etapas fechadas y bitácora de visitas
+- [x] T117 [US14] · Ficha con etapas fechadas y bitácora de visitas
       Archivos: `app/Http/Controllers/SympathizerController.php` · `app/Http/Controllers/SympathizerVisitController.php` · `resources/js/pages/Sympathizers/Show.tsx` · ruta `/sympathizers/{sympathizer}`
       Las cinco etapas en orden y con el vocabulario de la IPUC: visitó el culto; asiste con frecuencia; recibe estudio bíblico; **se bautizó en el nombre de Jesucristo**; recibió el Espíritu Santo (RF-042, RF-044). Una sola fila por etapa; una etapa no se alcanza sin las anteriores.
       Verifica: `php artisan test --filter=SympathizerShowTest` — registrar una visita recalcula el compromiso · a 360 px.
 
-- [ ] T118 [US14] · Paso a miembro, aprobado por el pastor
+- [x] T118 [US14] · Paso a miembro, aprobado por el pastor
       Archivos: `app/Http/Controllers/SympathizerController.php` · `app/Support/Approvals/ApprovalFlow.php` · `app/Support/Sympathizers/ConvertToMember.php` · ruta `POST /sympathizers/{sympathizer}/promote`
       RF-019, RF-045, RN-06. Conserva la fecha de bautismo y la del primer contacto; llena `converted_member_id` y `converted_at`. **La fila del simpatizante no se borra** (CL-10).
       Verifica: `php artisan test --filter=SympathizerToMemberTest` — sin la aprobación del pastor la persona no entra a la lista de miembros, **por el servidor**.
+      **Hecha** con `app/Support/Sympathizers/ConvertToMember.php`, que corre cuando el pastor aprueba la solicitud `new_member`.
 
-- [ ] T119 [US14] · Prueba: los cinco escenarios de HU-14
+- [x] T119 [US14] · Prueba: los cinco escenarios de HU-14
       Archivos: `tests/Feature/Sympathizers/SympathizerIndexTest.php` · `tests/Feature/Sympathizers/SympathizerShowTest.php` · `tests/Feature/Sympathizers/SympathizerToMemberTest.php`
       Verifica: `php artisan test tests/Feature/Sympathizers`
 
@@ -1217,6 +1231,7 @@ comprobar que su historia sigue consultable.
       Archivos: `app/Http/Controllers/CommitteeStructureController.php` · `app/Http/Requests/StoreCommitteeRequest.php`, `UpdateCommitteeRequest.php` · `resources/js/pages/Structure/Index.tsx` · `resources/js/components/domain/StructureTree.tsx` · rutas `/structure`
       Valida la profundidad: un `parent_id` que apunte a un nodo de `depth` 3 se rechaza con una frase que explica que la estructura llega hasta tres niveles (CL-17). `name` único por sede y por padre.
       Verifica: `php artisan test --filter=CommitteeStructureTest` · a 360 px el árbol se administra con el pulgar, sin desplazamiento horizontal.
+      El formulario de un comité de primer nivel deja al pastor marcar cuál acompaña a los simpatizantes (`follows_sympathizers`, D-28); marcar uno desmarca el anterior. Mientras no exista, lo marca la semilla.
 
 - [ ] T183 [US21] · Inactivar un nodo conservando toda su historia
       Archivos: `app/Http/Controllers/CommitteeStructureController.php` · `app/Models/Committee.php`

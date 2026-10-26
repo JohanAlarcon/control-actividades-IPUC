@@ -12,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 
 class Committee extends Model
 {
-    use HasFactory, BelongsToSite, BelongsToCommitteeScope;
+    use BelongsToCommitteeScope, BelongsToSite, HasFactory;
 
     public const MAX_DEPTH = 3;
 
@@ -26,6 +26,7 @@ class Committee extends Model
         'icon',
         'position',
         'active',
+        'follows_sympathizers',
     ];
 
     protected function casts(): array
@@ -34,6 +35,7 @@ class Committee extends Model
             'depth' => 'integer',
             'position' => 'integer',
             'active' => 'boolean',
+            'follows_sympathizers' => 'boolean',
         ];
     }
 
@@ -115,5 +117,18 @@ class Committee extends Model
     public function committeeScopeColumn(): string
     {
         return 'id';
+    }
+
+    /**
+     * El comite que acompaña a los simpatizantes de la sede (D-28). Se busca fuera del filtro del
+     * cargo porque cualquiera registra a un simpatizante (RF-040), pero trae solo su numero, su sede
+     * y su nombre, que son de toda la congregacion: ningun dato de lo que hace ese comite.
+     */
+    public static function followingSympathizers(): ?self
+    {
+        return static::withoutGlobalScope('committee')
+            ->where('follows_sympathizers', true)
+            ->where('active', true)
+            ->first(['id', 'site_id', 'name']);
     }
 }

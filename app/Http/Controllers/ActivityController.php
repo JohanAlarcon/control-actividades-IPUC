@@ -8,12 +8,12 @@ use App\Models\ActivityTask;
 use App\Models\ActivityType;
 use App\Models\AnnualPlan;
 use App\Models\Approval;
-use App\Models\Committee;
 use App\Support\Activities\ActivityStatus;
 use App\Support\Activities\ScheduleCards;
 use App\Support\Activities\ScheduleSummary;
 use App\Support\Approvals\ApprovalCards;
 use App\Support\Approvals\ApprovalFlow;
+use App\Support\Committees\CommitteeOptions;
 use App\Support\Scope\CurrentScope;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -68,7 +68,7 @@ class ActivityController extends Controller
             'months' => ScheduleCards::byMonth($tarjetas, $filtros['month']),
             'canPropose' => Gate::allows('create', Activity::class),
             'annualPlan' => Inertia::defer(fn () => $this->plan($anio), 'plan'),
-            'committees' => Inertia::defer(fn () => $this->opcionesDeComite(), 'committees'),
+            'committees' => Inertia::defer(fn () => CommitteeOptions::forScope(), 'committees'),
         ]);
     }
 
@@ -238,22 +238,6 @@ class ActivityController extends Controller
         }
 
         return AnnualPlan::where('year', $anio)->whereNotNull('approved_at')->exists() ? null : $anio;
-    }
-
-    /** Los comites del alcance, en orden de arbol: cada uno seguido de los que cuelgan de el. */
-    private function opcionesDeComite(): array
-    {
-        $comites = Committee::query()->where('active', true)->orderBy('position')->orderBy('name')->get(['id', 'name', 'parent_id', 'depth']);
-        $visibles = $comites->pluck('id')->all();
-
-        $rama = function (Collection $nivel) use (&$rama, $comites): array {
-            return $nivel->flatMap(fn (Committee $comite) => [
-                ['id' => $comite->id, 'name' => $comite->name, 'depth' => $comite->depth],
-                ...$rama($comites->where('parent_id', $comite->id)),
-            ])->all();
-        };
-
-        return $rama($comites->filter(fn (Committee $comite) => ! in_array($comite->parent_id, $visibles, true)));
     }
 
     /**
