@@ -608,11 +608,11 @@ llegó cada una, las validaciones y el aviso de cruce.
 > que construye la Phase 8 (US06), inmediatamente anterior. Al llegar aquí las dos ya existen:
 > esta fase no espera nada.
 
-- [ ] T062 [US05] · Policy de actividades
+- [x] T062 [US05] · Policy de actividades
       Archivos: `app/Policies/ActivityPolicy.php`
       Verifica: `php artisan test --filter=ActivityPolicyTest` — `view` cierto para cualquier cargo (RF-010), `update` solo para el comité dueño.
 
-- [ ] T063 [US05] · Validación del formulario de propuesta
+- [x] T063 [US05] · Validación del formulario de propuesta
       Archivos: `app/Http/Requests/StoreActivityRequest.php` · `lang/es/validation.php`
       Título obligatorio; `scheduled_at` **dentro del año en curso y no pasada** (CL-07); mensajes que señalan exactamente qué campo corregir.
       Verifica: `php artisan test --filter=ActivityValidationTest` — título vacío y fecha de otro año se rechazan con el campo nombrado.
@@ -622,14 +622,15 @@ llegó cada una, las validaciones y el aviso de cruce.
       Usa `Activity::forSharedCalendar()`; devuelve qué actividad es y de qué comité (RF-028, CL-08, CE-04). Es un aviso, no un bloqueo.
       Verifica: `php artisan test --filter=ScheduleConflictTest` — advierte el cruce con un comité ajeno **sin revelar su presupuesto**.
 
-- [ ] T065 [US05] · Formulario de propuesta y aviso de a quién le llegó
-      Archivos: `app/Http/Controllers/ActivityController.php` · `resources/js/pages/Activities/Form.tsx` · ruta `POST /activities`
+- [x] T065 [US05] · Formulario de propuesta y aviso de a quién le llegó
+      Archivos: `app/Http/Controllers/ActivityController.php` · `resources/js/pages/Activities/Form.tsx` · `components/activities/` · rutas `GET /activities/create` y `POST /activities`
       El aviso nombra a la persona: «Su propuesta le llegó al hermano…» (RF-016, RF-017).
       Verifica: `php artisan test --filter=ProposeActivityTest` · a 360 px el formulario se llena con una mano.
 
 - [ ] T066 [US05] · Prueba: los cinco escenarios de HU-05, con líder y con presidente
       Archivos: `tests/Feature/Activities/ProposeActivityTest.php` · `tests/Feature/Activities/ScheduleConflictTest.php`
       Verifica: `php artisan test --filter="ProposeActivityTest|ScheduleConflictTest"`
+      Estado: los escenarios 1 a 4 en verde; el 5 queda como pendiente (`todo`) hasta T064, en la Phase 12.
 
 **Checkpoint**: US05 funciona por separado.
 

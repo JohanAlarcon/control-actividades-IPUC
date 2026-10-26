@@ -2,11 +2,11 @@ import InfoNote from '@/components/info-note';
 import SectionBlock from '@/components/section-block';
 import MainLayout from '@/layouts/main-layout';
 import { waitingSince } from '@/lib/format';
-import { decidesApprovals } from '@/lib/roles';
+import { canPropose, decidesApprovals } from '@/lib/roles';
 import { cardClass } from '@/lib/styles';
 import type { SharedProps } from '@/types/shared';
 import { Link, usePage } from '@inertiajs/react';
-import { ChevronRight, CircleCheck, Inbox, Network, UsersRound, type LucideIcon } from 'lucide-react';
+import { CalendarPlus, ChevronRight, CircleCheck, Inbox, Network, UsersRound, type LucideIcon } from 'lucide-react';
 
 function greeting(): string {
     const hour = new Date().getHours();
@@ -53,6 +53,9 @@ export default function Dashboard() {
                         title={decides ? 'Aprobar solicitudes' : 'Ver las solicitudes'}
                         text={decides ? 'Lo que proponen los comités y espera su decisión.' : 'En qué van las solicitudes de su comité.'}
                     />
+                    {canPropose(scope.activeRole?.role) && (
+                        <Shortcut href="/activities/create" icon={CalendarPlus} title="Proponer una actividad" text="Algo que no estaba en el plan del año." />
+                    )}
                     <Shortcut href="/committees" icon={Network} title="Ver los comités" text="Cómo está organizada la congregación y quién encabeza cada parte." />
                     {auth.user?.isPastor && (
                         <Shortcut href="/users" icon={UsersRound} title="Administrar las cuentas" text="Crear cuentas, asignar cargos y restablecer claves." />

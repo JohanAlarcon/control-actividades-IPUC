@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Activity;
 use App\Models\Approval;
 use App\Models\Committee;
 use App\Models\User;
+use App\Policies\ActivityPolicy;
 use App\Policies\ApprovalPolicy;
 use App\Policies\CommitteePolicy;
 use App\Policies\UserPolicy;
@@ -32,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(User::class, UserPolicy::class);
         Gate::policy(Committee::class, CommitteePolicy::class);
         Gate::policy(Approval::class, ApprovalPolicy::class);
+        Gate::policy(Activity::class, ActivityPolicy::class);
         Gate::define('is-pastor', fn (User $quien) => $quien->is_pastor);
     }
 }

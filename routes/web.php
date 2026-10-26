@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\CommitteeController;
 use App\Http\Controllers\CommitteeUserController;
@@ -35,6 +36,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('committees/{committee}/roles', [CommitteeUserController::class, 'store'])->name('roles.store');
     Route::delete('roles/{role}', [CommitteeUserController::class, 'destroy'])->name('roles.destroy');
+
+    Route::get('activities/create', [ActivityController::class, 'create'])->name('activities.create');
+    Route::post('activities', [ActivityController::class, 'store'])->name('activities.store');
 
     Route::get('approvals', [ApprovalController::class, 'index'])->name('approvals.index');
     Route::post('approvals/{approval}/approve', [ApprovalController::class, 'approve'])->whereNumber('approval')->name('approvals.approve');

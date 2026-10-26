@@ -6,6 +6,7 @@ use App\Models\Activity;
 use App\Models\Approval;
 use App\Models\CommitteeUser;
 use App\Models\User;
+use App\Support\Committees\SubtreeResolver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -44,6 +45,25 @@ class ApprovalFlow
             'requested_by_user_id' => $cargo->user_id,
             'requested_at' => now(),
         ]);
+    }
+
+    /**
+     * Quien recibe lo que pide ese cargo, para decirselo con nombre propio (RF-016, RF-017): el
+     * pastor, si lo pide un presidente; si no, quien hoy preside el comite de primer nivel del que
+     * cuelga el suyo. Null si ese cargo esta vacante: la solicitud espera al reemplazo (RF-023).
+     */
+    public function recipientFor(CommitteeUser $cargo): ?User
+    {
+        if ($cargo->role === CommitteeUser::PRESIDENT) {
+            return User::where('site_id', $cargo->site_id)->where('is_pastor', true)->where('active', true)->first();
+        }
+
+        $presidencia = CommitteeUser::current()
+            ->where('committee_id', app(SubtreeResolver::class)->rootIdOf($cargo->committee))
+            ->where('role', CommitteeUser::PRESIDENT)
+            ->select('user_id');
+
+        return User::where('active', true)->whereIn('id', $presidencia)->first();
     }
 
     /**

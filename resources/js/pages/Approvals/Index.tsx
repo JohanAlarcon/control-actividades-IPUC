@@ -3,11 +3,12 @@ import ApprovalCard from '@/components/approvals/approval-card';
 import InfoNote from '@/components/info-note';
 import SectionBlock from '@/components/section-block';
 import MainLayout from '@/layouts/main-layout';
-import { decidesApprovals } from '@/lib/roles';
+import { canPropose, decidesApprovals } from '@/lib/roles';
+import { buttonClass } from '@/lib/styles';
 import type { ApprovalItem } from '@/types/approvals';
 import type { SharedProps } from '@/types/shared';
-import { usePage } from '@inertiajs/react';
-import { CircleCheck, Info } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { CalendarPlus, CircleCheck, Info } from 'lucide-react';
 
 interface Props {
     inbox: ApprovalItem[];
@@ -33,6 +34,13 @@ export default function ApprovalsIndex({ inbox, escalated, history, counts }: Pr
                 <p role="alert" className="mb-6 rounded-2xl bg-alerta/10 p-4 text-lg font-semibold text-alerta">
                     {errors.approval}
                 </p>
+            )}
+
+            {canPropose(scope.activeRole?.role) && (
+                <Link href="/activities/create" className={`${buttonClass.primary} mb-6 lg:w-fit lg:px-6`}>
+                    <CalendarPlus aria-hidden className="mr-2 size-6" />
+                    Proponer una actividad
+                </Link>
             )}
 
             {decides && (

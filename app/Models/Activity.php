@@ -19,6 +19,9 @@ class Activity extends Model
     public const COMPLETED = 'completed';
     public const REJECTED = 'rejected';
 
+    /** Las clases de la columna `type` (data-model §4). */
+    public const TYPES = ['service', 'rehearsal', 'event', 'outing', 'campaign', 'convention', 'meeting', 'visit'];
+
     protected $fillable = [
         'site_id',
         'committee_id',

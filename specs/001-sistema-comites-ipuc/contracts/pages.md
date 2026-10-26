@@ -84,7 +84,8 @@ movimiento con su nombre (RF-018, V-04). Una solicitud resuelta no se edita: `/a
 |---|---|---|---|---|
 | `/activities` | GET | `Activities/Index` | `summary`, `months[]`, `list[]`, `filters`, `annualPlan`, `canPropose` | de actividades ajenas: todo lo que no sean los siete datos compartidos |
 | `/activities/{activity}` | GET | `Activities/Show` | `activity`, `tasks[]`, `trail[]`, `canEdit`, `canCompleteTasks` | si es ajena: todo lo que no sean los siete datos compartidos; nunca presupuesto ni tareas |
-| `/activities` | POST | — | propone; devuelve `conflictWarning` (RF-028, CL-08) | — |
+| `/activities/create` | GET | `Activities/Form` | `recipient`: el nombre de quien va a recibir la propuesta, o nulo si ese cargo está vacante | — |
+| `/activities` | POST | — | propone; devuelve `conflictWarning` (RF-028, CL-08) — este aviso llega con T064, en la Phase 12 | — |
 | `/activities/{activity}/tasks/{task}/toggle` | POST | — | recalcula `progress` y el estado (R-04) | — |
 | `/activities/{activity}/complete` | POST | — | solo para actividades sin tareas (R-04) | — |
 | `/annual-plan/{year}/approve` | POST | — | solo pastor (RF-025) | — |

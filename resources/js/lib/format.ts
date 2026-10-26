@@ -7,6 +7,11 @@ const calendarDay = new Intl.DateTimeFormat('en-CA', { timeZone: ZONE, year: 'nu
 const dayAndMonth = new Intl.DateTimeFormat('es-CO', { timeZone: ZONE, day: 'numeric', month: 'long' });
 const fullDate = new Intl.DateTimeFormat('es-CO', { timeZone: ZONE, weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' });
 
+/** «2026-10-26»: el día en Colombia, escrito como lo espera un campo de fecha. */
+export function calendarDate(date: Date): string {
+    return calendarDay.format(date);
+}
+
 /** «$ 850.000»: en pesos y sin centavos. */
 export function money(amount: number): string {
     return pesos.format(amount);
@@ -27,7 +32,7 @@ export function activityDate(iso: string): string {
  * del calendario, no tandas de 24 horas: lo que llegó anoche ya es «desde ayer».
  */
 export function waitingSince(iso: string, now: Date = new Date()): string {
-    const days = Math.round((Date.parse(calendarDay.format(now)) - Date.parse(calendarDay.format(new Date(iso)))) / DAY);
+    const days = Math.round((Date.parse(calendarDate(now)) - Date.parse(calendarDate(new Date(iso)))) / DAY);
 
     if (days <= 0) return 'desde hoy';
     if (days === 1) return 'desde ayer';

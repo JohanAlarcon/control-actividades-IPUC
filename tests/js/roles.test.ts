@@ -1,4 +1,4 @@
-import { decidesApprovals, roleLabelFor, rolesForDepth } from '@/lib/roles';
+import { canPropose, decidesApprovals, roleLabelFor, rolesForDepth } from '@/lib/roles';
 import { describe, expect, it } from 'vitest';
 
 describe('roleLabelFor: el cargo dicho como se le dice a la persona', () => {
@@ -53,5 +53,15 @@ describe('decidesApprovals', () => {
         expect(decidesApprovals(false, 'secretary')).toBe(false);
         expect(decidesApprovals(false, 'leader')).toBe(false);
         expect(decidesApprovals(undefined, undefined)).toBe(false);
+    });
+});
+
+describe('canPropose', () => {
+    it('proponen el líder y el presidente; el secretario, el tesorero y quien no tiene cargo, no', () => {
+        expect(canPropose('leader')).toBe(true);
+        expect(canPropose('president')).toBe(true);
+        expect(canPropose('secretary')).toBe(false);
+        expect(canPropose('treasurer')).toBe(false);
+        expect(canPropose(undefined)).toBe(false);
     });
 });

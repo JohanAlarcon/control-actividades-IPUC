@@ -31,3 +31,8 @@ export function rolesForDepth(depth: number): Role[] {
 export function decidesApprovals(isPastor: boolean | undefined, activeRole: Role | undefined): boolean {
     return Boolean(isPastor) || activeRole === 'president';
 }
+
+/** Quien propone actividades: el líder y el presidente, con el cargo con el que actúan (HU-05). La misma regla de ActivityPolicy. */
+export function canPropose(activeRole: Role | undefined): boolean {
+    return activeRole === 'president' || activeRole === 'leader';
+}
