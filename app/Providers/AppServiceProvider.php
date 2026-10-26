@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Committee;
 use App\Models\User;
+use App\Policies\CommitteePolicy;
 use App\Policies\UserPolicy;
 use App\Support\Scope\CurrentScope;
 use Illuminate\Support\Facades\Gate;
@@ -26,6 +28,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::policy(User::class, UserPolicy::class);
+        Gate::policy(Committee::class, CommitteePolicy::class);
         Gate::define('is-pastor', fn (User $quien) => $quien->is_pastor);
     }
 }

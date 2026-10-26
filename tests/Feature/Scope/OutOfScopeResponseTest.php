@@ -28,15 +28,15 @@ it('lo que un cargo no puede ver muestra la página en español, no un error té
     $this->actingAs($this->presidenta)->get('/users')
         ->assertForbidden()
         ->assertInertia(fn ($page) => $page->component('Errors/OutOfScope'))
-        ->assertDontSee('This action is unauthorized');
+        ->assertDoesntShow('This action is unauthorized');
 });
 
 it('la respuesta no trae ningún dato de lo que se intentó abrir', function () {
     $this->actingAs($this->presidenta)->get("/users/{$this->ajeno->id}/edit")
         ->assertForbidden()
         ->assertInertia(fn ($page) => $page->component('Errors/OutOfScope'))
-        ->assertDontSee('Hermano Ajeno Ejemplo')
-        ->assertDontSee('ajeno.ejemplo');
+        ->assertDoesntShow('Hermano Ajeno Ejemplo')
+        ->assertDoesntShow('ajeno.ejemplo');
 });
 
 it('una cuenta de otra sede responde exactamente igual que una que no existe', function () {
@@ -49,7 +49,7 @@ it('una cuenta de otra sede responde exactamente igual que una que no existe', f
     // La direccion pedida es lo unico que cambia entre las dos respuestas.
     $pagina = fn ($respuesta) => collect($respuesta->viewData('page'))->except('url')->all();
 
-    $ajena->assertNotFound()->assertDontSee('Hermano De Otra Sede');
+    $ajena->assertNotFound()->assertDoesntShow('Hermano De Otra Sede');
     expect($inexistente->status())->toBe(404)
         ->and($pagina($ajena))->toBe($pagina($inexistente));
 });

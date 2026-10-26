@@ -39,6 +39,7 @@ const RUTAS_FUERA_DE_MEDICION = [
 /** Pantallas con parametros: cada una se mide en la prueba de su pantalla, con datos reales. */
 const MEDIDAS_EN_SU_PRUEBA = [
     'users.edit' => 'tests/Feature/Users/UserManagementTest.php',
+    'committees.show' => 'tests/Feature/Committees/CommitteeShowTest.php',
 ];
 
 function rutasQueSirvenPantalla(): array

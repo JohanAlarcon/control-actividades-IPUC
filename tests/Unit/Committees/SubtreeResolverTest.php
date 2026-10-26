@@ -37,6 +37,33 @@ it('el sub-árbol de un equipo es solo él', function () {
     expect($ids)->toBe([$this->equipo->id]);
 });
 
+it('si ya se sabe que es un equipo, ni siquiera consulta la base', function () {
+    DB::enableQueryLog();
+    DB::flushQueryLog();
+
+    expect($this->resolver->idsFor($this->equipo->id, 3))->toBe([$this->equipo->id])
+        ->and(DB::getQueryLog())->toHaveCount(0);
+});
+
+it('encuentra el comité de primer nivel de cada nodo', function () {
+    expect($this->resolver->rootIdOf($this->comite))->toBe($this->comite->id)
+        ->and($this->resolver->rootIdOf($this->subComite))->toBe($this->comite->id)
+        ->and($this->resolver->rootIdOf($this->equipo))->toBe($this->comite->id);
+});
+
+it('solo un equipo necesita consultar para encontrar su comité de primer nivel', function () {
+    DB::enableQueryLog();
+    DB::flushQueryLog();
+    $this->resolver->rootIdOf($this->subComite);
+    $delSubComite = count(DB::getQueryLog());
+
+    DB::flushQueryLog();
+    $this->resolver->rootIdOf($this->equipo);
+
+    expect($delSubComite)->toBe(0)
+        ->and(DB::getQueryLog())->toHaveCount(1);
+});
+
 it('lo resuelve en una sola consulta', function () {
     DB::enableQueryLog();
     DB::flushQueryLog();

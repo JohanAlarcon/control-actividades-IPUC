@@ -62,7 +62,7 @@ it('un cargo de otra persona no cambia nada y responde que no está disponible',
 
     $this->actingAs($this->hermano)
         ->post('/role/switch', ['roleId' => $cargoAjeno->id])
-        ->assertSessionHas('flash.type', 'error');
+        ->assertSessionHas('notice', 'Ese cargo no está disponible para usted.');
 
     $this->actingAs($this->hermano)->get('/dashboard')
         ->assertInertia(fn ($page) => $page->where('scope.mustChoose', true));
@@ -73,19 +73,8 @@ it('un cargo ya cerrado no se puede escoger', function () {
 
     $this->actingAs($this->hermano)
         ->post('/role/switch', ['roleId' => $this->enAlabanza->id])
-        ->assertSessionHas('flash.type', 'error');
+        ->assertSessionHas('notice', 'Ese cargo no está disponible para usted.');
 });
-
-/** Lo que manda el navegador al pedir una propiedad diferida, version incluida: sin ella Inertia responde 409. */
-function pedidoParcial(string $propiedad): array
-{
-    return [
-        'X-Inertia' => 'true',
-        'X-Inertia-Version' => (string) app(App\Http\Middleware\HandleInertiaRequests::class)->version(request()),
-        'X-Inertia-Partial-Component' => 'dashboard',
-        'X-Inertia-Partial-Data' => $propiedad,
-    ];
-}
 
 it('los conteos de lo oculto llevan números, nunca nombres', function () {
     $this->actingAs($this->hermano)->post('/role/switch', ['roleId' => $this->enAlabanza->id]);
@@ -95,9 +84,7 @@ it('los conteos de lo oculto llevan números, nunca nombres', function () {
         ->get('/dashboard')
         ->assertOk();
 
-    $contenido = $respuesta->getContent();
-
-    expect($contenido)->not->toContain($this->damas->name);
+    $respuesta->assertDoesntShow($this->damas->name);
 });
 
 it('el conteo diferido llega aparte y no borra el cargo activo al mezclarse', function () {

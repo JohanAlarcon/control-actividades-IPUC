@@ -43,7 +43,103 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/**
+ * Una sede con los tres niveles y una persona en cada cargo. La usan las pruebas de la
+ * estructura de comites. Los nombres son ficticios, como exige la constitucion.
+ */
+function estructuraDePrueba(): array
 {
-    // ..
+    $sede = App\Models\Site::factory()->create();
+    $comite = fn (string $nombre, ?App\Models\Committee $padre = null) => App\Models\Committee::factory()
+        ->for($sede)
+        ->when($padre, fn ($fabrica) => $fabrica->childOf($padre))
+        ->create(['name' => $nombre]);
+
+    $alabanza = $comite('Comité de Alabanza');
+    $sonido = $comite('Sub-comité de Sonido', $alabanza);
+    $montaje = $comite('Equipo de Montaje', $sonido);
+    $coro = $comite('Sub-comité de Coro', $alabanza);
+    $damas = $comite('Comité de Damas Dorcas');
+
+    $persona = function (string $nombre, App\Models\Committee $donde, string $cargo) use ($sede) {
+        $usuario = App\Models\User::factory()->create(['site_id' => $sede->id, 'name' => $nombre]);
+        App\Models\CommitteeUser::factory()->forCommittee($donde)->role($cargo)->create(['user_id' => $usuario->id]);
+
+        return $usuario;
+    };
+
+    return [
+        'sede' => $sede,
+        'alabanza' => $alabanza,
+        'sonido' => $sonido,
+        'montaje' => $montaje,
+        'coro' => $coro,
+        'damas' => $damas,
+        'pastor' => App\Models\User::factory()->create(['site_id' => $sede->id, 'is_pastor' => true]),
+        'presidente' => $persona('Hermano Rigoberto Páez', $alabanza, 'president'),
+        'secretaria' => $persona('Hermana Luz Mary Quintero', $alabanza, 'secretary'),
+        'tesorero' => $persona('Hermano Jairo Betancur', $alabanza, 'treasurer'),
+        'liderSonido' => $persona('Hermano Andrés Molina', $sonido, 'leader'),
+        'liderMontaje' => $persona('Hermano Wilson Garzón', $montaje, 'leader'),
+        'liderCoro' => $persona('Hermana Omaira Lozano', $coro, 'leader'),
+        'presidentaDamas' => $persona('Hermana Blanca Cárdenas', $damas, 'president'),
+    ];
+}
+
+/** Lo que manda el navegador al pedir una propiedad diferida, version incluida: sin ella Inertia responde 409. */
+function pedidoParcial(string $propiedad, string $pantalla = 'dashboard'): array
+{
+    return [
+        'X-Inertia' => 'true',
+        'X-Inertia-Version' => (string) app(App\Http\Middleware\HandleInertiaRequests::class)->version(request()),
+        'X-Inertia-Partial-Component' => $pantalla,
+        'X-Inertia-Partial-Data' => $propiedad,
+    ];
+}
+
+/*
+ * Los datos de una pantalla viajan dentro del HTML con las tildes escapadas: «Comité»
+ * llega como «Comité». Con assertSee no se encuentra nunca, y una prueba de que
+ * algo NO aparece pasaria siempre, aunque el dato estuviera ahi. Estas dos buscan en lo
+ * que la pantalla realmente recibe. PageTextTest demuestra la diferencia.
+ */
+function textoDeLaPagina(Illuminate\Testing\TestResponse $respuesta): string
+{
+    $original = $respuesta->baseResponse->original ?? null;
+
+    if ($original instanceof Illuminate\View\View && isset($original->getData()['page'])) {
+        return json_encode($original->getData()['page'], JSON_UNESCAPED_UNICODE);
+    }
+
+    $json = json_decode((string) $respuesta->getContent(), true);
+
+    return is_array($json) ? json_encode($json, JSON_UNESCAPED_UNICODE) : (string) $respuesta->getContent();
+}
+
+Illuminate\Testing\TestResponse::macro('assertShows', function (string $texto) {
+    PHPUnit\Framework\Assert::assertStringContainsString($texto, textoDeLaPagina($this), "La pantalla no muestra «{$texto}».");
+
+    return $this;
+});
+
+Illuminate\Testing\TestResponse::macro('assertDoesntShow', function (string $texto) {
+    PHPUnit\Framework\Assert::assertStringNotContainsString($texto, textoDeLaPagina($this), "La pantalla muestra «{$texto}» y no debería.");
+
+    return $this;
+});
+
+/** Un nodo del arbol de comites, buscado por su nombre en cualquier nivel. */
+function nodoDelArbol(array $arbol, string $nombre): ?array
+{
+    foreach ($arbol as $nodo) {
+        if ($nodo['name'] === $nombre) {
+            return $nodo;
+        }
+
+        if ($encontrado = nodoDelArbol($nodo['children'], $nombre)) {
+            return $encontrado;
+        }
+    }
+
+    return null;
 }

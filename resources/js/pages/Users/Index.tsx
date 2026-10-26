@@ -1,7 +1,7 @@
 import PageHeader from '@/components/page-header';
 import AccountCard from '@/components/users/account-card';
 import AccountSearch from '@/components/users/account-search';
-import FlashMessages from '@/components/users/flash-messages';
+import FlashMessages from '@/components/flash-messages';
 import { ROLE_LABELS } from '@/lib/roles';
 import { matchesEveryWord } from '@/lib/search';
 import { buttonClass } from '@/lib/styles';

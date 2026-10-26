@@ -27,17 +27,11 @@ class RoleSwitchController extends Controller
             ->find($datos['roleId']);
 
         if (! $cargo) {
-            return back()->with('flash', [
-                'type' => 'error',
-                'message' => 'Ese cargo no está disponible para usted.',
-            ]);
+            return back()->with('notice', 'Ese cargo no está disponible para usted.');
         }
 
         $request->session()->put(ResolveScope::SESSION_KEY, $cargo->id);
 
-        return back()->with('flash', [
-            'type' => 'success',
-            'message' => 'Ahora está actuando como '.$cargo->committee?->name.'.',
-        ]);
+        return back()->with('notice', 'Ahora está actuando como '.$cargo->committee?->name.'.');
     }
 }

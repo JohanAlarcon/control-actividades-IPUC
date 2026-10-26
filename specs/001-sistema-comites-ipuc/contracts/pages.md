@@ -42,8 +42,8 @@ petición se reparte en más propiedades diferidas.
 
 | Ruta | Método | Pantalla | Propiedades propias | No debe viajar |
 |---|---|---|---|---|
-| `/committees` | GET | `Committees/Index` | `tree[]`, `cards[]` | de un comité fuera del ámbito: sus miembros, su presupuesto y su avance |
-| `/committees/{committee}` | GET | `Committees/Show` | `committee`, `children[]`, `hasChildren`, `president`, `members[]`, `budget`, `progress`, `canEdit` | nada si el comité está fuera del ámbito: «no disponible» (RF-008) |
+| `/committees` | GET | `Committees/Index` | `tree[]`, `reviewer` · `cards[]` cuando existan miembros y presupuesto | de un comité fuera del ámbito: sus miembros, su presupuesto y su avance |
+| `/committees/{committee}` | GET | `Committees/Show` | `committee`, `responsible`, `secretary`, `treasurer`, `children[]`, `hasChildren` · `members[]`, `budget` y `progress` cuando existan esos módulos | nada si el comité está fuera del ámbito: «no disponible» (RF-008) |
 
 **Reglas**: con `hasChildren` falso, la ficha lo dice expresamente y muestra que el presidente
 coordina directamente a sus miembros (RF-012, CL-01). Un líder ve su sub-comité y **el nombre de su

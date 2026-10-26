@@ -439,23 +439,26 @@ no entra mientras su nombre permanece en el historial.
 **Independent Test**: cargar los seis comités y sus diez sub-comités y abrir la sección con cada uno
 de los tres cargos.
 
-- [ ] T040 [US03] · Policy de comités
+- [x] T040 [US03] · Policy de comités
       Archivos: `app/Policies/CommitteePolicy.php`
       Verifica: `php artisan test --filter=CommitteePolicyTest` — `view` cierto para el propio y sus hijos, falso para el ajeno.
 
 - [ ] T041 [US03] · Árbol de comités
       Archivos: `app/Http/Controllers/CommitteeController.php` · `resources/js/pages/Committees/Index.tsx` · `resources/js/components/domain/CommitteeTree.tsx` · ruta `/committees`
       Los ajenos aparecen como no disponibles, sin un solo dato suyo.
+      **Hecha; falta revisarla a 360 px en un celular.** Los comités ajenos no se listan uno por uno: la pantalla dice cuántos hay, con `scopeHidden`, como fija el contrato. A un líder le dice quién revisa lo que propone (HU-03 esc. 4), también si es líder de un equipo. El componente quedó en `components/committees/committee-tree.tsx`, con la convención de nombres del proyecto.
       Verifica: `php artisan test --filter=CommitteeIndexTest` · a 360 px el árbol se recorre sin desplazamiento horizontal.
 
 - [ ] T042 [US03] · Ficha de comité con hijos, responsable y miembros
       Archivos: `app/Http/Controllers/CommitteeController.php` · `resources/js/pages/Committees/Show.tsx` · ruta `/committees/{committee}`
       Si no tiene sub-comités lo dice expresamente y aclara que el presidente coordina directamente (CL-01, RF-012). **No muestra una sección vacía.**
+      **Hecha salvo los miembros**, que esperan la tabla de miembros, **y la revisión a 360 px.** Muestra presidente, secretario y tesorero (RF-013). Para caber en cinco consultas, el comité y sus hijos salen en una sola consulta en vez de buscarlo por la ruta; pasa igual por el filtro del cargo.
       Verifica: `php artisan test --filter=CommitteeShowTest` · a 360 px.
 
-- [ ] T043 [US03] · Prueba: los cuatro escenarios de HU-03 por los tres cargos, más CL-01
+- [x] T043 [US03] · Prueba: los cuatro escenarios de HU-03 por los tres cargos, más CL-01
       Archivos: `tests/Feature/Committees/CommitteeVisibilityTest.php`
       Verifica: `php artisan test --filter=CommitteeVisibilityTest` — el líder ve su sub-comité y el nombre de su presidente, y nada más.
+      El conteo de miembros por nodo (escenario 1) está escrito como pendiente (`todo`) hasta que exista la tabla de miembros.
 
 **Checkpoint**: US03 funciona por separado.
 

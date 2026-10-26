@@ -32,7 +32,7 @@ beforeEach(function () {
 it('un comité ajeno, abierto por su número, responde como si no existiera', function () {
     $this->actingAs($this->presidenta)->get("/_directo/comite/{$this->alabanza->id}")
         ->assertNotFound()
-        ->assertDontSee('Comité de Alabanza');
+        ->assertDoesntShow('Comité de Alabanza');
 });
 
 it('una actividad ajena, abierta por su número, responde como si no existiera', function () {
@@ -40,7 +40,7 @@ it('una actividad ajena, abierta por su número, responde como si no existiera',
 
     $this->actingAs($this->presidenta)->get("/_directo/actividad/{$ajena->id}")
         ->assertNotFound()
-        ->assertDontSee('Ensayo general del coro');
+        ->assertDoesntShow('Ensayo general del coro');
 });
 
 it('una aprobación ajena, abierta por su número, responde como si no existiera', function () {
@@ -48,7 +48,7 @@ it('una aprobación ajena, abierta por su número, responde como si no existiera
 
     $this->actingAs($this->presidenta)->get("/_directo/aprobacion/{$ajena->id}")
         ->assertNotFound()
-        ->assertDontSee('Compra de micrófonos');
+        ->assertDoesntShow('Compra de micrófonos');
 });
 
 it('lo propio sí se abre: el filtro no bloquea de más', function () {
@@ -56,10 +56,10 @@ it('lo propio sí se abre: el filtro no bloquea de más', function () {
 
     $this->actingAs($this->presidenta)->get("/_directo/comite/{$this->damas->id}")
         ->assertOk()
-        ->assertSee('Comité de Damas Dorcas');
+        ->assertShows('Comité de Damas Dorcas');
     $this->actingAs($this->presidenta)->get("/_directo/actividad/{$propia->id}")
         ->assertOk()
-        ->assertSee('Reunión de oración de Damas');
+        ->assertShows('Reunión de oración de Damas');
 });
 
 it('un comité de otra sede no se abre, ni siquiera para el pastor', function () {
@@ -68,7 +68,7 @@ it('un comité de otra sede no se abre, ni siquiera para el pastor', function ()
 
     $this->actingAs($pastor)->get("/_directo/comite/{$deOtraSede->id}")
         ->assertNotFound()
-        ->assertDontSee('Comité de Otra Sede');
+        ->assertDoesntShow('Comité de Otra Sede');
 });
 
 it('lo ajeno y lo que no existe responden exactamente igual', function () {

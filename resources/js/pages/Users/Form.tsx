@@ -2,7 +2,7 @@ import PageHeader from '@/components/page-header';
 import AccountAccess from '@/components/users/account-access';
 import AccountForm from '@/components/users/account-form';
 import CurrentRoles from '@/components/users/current-roles';
-import FlashMessages from '@/components/users/flash-messages';
+import FlashMessages from '@/components/flash-messages';
 import RoleAssigner from '@/components/users/role-assigner';
 import type { CommitteeOption, CurrentRole, EditableAccount } from '@/types/accounts';
 import { Head } from '@inertiajs/react';

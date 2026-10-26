@@ -48,7 +48,7 @@ class CurrentScope
         // el filtro se aplicaria a su propia consulta y no traeria ningun comite.
         $cargos = $user->currentRoles()->with('committee')->get();
         $activo = $this->pickActiveRole($cargos, $activeRoleId);
-        $ids = $activo ? $this->subtree->idsFor($activo->committee_id) : [];
+        $ids = $activo ? $this->subtree->idsFor($activo->committee_id, $activo->committee?->depth ?? 1) : [];
 
         $this->user = $user;
         $this->roles = $cargos;

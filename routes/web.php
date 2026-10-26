@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CommitteeController;
 use App\Http\Controllers\CommitteeUserController;
 use App\Http\Controllers\RoleSwitchController;
 use App\Http\Controllers\UserController;
@@ -25,6 +26,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
     Route::post('users/{user}/revoke', [UserController::class, 'revoke'])->name('users.revoke');
     Route::post('users/{user}/restore', [UserController::class, 'restore'])->name('users.restore');
+
+    Route::get('committees', [CommitteeController::class, 'index'])->name('committees.index');
+    Route::get('committees/{committee}', [CommitteeController::class, 'show'])->whereNumber('committee')->name('committees.show');
 
     Route::post('committees/{committee}/roles', [CommitteeUserController::class, 'store'])->name('roles.store');
     Route::delete('roles/{role}', [CommitteeUserController::class, 'destroy'])->name('roles.destroy');
