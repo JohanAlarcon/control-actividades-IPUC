@@ -473,13 +473,14 @@ vías disponibles, y comprobar que ninguna devuelve datos ajenos.
 > construye la **prueba** de la promesa y su cara visible. T151 cierra la historia en la Phase 23,
 > cuando exista la última ruta con Inertia.
 
-- [ ] T026 [US04] · Respuesta estándar de «fuera de su alcance», sin revelar un solo dato
-      Archivos: `app/Exceptions/OutOfScopeException.php` · `bootstrap/app.php` · `resources/js/pages/Errors/OutOfScope.tsx`
+- [x] T026 [US04] · Respuesta estándar de «fuera de su alcance», sin revelar un solo dato
+      Archivos: `bootstrap/app.php` · `resources/js/pages/Errors/OutOfScope.tsx` · `app/Models/User.php`. No hizo falta una excepción propia: una sola regla en `bootstrap/app.php` convierte todo 403 y 404 en la misma página. Al hacerla apareció el hueco que corrige D-21.
       El texto explica la situación en una frase y dice a quién solicitar la información (RF-008).
       Verifica: `php artisan test --filter=OutOfScopeResponseTest` — la respuesta no contiene nombres, montos ni nombres de comité ajenos · revisada a 360 px.
 
 - [ ] T027 [US04] · Prueba: abrir por identificador directo lo ajeno responde el mensaje y no filtra nada
       Archivos: `tests/Feature/Scope/DirectAccessTest.php`
+      **Hecha para comité, actividad y aprobación**, con rutas propias de la prueba. Miembro, reunión y presupuesto están escritas como pendientes (`todo`) hasta que existan sus tablas.
       Verifica: `php artisan test --filter=DirectAccessTest` — comité, miembro, actividad, aprobación, reunión y presupuesto ajenos, los seis.
 
 - [ ] T099 [US04] · Aviso de cuánta información queda fuera del alcance del cargo

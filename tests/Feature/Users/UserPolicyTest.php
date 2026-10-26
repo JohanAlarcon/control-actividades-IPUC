@@ -9,9 +9,9 @@ beforeEach(function () {
     $this->site = Site::factory()->create();
     $this->pastor = User::factory()->create(['site_id' => $this->site->id, 'is_pastor' => true]);
 
-    $comite = Committee::factory()->for($this->site)->create();
+    $this->comite = Committee::factory()->for($this->site)->create();
     $this->presidente = User::factory()->create(['site_id' => $this->site->id]);
-    CommitteeUser::factory()->forCommittee($comite)->create(['user_id' => $this->presidente->id]);
+    $this->cargo = CommitteeUser::factory()->forCommittee($this->comite)->create(['user_id' => $this->presidente->id]);
 
     $this->cuenta = User::factory()->create(['site_id' => $this->site->id]);
 });
@@ -45,14 +45,21 @@ it('un presidente no restablece claves ni retira cuentas', function () {
     expect($this->cuenta->fresh()->active)->toBeTrue();
 });
 
-it('un presidente no asigna ni retira cargos', function () {
-    $comite = Committee::factory()->for($this->site)->create();
+it('un presidente no asigna cargos, ni en su comité ni en uno ajeno', function () {
+    $ajeno = Committee::factory()->for($this->site)->create();
+    $datos = ['user_id' => $this->cuenta->id, 'role' => CommitteeUser::SECRETARY];
 
-    $this->actingAs($this->presidente)
-        ->post("/committees/{$comite->id}/roles", ['user_id' => $this->cuenta->id, 'role' => CommitteeUser::PRESIDENT])
-        ->assertForbidden();
+    // En su comite lo frena el permiso; un comite ajeno, para el, no existe.
+    $this->actingAs($this->presidente)->post("/committees/{$this->comite->id}/roles", $datos)->assertForbidden();
+    $this->actingAs($this->presidente)->post("/committees/{$ajeno->id}/roles", $datos)->assertNotFound();
 
-    expect(CommitteeUser::where('committee_id', $comite->id)->exists())->toBeFalse();
+    expect($this->cuenta->currentRoles()->exists())->toBeFalse();
+});
+
+it('un presidente no retira cargos, ni siquiera el suyo', function () {
+    $this->actingAs($this->presidente)->delete("/roles/{$this->cargo->id}")->assertForbidden();
+
+    expect($this->cargo->fresh()->ended_at)->toBeNull();
 });
 
 it('el pastor sí ve la lista de cuentas', function () {
@@ -65,12 +72,12 @@ it('el pastor no puede retirarse el acceso a sí mismo', function () {
     expect($this->pastor->fresh()->active)->toBeTrue();
 });
 
-it('el pastor de otra sede no toca las cuentas de esta', function () {
+it('el pastor de otra sede no toca las cuentas de esta: para él no existen', function () {
     $otraSede = Site::factory()->create();
     $otroPastor = User::factory()->create(['site_id' => $otraSede->id, 'is_pastor' => true]);
 
-    $this->actingAs($otroPastor)->post("/users/{$this->cuenta->id}/revoke")->assertForbidden();
-    $this->actingAs($otroPastor)->post("/users/{$this->cuenta->id}/reset-password")->assertForbidden();
+    $this->actingAs($otroPastor)->post("/users/{$this->cuenta->id}/revoke")->assertNotFound();
+    $this->actingAs($otroPastor)->post("/users/{$this->cuenta->id}/reset-password")->assertNotFound();
 
     expect($this->cuenta->fresh()->active)->toBeTrue();
 });

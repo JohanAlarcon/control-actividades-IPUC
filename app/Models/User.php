@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Support\Scope\CurrentScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -77,5 +78,17 @@ class User extends Authenticatable
     public function currentRoles(): HasMany
     {
         return $this->roles()->whereNull('ended_at');
+    }
+
+    /**
+     * Una cuenta de otra sede, pedida por su numero en la direccion, responde igual
+     * que una que no existe (RF-008). Esta tabla no lleva el filtro de sede porque la
+     * entrada al sistema tiene que buscar a la persona antes de saber de que sede es.
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where('site_id', app(CurrentScope::class)->siteId())
+            ->where($field ?? $this->getRouteKeyName(), $value)
+            ->firstOrFail();
     }
 }

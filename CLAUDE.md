@@ -94,6 +94,9 @@ sobre papel blanco— y confirmar que la IPUC nacional autoriza usar el logo en 
 - **Ninguna salida del filtro de alcance** salvo la única que enumera la constitución: el
   cronograma compartido, por `Activity::forSharedCalendar()`, de solo lectura y con los siete datos
   permitidos. Cualquier otra es un defecto.
+- **No se cambia el orden del filtro.** `ResolveScope` corre antes de que Laravel busque el registro
+  de la ruta (D-21). Si ese orden se pierde, abrir `/committees/5` trae un comité ajeno.
+  `DirectAccessTest` lo vigila.
 - **Los archivos adjuntos no se sirven desde `public/`.** Pasan por una ruta con policy.
 - **Nunca datos reales de personas en el repositorio.** Las semillas son ficticias.
 
