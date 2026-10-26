@@ -61,6 +61,7 @@ de la clase de Tailwind. **Ninguna pantalla escribe un `#código` a mano.**
 | `text-alerta` | `#8a2b12` | errores | 9:1 |
 | `bg-fondo` | `#f2f5fa` | el fondo de las pantallas, detrás de las tarjetas | — |
 | `shadow-tarjeta` `shadow-barra` | el azul, apenas | tarjetas y menú de abajo, sin bordes duros | — |
+| `shadow-flotante` | el azul, más marcado | lo que flota encima del contenido, como el menú de «Mi cuenta» | — |
 
 Lo que no pasa por el CSS compilado lleva una copia de los valores y una nota que remite a
 `app.css`: la barra de carga (`resources/js/app.tsx`), `public/manifest.webmanifest` y

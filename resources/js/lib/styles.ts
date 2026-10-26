@@ -11,6 +11,12 @@ export const errorClass = 'mt-2 text-lg font-semibold text-alerta';
 /** Una tarjeta blanca sobre el fondo azul suave: sin borde, con una sombra leve. */
 export const cardClass = 'rounded-2xl bg-white shadow-tarjeta';
 
+/** En las pantallas de entrada los campos son más altos y llevan su icono adentro, a la izquierda. */
+export const iconFieldClass = 'h-14 w-full rounded-2xl border border-linea bg-white pl-12 text-lg focus:border-ipuc focus:ring-2 focus:ring-ipuc-claro focus:outline-none';
+
+/** El botón de las pantallas de entrada, de la altura de sus campos. */
+export const bigButtonClass = 'flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-ipuc px-4 text-lg font-semibold text-white shadow-tarjeta active:bg-ipuc-oscuro disabled:opacity-60';
+
 const button = 'flex h-12 w-full items-center justify-center rounded-xl px-4 text-center text-lg font-semibold disabled:opacity-60';
 
 export const buttonClass = {

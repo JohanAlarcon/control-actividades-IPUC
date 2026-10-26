@@ -83,6 +83,9 @@
     /* Las sombras llevan el mismo azul, apenas: las tarjetas se despegan sin bordes duros */
     --shadow-tarjeta: 0 1px 2px rgb(0 51 141 / 0.06), 0 6px 16px rgb(0 51 141 / 0.07);
     --shadow-barra: 0 -6px 20px rgb(0 51 141 / 0.08);
+
+    /* Lo que flota encima del contenido, como el menu de Mi cuenta: el mismo azul, mas marcado */
+    --shadow-flotante: 0 2px 6px rgb(0 51 141 / 0.08), 0 16px 40px rgb(0 51 141 / 0.18);
 }
 
 /*
