@@ -34,9 +34,7 @@ class ChangePasswordController extends Controller
             'must_change_password' => false,
         ])->save();
 
-        return redirect()->route('dashboard')->with('flash', [
-            'type' => 'success',
-            'message' => 'Su clave quedó cambiada. Use la nueva la próxima vez que entre.',
-        ]);
+        return redirect()->route('dashboard')
+            ->with('notice', 'Su clave quedó cambiada. Use la nueva la próxima vez que entre.');
     }
 }

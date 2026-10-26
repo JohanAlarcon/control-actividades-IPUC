@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Approval;
+use App\Models\CommitteeUser;
 use App\Support\Scope\CurrentScope;
 use App\Support\Scope\HiddenCounts;
 use Illuminate\Http\Request;
@@ -122,12 +123,23 @@ class HandleInertiaRequests extends Middleware
         return (new HiddenCounts($scope))->all();
     }
 
+    /**
+     * Lo que espera la decision del cargo activo (RF-055): el pastor decide lo de su
+     * nivel y un presidente lo del suyo. Un lider, un secretario o un tesorero no
+     * deciden solicitudes, asi que para ellos no hay nada esperando.
+     */
     private function pendientes(CurrentScope $scope): int
     {
-        if (! $scope->isActive()) {
+        $nivel = match (true) {
+            $scope->isPastor() => Approval::LEVEL_PASTOR,
+            $scope->activeRole()?->role === CommitteeUser::PRESIDENT => Approval::LEVEL_PRESIDENT,
+            default => null,
+        };
+
+        if (! $nivel) {
             return 0;
         }
 
-        return Approval::where('status', Approval::PENDING)->count();
+        return Approval::where('status', Approval::PENDING)->where('level', $nivel)->count();
     }
 }

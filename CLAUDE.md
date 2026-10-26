@@ -63,9 +63,6 @@ de la clase de Tailwind. **Ninguna pantalla escribe un `#código` a mano.**
 El azul claro y el dorado **no llevan texto encima**: 3:1 y 2:1 están por debajo del 4,5:1 que
 exige el principio II. Sirven para bordes, iconos y adorno, o con texto oscuro encima.
 
-Queda un resto del kit de Laravel sin migrar: `resources/js/pages/welcome.tsx`, con su propia
-paleta escrita a mano. Se va cuando se construya la pantalla de entrada real.
-
 ---
 
 ## El logo
@@ -132,6 +129,14 @@ construirlo.
 - Una `FormRequest` por formulario, con sus reglas y sus mensajes en español.
 - Antes de agregar una dependencia: ¿lo resuelve ya Laravel o React? Agregar un paquete exige
   justificación escrita en `plan.md`.
+
+### El molde de las pantallas
+
+Toda pantalla interna va dentro de `resources/js/layouts/main-layout.tsx` y empieza con
+`PageHeader`. El molde pone la barra de arriba, la cinta con el cargo activo, los avisos y el menú
+de abajo, como en el prototipo. Una sección nueva se suma al menú en
+`components/layout/bottom-nav.tsx` el día que existe su pantalla, nunca antes: un botón que lleva
+a la nada confunde más que uno que falta.
 
 ### Límites de tamaño en React
 

@@ -1,5 +1,5 @@
 import IpucLogo from '@/components/ipuc-logo';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 
 interface Props {
@@ -24,6 +24,11 @@ export default function ChangePassword({ forced }: Props) {
             <IpucLogo />
 
             <main className="mx-auto w-full max-w-sm px-4 py-8">
+                {!forced && (
+                    <Link href="/dashboard" className="-ml-2 mb-2 inline-flex h-12 items-center px-2 text-lg font-semibold text-ipuc">
+                        ← Volver al inicio
+                    </Link>
+                )}
                 <h1 className="text-2xl font-bold leading-tight text-ipuc">
                     {forced ? 'Escoja su clave' : 'Cambiar su clave'}
                 </h1>

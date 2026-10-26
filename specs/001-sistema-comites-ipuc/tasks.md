@@ -511,6 +511,7 @@ pantalla de inicio del teléfono y tiempo de apertura.
 - [ ] T044 [US20] · Diseño base: barra, menú con contador, cinta de alcance
       Archivos: `resources/js/layouts/AppLayout.tsx` · `resources/js/components/ui/` · `resources/css/app.css`
       Mínimos del principio II, constitución 2.1.0: zona pulsable de **48x48 px**, texto de contenido de **18 px**, contraste **AA**, **cero desplazamiento horizontal**. El público son adultos mayores con poca experiencia en aplicaciones.
+      **Hecha; falta revisarla a 360 px en un celular.** Sigue el prototipo: el menú va abajo, siempre a la vista, y trae solo las secciones que ya existen; Cronograma y Dinero se suman con sus módulos. El contador de RF-055 va sobre «Inicio» y cuenta solo lo que espera la decisión del cargo activo. El molde quedó en `layouts/main-layout.tsx`, para no confundirlo con el `app-layout.tsx` del kit, y sus piezas en `components/layout/`. La raíz y «Salir» llevan a la pantalla de entrada; se retiró la página de bienvenida del kit.
       Verifica: a 360 px sin barra horizontal en ninguna de las pantallas existentes · `npm run build` sin advertencias.
 
 - [ ] T045 [P] [US20] · Componente tabla-tarjeta

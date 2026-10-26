@@ -1,7 +1,7 @@
 import PageHeader from '@/components/page-header';
 import AccountCard from '@/components/users/account-card';
 import AccountSearch from '@/components/users/account-search';
-import FlashMessages from '@/components/flash-messages';
+import MainLayout from '@/layouts/main-layout';
 import { ROLE_LABELS } from '@/lib/roles';
 import { matchesEveryWord } from '@/lib/search';
 import { buttonClass } from '@/lib/styles';
@@ -24,39 +24,35 @@ export default function UsersIndex({ accounts }: { accounts: Account[] }) {
     const found = accounts.filter((account) => matchesEveryWord(searchableText(account), query));
 
     return (
-        <div className="min-h-screen bg-white text-tinta">
+        <MainLayout>
             <Head title="Cuentas" />
-            <PageHeader title="Cuentas" backHref="/dashboard" backLabel="Inicio" />
+            <PageHeader title="Cuentas" />
 
-            <main className="mx-auto max-w-2xl px-4 py-6">
-                <FlashMessages />
+            <Link href="/users/create" className={buttonClass.primary}>
+                <UserPlus aria-hidden className="mr-2 size-6" />
+                Crear una cuenta
+            </Link>
 
-                <Link href="/users/create" className={buttonClass.primary}>
-                    <UserPlus aria-hidden className="mr-2 size-6" />
-                    Crear una cuenta
-                </Link>
+            <div className="mt-6">
+                <AccountSearch value={query} onChange={setQuery} />
+                <p aria-live="polite" className="mt-2 text-lg text-tinta-suave">
+                    {searching && `${found.length} de ${accounts.length} cuentas`}
+                </p>
+            </div>
 
-                <div className="mt-6">
-                    <AccountSearch value={query} onChange={setQuery} />
-                    <p aria-live="polite" className="mt-2 text-lg text-tinta-suave">
-                        {searching && `${found.length} de ${accounts.length} cuentas`}
-                    </p>
-                </div>
+            {searching && found.length === 0 && (
+                <p className="mt-2 rounded-lg border border-linea/40 p-4 text-lg">
+                    No hay ninguna cuenta con «{query.trim()}». Revise cómo lo escribió, o pruebe con otra palabra.
+                </p>
+            )}
 
-                {searching && found.length === 0 && (
-                    <p className="mt-2 rounded-lg border border-linea/40 p-4 text-lg">
-                        No hay ninguna cuenta con «{query.trim()}». Revise cómo lo escribió, o pruebe con otra palabra.
-                    </p>
-                )}
-
-                <AccountGroup title="Con acceso" accounts={found.filter((account) => account.active)} />
-                <AccountGroup
-                    title="Sin acceso"
-                    hint="Sus nombres se conservan en la historia."
-                    accounts={found.filter((account) => !account.active)}
-                />
-            </main>
-        </div>
+            <AccountGroup title="Con acceso" accounts={found.filter((account) => account.active)} />
+            <AccountGroup
+                title="Sin acceso"
+                hint="Sus nombres se conservan en la historia."
+                accounts={found.filter((account) => !account.active)}
+            />
+        </MainLayout>
     );
 }
 
