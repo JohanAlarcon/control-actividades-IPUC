@@ -8,6 +8,7 @@ use App\Models\CommitteeUser;
 use App\Models\User;
 use App\Support\Committees\SubtreeResolver;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -84,6 +85,20 @@ class ApprovalFlow
 
             return $this->cerrar($solicitud, ['status' => Approval::APPROVED, 'resolved_by_user_id' => $quien->id]);
         });
+    }
+
+    /**
+     * Varias de la misma clase en una sola accion, con una sola confirmacion (RF-022). Todas o
+     * ninguna: si alguna ya la resolvio otra persona, no se aprueba ninguna y se explica. Cada una
+     * queda con su propio registro, como si se hubiera aprobado sola.
+     */
+    public function approveMany(Collection $solicitudes, User $quien): void
+    {
+        if ($solicitudes->pluck('type')->unique()->count() > 1) {
+            throw ValidationException::withMessages(['approval' => 'Solo se aprueban juntas las solicitudes de la misma clase.']);
+        }
+
+        DB::transaction(fn () => $solicitudes->each(fn (Approval $solicitud) => $this->approve($solicitud, $quien)));
     }
 
     /**

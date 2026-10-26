@@ -44,7 +44,7 @@ export default function ApprovalCard({ item, showWhoDecides = false, children }:
                 {item.escalatedBy && <Fact icon={UserCheck}>Visto bueno de {item.escalatedBy}</Fact>}
                 {item.amount !== null && (
                     <Fact icon={HandCoins}>
-                        Monto: <strong>{money(item.amount)}</strong>
+                        {item.type === 'activity' ? 'Presupuesto estimado' : 'Monto'}: <strong>{money(item.amount)}</strong>
                     </Fact>
                 )}
                 {item.activity && (

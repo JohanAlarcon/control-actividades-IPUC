@@ -63,7 +63,7 @@ convierte el nombre de un comité en dato reservado.
 | `/approvals` | POST | — | crea la solicitud; aplica `ApprovalFlow` |
 | `/approvals/{approval}/approve` | POST | — | resuelve o escala, según `ApprovalFlow` |
 | `/approvals/{approval}/reject` | POST | — | **exige `reason`** (RF-020) |
-| `/approvals/bulk-approve` | POST | — | varias del mismo tipo, una sola confirmación (RF-022) |
+| `/approvals/bulk-approve` | POST | — | `ids[]`: varias del mismo tipo, una sola confirmación (RF-022). Solo el pastor; todas o ninguna, cada una con su propio registro |
 
 **Qué trae cada lista**: `inbox[]`, lo que el cargo activo resuelve; `escalated[]`, lo pendiente
 que está en manos de otra persona —el pastor, o la presidencia del comité para quien no decide—;

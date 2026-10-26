@@ -1,5 +1,6 @@
 import ApprovalActions from '@/components/approvals/approval-actions';
 import ApprovalCard from '@/components/approvals/approval-card';
+import BulkApprove from '@/components/approvals/bulk-approve';
 import InfoNote from '@/components/info-note';
 import SectionBlock from '@/components/section-block';
 import MainLayout from '@/layouts/main-layout';
@@ -60,6 +61,7 @@ export default function ApprovalsIndex({ inbox, escalated, history, counts }: Pr
 
             {decides && (
                 <SectionBlock title={`${texts.inbox} (${counts.inbox})`}>
+                    {auth.user?.isPastor && <BulkApprove items={inbox} />}
                     <CardList items={inbox} empty={texts.empty} withActions />
                 </SectionBlock>
             )}

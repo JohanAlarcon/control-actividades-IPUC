@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BulkApproveRequest;
 use App\Http\Requests\RejectApprovalRequest;
 use App\Models\Activity;
 use App\Models\Approval;
@@ -53,6 +54,20 @@ class ApprovalController extends Controller
         return back()->with('notice', $solicitud->isPending()
             ? 'Listo. Le dio su visto bueno, y ahora pasa al pastor, que es quien aprueba.'
             : 'Listo. La solicitud quedó aprobada.');
+    }
+
+    /** Varias de la misma clase, con una sola confirmacion del pastor (RF-022). Todas o ninguna. */
+    public function bulkApprove(BulkApproveRequest $request, ApprovalFlow $flujo): RedirectResponse
+    {
+        $ids = $request->validated('ids');
+        $solicitudes = Approval::whereKey($ids)->get();
+
+        abort_if($solicitudes->count() !== count($ids), 404);
+        $solicitudes->each(fn (Approval $solicitud) => Gate::authorize('resolve', $solicitud));
+
+        $flujo->approveMany($solicitudes, $request->user());
+
+        return back()->with('notice', "Listo. Quedaron aprobadas las {$solicitudes->count()} solicitudes, cada una con su propio registro.");
     }
 
     public function reject(RejectApprovalRequest $request, Approval $approval, ApprovalFlow $flujo): RedirectResponse

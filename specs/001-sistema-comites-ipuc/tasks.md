@@ -659,11 +659,11 @@ cada reunión de comité. **Hito 2.**
 **Independent Test**: dejar solicitudes escaladas en la bandeja del pastor y resolverlas una a una y
 en bloque, verificando el efecto en el cronograma.
 
-- [ ] T072 [US07] · Resolución en lote del mismo tipo, con una sola confirmación
+- [x] T072 [US07] · Resolución en lote del mismo tipo, con una sola confirmación
       Archivos: `app/Http/Controllers/ApprovalController.php` · `resources/js/pages/Approvals/Index.tsx` · ruta `POST /approvals/bulk-approve`
       Verifica: `php artisan test --filter=BulkApprovalTest` — tres gastos se resuelven en una acción y quedan tres registros separados en la historia (RF-022).
 
-- [ ] T073 [US07] · Prueba: los cuatro escenarios de HU-07 desde el pastor
+- [x] T073 [US07] · Prueba: los cuatro escenarios de HU-07 desde el pastor
       Archivos: `tests/Feature/Approvals/PastorInboxTest.php`
       Verifica: `php artisan test --filter=PastorInboxTest` — la bandeja del pastor trae comité, solicitante, paso anterior, monto y efecto.
 
