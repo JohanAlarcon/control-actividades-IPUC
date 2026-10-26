@@ -102,6 +102,8 @@ sobre papel blanco— y confirmar que la IPUC nacional autoriza usar el logo en 
   `DirectAccessTest` lo vigila.
 - **Los archivos adjuntos no se sirven desde `public/`.** Pasan por una ruta con policy.
 - **Nunca datos reales de personas en el repositorio.** Las semillas son ficticias.
+- **Una cuenta nunca se borra** (D-22). Retirar el acceso es `active` en falso. Ni el modelo ni la
+  base de datos dejan borrar a quien tiene historia: las llaves hacia una persona son `restrict`.
 
 ---
 

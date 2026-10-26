@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use RuntimeException;
 
 class User extends Authenticatable
 {
@@ -63,6 +64,14 @@ class User extends Authenticatable
             'last_login_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /** Una cuenta nunca se borra: se le retira el acceso y su nombre queda en la historia (RN-09). */
+    protected static function booted(): void
+    {
+        static::deleting(function () {
+            throw new RuntimeException('Una cuenta no se borra: se le retira el acceso. Su nombre tiene que quedar en la historia.');
+        });
     }
 
     public function site(): BelongsTo

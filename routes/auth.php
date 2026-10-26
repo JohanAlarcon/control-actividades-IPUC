@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ChangePasswordController;
-use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,8 +21,6 @@ Route::middleware('auth')->group(function () {
     Route::get('password/change', [ChangePasswordController::class, 'create'])->name('password.change');
     Route::post('password/change', [ChangePasswordController::class, 'store'])->name('password.change.store');
 
-    Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])->name('password.confirm');
-    Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });

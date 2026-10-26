@@ -1359,17 +1359,19 @@ cierre de cada hito se ejecutan al terminar las fases de ese hito, no todas al f
       Los datos de la presentación que el pastor ya vio (D-14). **Ficticios**, como exige la constitución. Incluye la cuenta de doble cargo para probar el selector (T163).
       Verifica: `php artisan migrate:fresh --seed` deja en `committees` y en `users` tantas filas como declara el sembrador, y la comprobación las cuenta contra los datos de `CommitteeSeeder` y `UserSeeder`, nunca contra un número escrito en esta tarea (hoy, 6 comités más 10 sub-comités y 17 cargos) · entrar con cada uno de los tres cargos muestra su ámbito y nada más.
 
-- [ ] T050 · Prueba de humo del hito 1
+- [x] T050 · Prueba de humo del hito 1
       Archivos: `tests/Feature/Scope/MilestoneOneSmokeTest.php`
       Verifica: `php artisan test --filter=MilestoneOneSmokeTest` — los tres cargos entran, cambian clave, ven lo suyo, y el ajeno les responde el mensaje de alcance.
 
-- [ ] T051 · Presupuesto de consultas de las pantallas del hito 1
+- [x] T051 · Presupuesto de consultas de las pantallas del hito 1
       Archivos: `tests/Architecture/QueryBudgetTest.php`
       Verifica: inicio, comités y ficha de comité por debajo de cinco consultas cada una.
+      **Cubierta por las pruebas existentes**: `QueryBudgetTest` mide el inicio y comités como pastor, presidente y líder, y otra vez con diez veces más datos; `CommitteeShowTest` mide la ficha. `CommitteeIndexTest` mide además al líder de un equipo, el caso más justo.
 
 - [ ] T052 · Puerta del hito 1
       Archivos: `docs/hitos/hito-1.md`
       Verifica: las ocho puertas de calidad pasan · la URL de producción sirve el hito · revisión en un celular real anotada en el documento.
+      **Documento escrito; faltan tres cosas para cerrarla**: publicar (T007), revisar el diseño nuevo en un celular real, y la aprobación del autor. Nueve de las diez puertas pasan.
 
 - [ ] T087 · Semilla del cronograma: 38 actividades, plan del año y solicitudes de ejemplo
       Archivos: `database/seeders/ActivitySeeder.php` · `database/seeders/ApprovalSeeder.php`
