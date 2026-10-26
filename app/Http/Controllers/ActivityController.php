@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreActivityRequest;
 use App\Models\Activity;
+use App\Models\ActivityType;
 use App\Models\Approval;
 use App\Support\Approvals\ApprovalFlow;
 use App\Support\Scope\CurrentScope;
@@ -20,13 +21,14 @@ class ActivityController extends Controller
         private readonly ApprovalFlow $flujo,
     ) {}
 
-    /** El formulario dice desde antes a quien le va a llegar la propuesta. */
+    /** El formulario dice desde antes a quien le va a llegar la propuesta, y ofrece las clases vigentes. */
     public function create(): Response
     {
         Gate::authorize('create', Activity::class);
 
         return Inertia::render('Activities/Form', [
             'recipient' => $this->flujo->recipientFor($this->scope->activeRole())?->name,
+            'types' => ActivityType::where('active', true)->orderBy('position')->orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -46,7 +48,7 @@ class ActivityController extends Controller
                 'description' => $request->validated('description'),
                 'scheduled_at' => $request->scheduledAt(),
                 'location' => $request->validated('location'),
-                'type' => $request->validated('type'),
+                'activity_type_id' => $request->validated('activity_type_id'),
                 'status' => Activity::PENDING,
                 'budget_amount' => $request->validated('budget'),
                 'proposed_by_user_id' => $cargo->user_id,

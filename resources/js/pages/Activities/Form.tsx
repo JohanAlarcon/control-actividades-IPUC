@@ -2,12 +2,13 @@ import ProposalForm from '@/components/activities/proposal-form';
 import InfoNote from '@/components/info-note';
 import MainLayout from '@/layouts/main-layout';
 import { cardClass } from '@/lib/styles';
+import type { ActivityTypeOption } from '@/types/activities';
 import type { SharedProps } from '@/types/shared';
 import { usePage } from '@inertiajs/react';
 import { Send } from 'lucide-react';
 
 /** Proponer una actividad que no estaba en el plan (HU-05). Desde antes de enviarla se sabe a quién le llega. */
-export default function ActivityForm({ recipient }: { recipient: string | null }) {
+export default function ActivityForm({ recipient, types }: { recipient: string | null; types: ActivityTypeOption[] }) {
     const { scope } = usePage<SharedProps>().props;
 
     return (
@@ -32,7 +33,7 @@ export default function ActivityForm({ recipient }: { recipient: string | null }
                 </div>
 
                 <div className={`p-4 ${cardClass}`}>
-                    <ProposalForm />
+                    <ProposalForm types={types} />
                 </div>
             </div>
         </MainLayout>

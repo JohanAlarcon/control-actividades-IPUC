@@ -1,13 +1,15 @@
 import ActivityTypePicker from '@/components/activities/activity-type-picker';
+import MoneyField from '@/components/money-field';
 import TextField from '@/components/text-field';
-import { dateLimits, type ActivityType } from '@/lib/activities';
+import { dateLimits } from '@/lib/activities';
 import { buttonClass, errorClass, textAreaClass } from '@/lib/styles';
+import type { ActivityTypeOption } from '@/types/activities';
 import { Link, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 
 type Proposal = {
     title: string;
-    type: ActivityType | '';
+    activity_type_id: number | '';
     date: string;
     time: string;
     location: string;
@@ -19,8 +21,8 @@ type Proposal = {
  * Lo que se propone (HU-05, escenario 1). Obligatorios: el nombre, la clase, la fecha y la hora.
  * Si algo falta, el cursor salta al primer campo que hay que corregir (escenario 4).
  */
-export default function ProposalForm() {
-    const form = useForm<Proposal>({ title: '', type: '', date: '', time: '', location: '', description: '', budget: '' });
+export default function ProposalForm({ types }: { types: ActivityTypeOption[] }) {
+    const form = useForm<Proposal>({ title: '', activity_type_id: '', date: '', time: '', location: '', description: '', budget: '' });
     const limits = dateLimits();
 
     function submit(event: FormEvent) {
@@ -42,7 +44,12 @@ export default function ProposalForm() {
                 error={form.errors.title}
             />
 
-            <ActivityTypePicker value={form.data.type} onChange={(type) => form.setData('type', type)} error={form.errors.type} />
+            <ActivityTypePicker
+                types={types}
+                value={form.data.activity_type_id}
+                onChange={(id) => form.setData('activity_type_id', id)}
+                error={form.errors.activity_type_id}
+            />
 
             <div className="grid gap-5 sm:grid-cols-2">
                 <TextField
@@ -82,13 +89,12 @@ export default function ProposalForm() {
                 {form.errors.description && <p className={errorClass}>{form.errors.description}</p>}
             </div>
 
-            <TextField
+            <MoneyField
                 id="budget"
                 label="Presupuesto estimado (opcional)"
-                hint="En pesos. Por ejemplo: 350.000."
-                inputMode="numeric"
+                hint="En pesos, sin centavos."
                 value={form.data.budget}
-                onChange={(event) => form.setData('budget', event.target.value)}
+                onChange={(budget) => form.setData('budget', budget)}
                 error={form.errors.budget}
             />
 

@@ -1,4 +1,4 @@
-import { ACTIVITY_TYPES, dateLimits } from '@/lib/activities';
+import { dateLimits, usesText } from '@/lib/activities';
 import { describe, expect, it } from 'vitest';
 
 describe('dateLimits', () => {
@@ -11,8 +11,10 @@ describe('dateLimits', () => {
     });
 });
 
-describe('ACTIVITY_TYPES', () => {
-    it('ofrece las ocho clases que acepta el servidor', () => {
-        expect(ACTIVITY_TYPES.map((type) => type.value).sort()).toEqual(['campaign', 'convention', 'event', 'meeting', 'outing', 'rehearsal', 'service', 'visit']);
+describe('usesText', () => {
+    it('dice cuánto se ha usado una clase, en singular y en plural', () => {
+        expect(usesText(0)).toBe('Todavía no se ha usado');
+        expect(usesText(1)).toBe('Se ha usado en 1 actividad');
+        expect(usesText(12)).toBe('Se ha usado en 12 actividades');
     });
 });

@@ -12,6 +12,14 @@ export function calendarDate(date: Date): string {
     return calendarDay.format(date);
 }
 
+/** «350.000» mientras se escribe: deja solo los números y les pone los puntos de mil. */
+export function groupThousands(text: string): string {
+    return text
+        .replace(/\D/g, '')
+        .replace(/^0+(?=\d)/, '')
+        .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
 /** «$ 850.000»: en pesos y sin centavos. */
 export function money(amount: number): string {
     return pesos.format(amount);

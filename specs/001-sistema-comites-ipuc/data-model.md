@@ -300,7 +300,7 @@ pastor aprueba, en un acto único, y queda identificado con quién y cuándo (RF
 | `description` | text, nulo | |
 | `scheduled_at` | datetime | obligatorio, dentro del año en curso, no pasada (CL-07) |
 | `location` | string, nulo | |
-| `type` | enum | `service` \| `rehearsal` \| `event` \| `outing` \| `campaign` \| `convention` \| `meeting` \| `visit` |
+| `activity_type_id` | fk → `activity_types` | obligatorio; la clase debe estar activa al proponer (D-25) |
 | `status` | enum | `pending` \| `approved` \| `in_progress` \| `completed` \| `rejected` (RF-026) |
 | `progress` | tinyint | 0..100, **calculado** desde las tareas (RF-027) |
 | `budget_amount` | decimal(14,2), nulo | reservado al comité responsable (RF-010) |
@@ -340,6 +340,27 @@ recibe «no disponible».
 **Aviso de cruce**: al proponer, el sistema advierte si ya existe otra actividad el mismo día
 indicando cuál y de qué comité (RF-028), y señala el choque exacto de día, hora y lugar (CL-08). Es
 un aviso, no un bloqueo: la decisión de insistir es de las personas.
+
+### `activity_types` — las clases de actividad, que administra el pastor
+
+| Columna | Tipo | Reglas |
+|---|---|---|
+| `id` | id | |
+| `site_id` | fk → `sites` | obligatorio |
+| `name` | string(60) | obligatorio, único dentro de la sede |
+| `active` | bool | solo las activas se ofrecen al proponer |
+| `position` | smallint | el orden en que se ofrecen |
+
+**Ámbito**: sede. No lleva filtro de comité: las clases son de toda la congregación.
+
+**Nunca se borra** una clase: se desactiva, y las actividades que ya la tienen no cambian (D-25).
+Cada sede nueva empieza con las ocho de siempre —Culto, Ensayo, Reunión, Evento, Salida, Visita,
+Campaña y Convención—, que el modelo `Site` crea al nacer. La migración
+`create_activity_types_table` pasó a esta tabla las actividades que ya existían, que antes
+guardaban la clase en una columna `type` con esa misma lista fija.
+
+**Qué hay que probar**: una clase desactivada no se ofrece ni se acepta al proponer; una clase de
+otra sede no se ve ni se toca; nadie más que el pastor las administra (`ActivityTypesTest`).
 
 ### `activity_tasks`
 
@@ -685,6 +706,7 @@ y nuevo, el autor y la fecha. Se activa en: `members`, `activities`, `approvals`
 | `sympathizer_visits` | sí | — | se consulta desde el simpatizante |
 | `annual_plans` | sí | — | información de toda la sede |
 | `activities` | sí | **sí** | con la única excepción `forSharedCalendar()` |
+| `activity_types` | sí | — | las clases son de toda la congregación |
 | `activity_tasks` | sí | — | se consulta desde la actividad |
 | `approvals` | sí | **sí** | |
 | `meetings` | sí | **sí** | |

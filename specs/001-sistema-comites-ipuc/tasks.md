@@ -632,6 +632,21 @@ llegó cada una, las validaciones y el aviso de cruce.
       Verifica: `php artisan test --filter="ProposeActivityTest|ScheduleConflictTest"`
       Estado: los escenarios 1 a 4 en verde; el 5 queda como pendiente (`todo`) hasta T064, en la Phase 12.
 
+- [x] T208 [US05] · Clases de actividad en una tabla que administra el pastor (D-25)
+      Archivos: `database/migrations/2026_10_26_140000_create_activity_types_table.php` · `app/Models/ActivityType.php` · `app/Http/Controllers/ActivityTypeController.php` · `resources/js/pages/ActivityTypes/Index.tsx` · `components/activity-types/`
+      Pedido por el autor el 2026-10-26. La migración pasa las actividades existentes a la tabla nueva.
+      Verifica: `php artisan test --filter=ActivityTypesTest`
+
+- [x] T209 [US20] · Los campos de dinero ponen los puntos de mil mientras se escribe
+      Archivos: `resources/js/components/money-field.tsx` · `resources/js/lib/format.ts` (`groupThousands`)
+      Pedido por el autor el 2026-10-26. El servidor acepta «$ 350.000» como 350000.
+      Verifica: `npm run test:js` · `php artisan test --filter=ActivityValidationTest`
+
+- [x] T210 [US20] · La confirmación de lo guardado flota arriba de todo
+      Archivos: `resources/js/components/layout/notice-toast.tsx`
+      Pedido por el autor el 2026-10-26: el aviso dentro de la pantalla se perdía, sobre todo al aprobar una tarjeta de abajo. Se cierra solo a los 8 segundos o con su botón. Los datos de una cuenta nueva siguen dentro de la pantalla, porque hay que leerlos con calma.
+      Verifica: a 360 px, el aviso se ve sin desplazar la pantalla.
+
 **Checkpoint**: US05 funciona por separado.
 
 ---

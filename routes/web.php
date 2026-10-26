@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\ActivityTypeController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\CommitteeController;
 use App\Http\Controllers\CommitteeUserController;
@@ -39,6 +40,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('activities/create', [ActivityController::class, 'create'])->name('activities.create');
     Route::post('activities', [ActivityController::class, 'store'])->name('activities.store');
+
+    Route::get('activity-types', [ActivityTypeController::class, 'index'])->name('activity-types.index');
+    Route::post('activity-types', [ActivityTypeController::class, 'store'])->name('activity-types.store');
+    Route::patch('activity-types/{activityType}', [ActivityTypeController::class, 'update'])->whereNumber('activityType')->name('activity-types.update');
 
     Route::get('approvals', [ApprovalController::class, 'index'])->name('approvals.index');
     Route::post('approvals/{approval}/approve', [ApprovalController::class, 'approve'])->whereNumber('approval')->name('approvals.approve');

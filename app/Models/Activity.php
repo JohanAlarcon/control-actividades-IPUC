@@ -19,9 +19,6 @@ class Activity extends Model
     public const COMPLETED = 'completed';
     public const REJECTED = 'rejected';
 
-    /** Las clases de la columna `type` (data-model §4). */
-    public const TYPES = ['service', 'rehearsal', 'event', 'outing', 'campaign', 'convention', 'meeting', 'visit'];
-
     protected $fillable = [
         'site_id',
         'committee_id',
@@ -30,7 +27,7 @@ class Activity extends Model
         'description',
         'scheduled_at',
         'location',
-        'type',
+        'activity_type_id',
         'status',
         'budget_amount',
         'proposed_by_user_id',
@@ -57,6 +54,11 @@ class Activity extends Model
             'progress' => 'integer',
             'budget_amount' => 'decimal:2',
         ];
+    }
+
+    public function activityType(): BelongsTo
+    {
+        return $this->belongsTo(ActivityType::class);
     }
 
     public function committee(): BelongsTo

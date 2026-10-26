@@ -1,23 +1,15 @@
-import InfoNote from '@/components/info-note';
 import { cardClass } from '@/lib/styles';
 import type { Credentials, Flash } from '@/types/accounts';
 import { usePage } from '@inertiajs/react';
-import { CircleCheck } from 'lucide-react';
 
-/** Los avisos que deja el servidor después de guardar. Se muestran una sola vez. */
+/**
+ * Los datos de una cuenta recién creada, que hay que leer con calma y entregar: van dentro de la
+ * pantalla, no en un aviso que se va solo. Las demás confirmaciones flotan arriba (notice-toast).
+ */
 export default function FlashMessages() {
     const { flash } = usePage<{ flash: Flash }>().props;
 
-    return (
-        <>
-            {flash.notice && (
-                <div role="status" className="mb-4">
-                    <InfoNote icon={CircleCheck}>{flash.notice}</InfoNote>
-                </div>
-            )}
-            {flash.temporaryPassword && <CredentialsBox {...flash.temporaryPassword} />}
-        </>
-    );
+    return flash.temporaryPassword ? <CredentialsBox {...flash.temporaryPassword} /> : null;
 }
 
 function CredentialsBox({ name, username, password }: Credentials) {

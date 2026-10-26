@@ -36,7 +36,7 @@ class StoreActivityRequest extends FormRequest
 
         return [
             'title' => ['required', 'string', 'max:150'],
-            'type' => ['required', Rule::in(Activity::TYPES)],
+            'activity_type_id' => ['required', 'integer', Rule::exists('activity_types', 'id')->where('site_id', $this->user()->site_id)->where('active', true)],
             'date' => ['required', 'date_format:Y-m-d', 'after_or_equal:'.$hoy->toDateString(), 'before_or_equal:'.$hoy->copy()->endOfYear()->toDateString()],
             'time' => ['required', 'date_format:H:i'],
             'location' => ['nullable', 'string', 'max:150'],
@@ -71,8 +71,9 @@ class StoreActivityRequest extends FormRequest
         return [
             'title.required' => 'Escriba el nombre de la actividad.',
             'title.max' => 'El nombre es muy largo. Resúmalo en menos de 150 letras.',
-            'type.required' => 'Escoja qué clase de actividad es.',
-            'type.in' => 'Escoja qué clase de actividad es.',
+            'activity_type_id.required' => 'Escoja qué clase de actividad es.',
+            'activity_type_id.integer' => 'Escoja qué clase de actividad es.',
+            'activity_type_id.exists' => 'Escoja una de las clases de actividad que se ofrecen.',
             'date.required' => 'Escoja la fecha.',
             'date.date_format' => 'Escoja la fecha en el calendario.',
             'date.after_or_equal' => 'Esa fecha ya pasó. Escoja una de hoy en adelante.',

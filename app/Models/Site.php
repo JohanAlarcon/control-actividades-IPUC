@@ -10,6 +10,12 @@ class Site extends Model
 {
     use HasFactory;
 
+    /** Toda congregacion empieza con las clases de actividad de siempre (D-25). */
+    protected static function booted(): void
+    {
+        static::created(fn (Site $sede) => ActivityType::createDefaultsFor($sede));
+    }
+
     protected $fillable = [
         'name',
         'city',

@@ -1,4 +1,4 @@
-import { activityDate, money, shortDate, waitingSince } from '@/lib/format';
+import { activityDate, groupThousands, money, shortDate, waitingSince } from '@/lib/format';
 import { describe, expect, it } from 'vitest';
 
 /** Intl separa con espacios que no se parten; para comparar, basta un espacio normal. */
@@ -40,5 +40,24 @@ describe('fechas', () => {
         expect(text).toContain('sábado');
         expect(text).toContain('7 de noviembre');
         expect(text).toContain('7:00');
+    });
+});
+
+describe('groupThousands', () => {
+    it('pone los puntos de mil mientras se escribe', () => {
+        expect(groupThousands('350000')).toBe('350.000');
+        expect(groupThousands('3500005')).toBe('3.500.005');
+        expect(groupThousands('12')).toBe('12');
+    });
+
+    it('quita lo que no es número, aunque venga pegado con signo o con los puntos viejos', () => {
+        expect(groupThousands('$ 9.800.000')).toBe('9.800.000');
+        expect(groupThousands('350.0005')).toBe('3.500.005');
+        expect(groupThousands('mucho')).toBe('');
+    });
+
+    it('no deja ceros adelante, pero sí un cero solo', () => {
+        expect(groupThousands('007')).toBe('7');
+        expect(groupThousands('0')).toBe('0');
     });
 });

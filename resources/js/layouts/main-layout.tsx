@@ -1,5 +1,6 @@
 import FlashMessages from '@/components/flash-messages';
 import BottomNav from '@/components/layout/bottom-nav';
+import NoticeToast from '@/components/layout/notice-toast';
 import PageTitle from '@/components/layout/page-title';
 import ScopeRibbon from '@/components/layout/scope-ribbon';
 import SideNav from '@/components/layout/side-nav';
@@ -49,6 +50,7 @@ export default function MainLayout({ title, subtitle, back, children }: Props) {
                 </div>
             </main>
 
+            {user && <NoticeToast />}
             {user && <UpdateBanner />}
             {user && <BottomNav />}
         </div>

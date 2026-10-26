@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Activity;
+use App\Models\ActivityType;
 use App\Models\Approval;
 use App\Models\CommitteeUser;
 use Illuminate\Support\Carbon;
@@ -16,7 +17,7 @@ beforeEach(function () {
     $this->travelTo(Carbon::parse('2026-03-10 10:00', 'America/Bogota'));
     $this->propuesta = [
         'title' => 'Vigilia de jóvenes',
-        'type' => 'service',
+        'activity_type_id' => ActivityType::where('site_id', $this->e['sede']->id)->where('name', 'Culto')->value('id'),
         'date' => '2026-04-18',
         'time' => '19:00',
         'location' => 'Templo central',

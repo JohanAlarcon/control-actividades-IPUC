@@ -92,6 +92,10 @@ enmendó a 2.1.0 para incorporarlas.
   tipos —actividad nueva, gasto, tarea y cambio de fecha— y también para el gasto del propio comité
   del presidente: reemplaza la respuesta del 2026-10-18 sobre ese gasto. Cambian RF-017, RF-018,
   RN-04 y los escenarios 1 y 3 de HU-06 (D-24).
+- Q: Las clases de actividad —culto, ensayo, reunión…—, ¿son una lista fija o se pueden agregar?
+  → A: Se pueden agregar. Las administra el pastor desde una pantalla: agrega, cambia el nombre y
+  desactiva. Una clase en uso no se borra, se desactiva. Cada congregación empieza con las ocho de
+  siempre (D-25).
 
 ## Escenarios de Usuario y Pruebas *(obligatorio)*
 

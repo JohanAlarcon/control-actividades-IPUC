@@ -6,7 +6,7 @@ import { canPropose, decidesApprovals } from '@/lib/roles';
 import { cardClass } from '@/lib/styles';
 import type { SharedProps } from '@/types/shared';
 import { Link, usePage } from '@inertiajs/react';
-import { CalendarPlus, ChevronRight, CircleCheck, Inbox, Network, UsersRound, type LucideIcon } from 'lucide-react';
+import { CalendarPlus, ChevronRight, CircleCheck, Inbox, Network, Shapes, UsersRound, type LucideIcon } from 'lucide-react';
 
 function greeting(): string {
     const hour = new Date().getHours();
@@ -65,6 +65,9 @@ export default function Dashboard() {
                     <Shortcut href="/committees" icon={Network} title="Ver los comités" text="Cómo está organizada la congregación y quién encabeza cada parte." />
                     {auth.user?.isPastor && (
                         <Shortcut href="/users" icon={UsersRound} title="Administrar las cuentas" text="Crear cuentas, asignar cargos y restablecer claves." />
+                    )}
+                    {auth.user?.isPastor && (
+                        <Shortcut href="/activity-types" icon={Shapes} title="Clases de actividad" text="Las que se ofrecen al proponer: agregar, cambiar el nombre o desactivar." />
                     )}
                 </ul>
             </SectionBlock>
