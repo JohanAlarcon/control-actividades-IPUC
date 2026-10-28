@@ -2,13 +2,14 @@ import PrintSheet from '@/components/schedule/print-sheet';
 import { useFitWidth } from '@/hooks/use-fit-width';
 import { MONTHS, scheduleUrl } from '@/lib/schedule';
 import { bigButtonClass, buttonClass } from '@/lib/styles';
-import type { MonthGroup, ScheduleFilters } from '@/types/schedule';
+import type { MonthGroup, MonthNoteItem, ScheduleFilters } from '@/types/schedule';
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft, Printer } from 'lucide-react';
 
 interface Props {
     filters: ScheduleFilters;
     months: MonthGroup[];
+    notes?: MonthNoteItem[];
 }
 
 /** Una carta horizontal, en píxeles de pantalla: 11 pulgadas de ancho. */
@@ -18,7 +19,7 @@ const SHEET_WIDTH = 1056;
  * El cronograma para imprimir o guardar como PDF (RF-117, HU-09 escenario 7): una hoja por mes con
  * el formato de la sede, sin el molde de las pantallas. Arriba, solo en la pantalla, los botones.
  */
-export default function SchedulePrint({ filters, months }: Props) {
+export default function SchedulePrint({ filters, months, notes = [] }: Props) {
     const zoom = useFitWidth(SHEET_WIDTH);
     const title = filters.month ? `Cronograma de ${MONTHS[filters.month - 1].toLowerCase()} ${filters.year}` : `Cronograma ${filters.year}`;
 
@@ -42,7 +43,14 @@ export default function SchedulePrint({ filters, months }: Props) {
             </div>
 
             {months.map((group) => (
-                <PrintSheet key={group.month} year={filters.year} month={group.month} activities={group.activities} zoom={zoom} />
+                <PrintSheet
+                    key={group.month}
+                    year={filters.year}
+                    month={group.month}
+                    activities={group.activities}
+                    notes={notes.filter((note) => note.month === group.month)}
+                    zoom={zoom}
+                />
             ))}
         </div>
     );

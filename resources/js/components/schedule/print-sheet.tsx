@@ -1,7 +1,7 @@
 import { cellTone, monthWeeks, WEEKDAYS } from '@/lib/calendar';
 import { shortTimeRange } from '@/lib/format';
 import { lookOf, MONTHS } from '@/lib/schedule';
-import type { CalendarActivity, Highlight } from '@/types/schedule';
+import type { CalendarActivity, Highlight, MonthNoteItem } from '@/types/schedule';
 import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 
 /** En el papel el naranja es el del formato: la hoja no tiene que leerse en una pantalla (D-47). */
@@ -15,6 +15,7 @@ interface Props {
     year: number;
     month: number;
     activities: CalendarActivity[];
+    notes: MonthNoteItem[];
     zoom: number;
 }
 
@@ -24,7 +25,7 @@ interface Props {
  * una lo del día, como en el papel. Si un día trae tanto que no cabe, la letra de toda la hoja se
  * encoge un poco: el mes siempre sale en una sola hoja. En la pantalla se ve encogida.
  */
-export default function PrintSheet({ year, month, activities, zoom }: Props) {
+export default function PrintSheet({ year, month, activities, notes, zoom }: Props) {
     const weeks = monthWeeks(year, month, activities);
     const grid = useRef<HTMLDivElement>(null);
     const [scale, setScale] = useState(1);
@@ -41,6 +42,15 @@ export default function PrintSheet({ year, month, activities, zoom }: Props) {
         >
             <header className="flex items-end justify-between gap-6 pb-3">
                 <h2 className="text-[56px] leading-none font-bold tracking-tight text-cronograma [font-variant-caps:small-caps]">{MONTHS[month - 1]}</h2>
+                {notes.length > 0 && (
+                    <ul className="mr-auto max-w-[3.6in] self-center">
+                        {notes.map((note) => (
+                            <li key={note.id} className={`text-[13px] leading-tight font-bold uppercase ${note.highlight ? PAPER_TONE[note.highlight] : 'text-cronograma'}`}>
+                                {note.text}
+                            </li>
+                        ))}
+                    </ul>
+                )}
                 <span className="text-[68px] leading-none font-black tracking-wider text-cronograma-naranja">{year}</span>
             </header>
 

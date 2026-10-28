@@ -38,6 +38,14 @@ export interface ScheduleSummary {
     compliance: number | null;
 }
 
+/** La nota general de un mes (RF-118), junto a su nombre en el cronograma. */
+export interface MonthNoteItem {
+    id: number;
+    month: number;
+    text: string;
+    highlight: Highlight | null;
+}
+
 export interface MonthGroup {
     month: number;
     activities: CalendarActivity[];

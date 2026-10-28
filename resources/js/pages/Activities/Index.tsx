@@ -6,7 +6,7 @@ import ScheduleFilters from '@/components/schedule/schedule-filters';
 import SummaryCard from '@/components/schedule/summary-card';
 import MainLayout from '@/layouts/main-layout';
 import { buttonClass, cardClass } from '@/lib/styles';
-import type { AnnualPlanInfo, CommitteeOption, MonthGroup, ScheduleFilters as Filters, ScheduleSummary } from '@/types/schedule';
+import type { AnnualPlanInfo, CommitteeOption, MonthGroup, MonthNoteItem, ScheduleFilters as Filters, ScheduleSummary } from '@/types/schedule';
 import { Link, usePage } from '@inertiajs/react';
 import { CalendarPlus, CalendarX } from 'lucide-react';
 import { useState } from 'react';
@@ -19,13 +19,14 @@ interface Props {
     canPropose: boolean;
     annualPlan?: AnnualPlanInfo;
     committees?: CommitteeOption[];
+    notes?: MonthNoteItem[];
 }
 
 /**
  * El cronograma del año (HU-09): el calendario del mes con el formato de la sede, o todo como una
  * lista. Lo propio se ve completo; lo de los demás comités, con los seis datos que se comparten.
  */
-export default function ActivitiesIndex({ filters, years, summary, months, canPropose, annualPlan, committees }: Props) {
+export default function ActivitiesIndex({ filters, years, summary, months, canPropose, annualPlan, committees, notes }: Props) {
     const { errors } = usePage<{ errors: Record<string, string> }>().props;
     const [view, setView] = useState<'month' | 'list'>('month');
     const all = months.flatMap((group) => group.activities);
@@ -56,7 +57,7 @@ export default function ActivitiesIndex({ filters, years, summary, months, canPr
             </div>
 
             {view === 'month' ? (
-                <MonthView filters={filters} years={years} months={months} />
+                <MonthView filters={filters} years={years} months={months} notes={notes} />
             ) : all.length === 0 ? (
                 <InfoNote icon={CalendarX}>No hay actividades con estos filtros.</InfoNote>
             ) : (

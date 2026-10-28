@@ -11,6 +11,7 @@ use App\Http\Controllers\CommitteeUserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\MemberPickerController;
+use App\Http\Controllers\MonthNoteController;
 use App\Http\Controllers\RoleSwitchController;
 use App\Http\Controllers\SiteMottoController;
 use App\Http\Controllers\SympathizerAssignmentController;
@@ -59,6 +60,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('annual-plan/{year}/activities', [AnnualPlanController::class, 'storeActivity'])->whereNumber('year')->name('annual-plan.activities.store');
     Route::post('annual-plan/{year}/approve', [AnnualPlanController::class, 'approve'])->whereNumber('year')->name('annual-plan.approve');
+
+    Route::post('month-notes', [MonthNoteController::class, 'store'])->name('month-notes.store');
+    Route::delete('month-notes/{note}', [MonthNoteController::class, 'destroy'])->whereNumber('note')->name('month-notes.destroy');
 
     Route::get('site-motto', [SiteMottoController::class, 'index'])->name('site-motto.index');
     Route::post('site-motto', [SiteMottoController::class, 'store'])->name('site-motto.store');

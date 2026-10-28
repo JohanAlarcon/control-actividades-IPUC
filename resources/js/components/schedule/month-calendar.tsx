@@ -1,7 +1,9 @@
 import MonthDay from '@/components/schedule/month-day';
+import MonthNotes from '@/components/schedule/month-notes';
 import { WEEKDAYS, type CalendarDay } from '@/lib/calendar';
 import { calendarDate } from '@/lib/format';
 import { MONTHS } from '@/lib/schedule';
+import type { MonthNoteItem } from '@/types/schedule';
 
 interface Props {
     year: number;
@@ -9,6 +11,8 @@ interface Props {
     weeks: CalendarDay[][];
     selected: string;
     onSelect: (date: string) => void;
+    notes: MonthNoteItem[];
+    canRemoveNotes: boolean;
 }
 
 /**
@@ -16,7 +20,7 @@ interface Props {
  * y el año grande en dorado, la banda azul con los días de lunes a domingo y las casillas con sus
  * colores. En el celular ocupa todo el ancho, para que cada casilla alcance a tocarse.
  */
-export default function MonthCalendar({ year, month, weeks, selected, onSelect }: Props) {
+export default function MonthCalendar({ year, month, weeks, selected, onSelect, notes, canRemoveNotes }: Props) {
     const today = calendarDate(new Date());
 
     return (
@@ -31,6 +35,8 @@ export default function MonthCalendar({ year, month, weeks, selected, onSelect }
                     {year}
                 </span>
             </div>
+
+            <MonthNotes notes={notes} canRemove={canRemoveNotes} />
 
             <div aria-hidden className="grid grid-cols-7 bg-cronograma text-white">
                 {WEEKDAYS.map((name) => (

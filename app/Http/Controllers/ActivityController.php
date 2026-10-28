@@ -8,6 +8,7 @@ use App\Models\ActivityTask;
 use App\Models\ActivityType;
 use App\Models\AnnualPlan;
 use App\Models\Approval;
+use App\Models\MonthNote;
 use App\Support\Activities\ActivityStatus;
 use App\Support\Activities\ScheduleCards;
 use App\Support\Activities\ScheduleSummary;
@@ -57,6 +58,7 @@ class ActivityController extends Controller
             'canPropose' => Gate::allows('create', Activity::class),
             'annualPlan' => Inertia::defer(fn () => $this->plan($filtros['year']), 'plan'),
             'committees' => Inertia::defer(fn () => CommitteeOptions::forScope(), 'committees'),
+            'notes' => Inertia::defer(fn () => $this->notas($filtros['year']), 'notes'),
         ]);
     }
 
@@ -72,7 +74,20 @@ class ActivityController extends Controller
         return Inertia::render('Activities/Print', [
             'filters' => $filtros,
             'months' => ScheduleCards::byMonth($this->tarjetas($filtros), $filtros['month']),
+            'notes' => Inertia::defer(fn () => $this->notas($filtros['year']), 'notes'),
         ]);
+    }
+
+    /** Las notas de los meses del año (RF-118): son de toda la sede, como el cronograma general. */
+    private function notas(int $anio): array
+    {
+        return MonthNote::query()
+            ->where('year', $anio)
+            ->orderBy('month')
+            ->orderBy('id')
+            ->get(['id', 'month', 'text', 'highlight'])
+            ->map(fn (MonthNote $nota) => ['id' => $nota->id, 'month' => $nota->month, 'text' => $nota->text, 'highlight' => $nota->highlight])
+            ->all();
     }
 
     /**

@@ -7,6 +7,7 @@ use App\Models\ActivityType;
 use App\Models\AnnualPlan;
 use App\Models\Committee;
 use App\Models\CommitteeUser;
+use App\Models\MonthNote;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
@@ -84,6 +85,11 @@ class DemoCalendarSeeder extends Seeder
                 $actividad = $this->actividad($comite, $titulo, $clase, Carbon::create($anio, $mes, $dias[$mes], 19, 0, 0, 'America/Bogota'), $plan, $pastor);
                 $this->tareas($actividad, $vuelta++);
             }
+        }
+
+        // Las notas del mes, como las escribe el formato de la sede junto al nombre del mes (RF-118).
+        foreach ([[5, 'Operación rescate, Conquistadores Pentecostales', 'special_day'], [10, 'Encuentro de esposas de pastores (fecha pendiente)', 'district']] as [$mes, $texto, $marca]) {
+            MonthNote::create(['site_id' => $pastor->site_id, 'year' => $anio, 'month' => $mes, 'text' => $texto, 'highlight' => $marca, 'recorded_by_user_id' => $pastor->id]);
         }
 
         $proximo = AnnualPlan::create(['site_id' => $pastor->site_id, 'year' => $anio + 1]);

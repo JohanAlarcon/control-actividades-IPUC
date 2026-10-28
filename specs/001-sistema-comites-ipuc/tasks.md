@@ -1507,10 +1507,11 @@ actividades de un sub-comité.
       RF-083. Logo, lema y objetivos los registra el presidente. El logo se guarda como los demás archivos, fuera de `public/`. Sin logo, las iniciales en un círculo.
       Verifica: `php artisan test --filter=CommitteeIdentityTest` — los cinco escenarios de HU-26; en el calendario general un comité ajeno solo recibe el nombre · a 360 px.
 
-- [ ] T257 [US09] · Las notas del mes
+- [x] T257 [US09] · Las notas del mes
       Archivos: `database/migrations/<ts>_create_month_notes_table.php` · `app/Models/MonthNote.php` · `app/Http/Controllers/MonthNoteController.php` · `resources/js/components/schedule/month-calendar.tsx`
       RF-118. Solo el pastor las registra; salen junto al nombre del mes, en la pantalla y en la impresión de T256.
       Verifica: `php artisan test --filter=MonthNoteTest` — un presidente no puede registrar una nota; la nota de un mes no sale en otro.
+      **Hecha el 2026-10-28.** Viajan como propiedad diferida del cronograma y de la hoja impresa, para no pasar del presupuesto. Salen en mayúsculas junto al nombre del mes, en rojo lo de la sede y en naranja lo del distrito; el pastor las agrega debajo del calendario y las quita con una segunda confirmación. Verificada a 360 px.
 
 - [ ] T224 [US27] · Cronogramas: migración, modelo y filtro
       Archivos: `database/migrations/<ts>_create_schedules_table.php` · `app/Models/Schedule.php` · `database/migrations/<ts>_add_schedule_to_activities.php`

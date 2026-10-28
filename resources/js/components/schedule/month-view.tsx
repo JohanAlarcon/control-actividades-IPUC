@@ -1,11 +1,13 @@
 import DayAgenda from '@/components/schedule/day-agenda';
 import MonthCalendar from '@/components/schedule/month-calendar';
+import MonthNoteForm from '@/components/schedule/month-note-form';
 import { defaultMonth, initialDay, monthWeeks } from '@/lib/calendar';
 import { calendarDate } from '@/lib/format';
 import { MONTHS, scheduleUrl } from '@/lib/schedule';
 import { buttonClass } from '@/lib/styles';
-import type { MonthGroup, ScheduleFilters } from '@/types/schedule';
-import { Link } from '@inertiajs/react';
+import type { MonthGroup, MonthNoteItem, ScheduleFilters } from '@/types/schedule';
+import type { SharedProps } from '@/types/shared';
+import { Link, usePage } from '@inertiajs/react';
 import { ChevronLeft, ChevronRight, Printer } from 'lucide-react';
 import { useState } from 'react';
 
@@ -13,13 +15,16 @@ interface Props {
     filters: ScheduleFilters;
     years: { from: number; to: number };
     months: MonthGroup[];
+    /** Llegan aparte, un momento después del mes. */
+    notes?: MonthNoteItem[];
 }
 
 /**
  * El cronograma como calendario del mes (RF-029, RF-115): el mes escogido en los filtros o, si no
  * hay ninguno, el de hoy. Pasar de mes cambia el filtro, para que la dirección se pueda compartir.
  */
-export default function MonthView({ filters, years, months }: Props) {
+export default function MonthView({ filters, years, months, notes = [] }: Props) {
+    const isPastor = Boolean(usePage<SharedProps>().props.auth.user?.isPastor);
     const today = calendarDate(new Date());
     const month = filters.month ?? defaultMonth(filters.year, today);
     const weeks = monthWeeks(filters.year, month, months.find((group) => group.month === month)?.activities ?? []);
@@ -30,8 +35,17 @@ export default function MonthView({ filters, years, months }: Props) {
     return (
         <>
             <MonthNav filters={filters} years={years} month={month} />
-            <MonthCalendar year={filters.year} month={month} weeks={weeks} selected={selected.date} onSelect={setPicked} />
+            <MonthCalendar
+                year={filters.year}
+                month={month}
+                weeks={weeks}
+                selected={selected.date}
+                onSelect={setPicked}
+                notes={notes.filter((note) => note.month === month)}
+                canRemoveNotes={isPastor}
+            />
             <DayAgenda day={selected} />
+            {isPastor && <MonthNoteForm key={`${filters.year}-${month}`} year={filters.year} month={month} />}
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 <Link href={scheduleUrl({ ...filters, month }, '/activities/print')} className={buttonClass.secondary}>
