@@ -16,14 +16,16 @@ beforeEach(function () {
         'birth_date' => '1980-04-12',
         'gender' => 'm',
         'marital_status' => 'married',
-        'committee_id' => $this->e['sonido']->id,
+        'committee_ids' => [$this->e['sonido']->id],
     ];
 });
 
-test('1. queda registrado, el sistema dice los años que tiene y aparece de una vez en la lista', function () {
-    $this->actingAs($this->e['liderSonido'])->post('/members', $this->ficha)
+test('1. el pastor lo registra, el sistema le pone su código, dice los años que tiene, y aparece de una vez en la lista de su comité', function () {
+    $this->actingAs($this->e['pastor'])->post('/members', $this->ficha)
         ->assertRedirect('/members')
-        ->assertSessionHas('notice', 'Listo. Hermano Julián Restrepo quedó registrado. Tiene 46 años.');
+        ->assertSessionHas('notice', 'Listo. Hermano Julián Restrepo quedó registrado con el código '.Member::sole()->code.'. Tiene 46 años.');
+
+    expect(Member::sole()->code)->toMatch('/^M-\d{4}$/');
 
     $this->actingAs($this->e['liderSonido'])->get('/members')
         ->assertInertia(fn (Assert $page) => $page
@@ -31,7 +33,8 @@ test('1. queda registrado, el sistema dice los años que tiene y aparece de una 
             ->where('totalCount', 1)
             ->where('members.0.name', 'Hermano Julián Restrepo')
             ->where('members.0.age', 46)
-            ->where('members.0.committee', 'Sub-comité de Sonido'));
+            ->where('members.0.committees.0.name', 'Sub-comité de Sonido')
+            ->where('members.0.committees.0.role', 'member'));
 });
 
 test('4. la lista trae el nombre y el barrio de cada uno, para buscar en el teléfono sin volver a pedirla', function () {
@@ -42,8 +45,8 @@ test('4. la lista trae el nombre y el barrio de cada uno, para buscar en el tel�
 });
 
 test('7. sin la fecha, con la edad anotada: se guarda con el día y sigue contando por edad', function () {
-    $this->actingAs($this->e['liderSonido'])->post('/members', ['age_mode' => 'age', 'age_reported' => 40, 'birth_date' => '1980-04-12'] + $this->ficha)
-        ->assertSessionHas('notice', 'Listo. Hermano Julián Restrepo quedó registrado. Tiene 40 años.');
+    $this->actingAs($this->e['pastor'])->post('/members', ['age_mode' => 'age', 'age_reported' => 40, 'birth_date' => '1980-04-12'] + $this->ficha)
+        ->assertSessionHas('notice', 'Listo. Hermano Julián Restrepo quedó registrado con el código '.Member::sole()->code.'. Tiene 40 años.');
 
     expect(Member::sole())->birth_date->toBeNull()->age_reported->toBe(40)->age_reported_at->toDateString()->toBe('2026-06-15');
 
@@ -56,7 +59,7 @@ test('7. sin la fecha, con la edad anotada: se guarda con el día y sigue contan
 test('al corregir la ficha, si la edad no cambió, se conserva el día en que se anotó', function () {
     $miembro = Member::factory()->forCommittee($this->e['sonido'])->create(['birth_date' => null, 'age_reported' => 40, 'age_reported_at' => '2025-01-10']);
 
-    $this->actingAs($this->e['liderSonido'])
+    $this->actingAs($this->e['pastor'])
         ->put("/members/{$miembro->id}", ['age_mode' => 'age', 'age_reported' => 40, 'name' => 'Hermano Corregido'] + $this->ficha)
         ->assertSessionHas('notice', 'Listo. Los datos de Hermano Corregido quedaron guardados.');
 
@@ -79,7 +82,7 @@ it('la ficha para corregir cabe en el presupuesto y no crece con los datos', fun
     $medir = function () use ($miembro) {
         DB::flushQueryLog();
         DB::enableQueryLog();
-        $this->actingAs($this->e['liderSonido'])->get("/members/{$miembro->id}/edit")->assertOk();
+        $this->actingAs($this->e['pastor'])->get("/members/{$miembro->id}/edit")->assertOk();
         $consultas = count(DB::getQueryLog());
         DB::disableQueryLog();
 

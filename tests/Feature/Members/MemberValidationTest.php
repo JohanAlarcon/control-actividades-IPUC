@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Committee;
 use App\Models\Member;
 use Illuminate\Support\Carbon;
 
@@ -17,10 +18,10 @@ beforeEach(function () {
         'birth_date' => '1980-04-12',
         'gender' => 'm',
         'marital_status' => 'married',
-        'committee_id' => $this->e['sonido']->id,
+        'committee_ids' => [$this->e['sonido']->id],
         'baptized' => false,
     ];
-    $this->guardar = fn (array $cambios) => $this->actingAs($this->e['liderSonido'])->from('/members/create')->post('/members', $cambios + $this->ficha);
+    $this->guardar = fn (array $cambios) => $this->actingAs($this->e['pastor'])->from('/members/create')->post('/members', $cambios + $this->ficha);
 });
 
 test('2. un menor marcado casado o viudo se rechaza, y el mensaje explica por qué', function (string $estado) {
@@ -56,6 +57,15 @@ test('la fecha del bautismo no puede ser anterior al nacimiento', function () {
         ->assertSessionHasErrors(['baptized_at' => 'La fecha de bautismo no puede ser anterior a la de nacimiento.']);
 });
 
-test('un líder no registra a nadie en un comité que no es suyo', function () {
-    ($this->guardar)(['committee_id' => $this->e['damas']->id])->assertSessionHasErrors(['committee_id' => 'Escoja uno de los comités de la lista.']);
+test('CL-28: un presidente o un líder no registran fichas: el padrón es del pastor', function () {
+    $this->actingAs($this->e['presidente'])->post('/members', $this->ficha)->assertForbidden();
+    $this->actingAs($this->e['liderSonido'])->get('/members/create')->assertForbidden();
+
+    expect(Member::count())->toBe(0);
+});
+
+test('el pastor solo marca comités de su sede', function () {
+    $ajeno = Committee::factory()->create();
+
+    ($this->guardar)(['committee_ids' => [$ajeno->id]])->assertSessionHasErrors(['committee_ids.0' => 'Escoja los comités de la lista.']);
 });

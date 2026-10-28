@@ -28,7 +28,11 @@ class HiddenCounts
             'committees' => max(0, Committee::withoutGlobalScope('committee')->count() - count($visibles)),
             'members' => Member::withoutGlobalScope('committee')
                 ->where('active', true)
-                ->where(fn ($fuera) => $fuera->whereNotIn('committee_id', $visibles)->orWhereNull('committee_id'))
+                ->whereNotExists(fn ($pertenencia) => $pertenencia
+                    ->from('committee_member')
+                    ->whereColumn('committee_member.member_id', 'members.id')
+                    ->whereNull('committee_member.ended_at')
+                    ->whereIn('committee_member.committee_id', $visibles))
                 ->count(),
         ];
     }

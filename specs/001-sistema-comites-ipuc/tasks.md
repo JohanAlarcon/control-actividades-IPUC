@@ -1411,20 +1411,23 @@ rehacen **antes** de tocar el código.
       S-11. Los quince comités y los seis sub-comités con sus nombres reales; ningún nombre, teléfono ni firma de una persona real (constitución, «Datos y seguridad»). BIS marcado. Cuentas de ejemplo para un presidente, un secretario y un tesorero de varios comités, un líder de sub-comité y uno de BIS.
       Verifica: `php artisan migrate:fresh --seed` sin errores · revisión a ojo: ningún nombre de los anexos del levantamiento aparece en las semillas.
 
-- [ ] T213 [US10] · Pertenencias: `committee_member` y el filtro de los miembros por pertenencia
+- [x] T213 [US10] · Pertenencias: `committee_member` y el filtro de los miembros por pertenencia
       Archivos: `database/migrations/<ts>_create_committee_member_table.php` · `app/Models/Member.php` · `app/Models/Concerns/BelongsToCommitteeScope.php` · `tests/Architecture/ScopeCoverageTest.php`
       D-32, RF-014. La migración pasa `members.committee_id` a la tabla nueva y quita la columna. El filtro de `Member` pregunta si tiene una pertenencia dentro del ámbito, en una sola subconsulta. Los totales cuentan personas distintas.
       Verifica: `php artisan test --filter=MemberScopeTest` — un miembro de dos comités lo ven los dos y nadie más; el pastor ve también a quien no tiene pertenencias (CL-03, CL-27) · `QueryBudgetTest` en verde.
+      **Hecha el 2026-10-28.** El rasgo del filtro ganó `applyCommitteeScope()`, que `Member` sobrescribe con una subconsulta de pertenencias vigentes. Cada cargo ve solo las pertenencias de su ámbito: Damas no se entera de que la persona también está en Sonido. La lista cuesta dos consultas.
 
-- [ ] T214 [US10] · El padrón del pastor y la lista de cada comité
+- [x] T214 [US10] · El padrón del pastor y la lista de cada comité
       Archivos: `app/Policies/MemberPolicy.php` · `app/Http/Controllers/CommitteeMemberController.php` · `app/Http/Requests/SaveMemberRequest.php` · `resources/js/pages/Members/` · `resources/js/components/members/`
       D-33, RF-031, RF-084, RF-085. Registrar y corregir fichas es solo del pastor; el formulario pide los comités a los que pertenece la persona, su código lo pone el sistema, gana observaciones y el estado civil «divorciado», y no pide dirección. Los cargos agregan o quitan de su lista, con la función —directiva con su cargo, maestro, auxiliar o integrante—.
-      Verifica: `php artisan test --filter="MemberRegistryTest|CommitteeMemberTest"` — un presidente no corrige una ficha y el sistema le explica por qué (CL-28); sí agrega y quita; quitar cierra la pertenencia, no la borra · a 360 px.
+      Verifica: `php artisan test --filter="MemberValidationTest|CommitteeMemberTest"` — un presidente no corrige una ficha (CL-28); sí agrega y quita; quitar cierra la pertenencia, no la borra · a 360 px.
+      **Hecha el 2026-10-28.** `Support/Members/Memberships` es el único lugar donde se entra y se sale de una lista. El código es «M-» y el número de registro. La tarjeta muestra la función con la palabra de la persona —«Presidenta», «Maestro»— y quitar pide una segunda confirmación.
 
-- [ ] T215 [US10] · `Member::forPicker()`: el buscador de nombre y edad
+- [x] T215 [US10] · `Member::forPicker()`: el buscador de nombre y edad
       Archivos: `app/Models/Member.php` · `app/Http/Controllers/MemberPickerController.php` · `resources/js/components/members/member-picker.tsx`
       Constitución 3.0.0, principio I, excepción 4. Un solo método con nombre propio, que solo lee y trae el id, el nombre y la edad calculada.
       Verifica: `php artisan test --filter=MemberPickerTest` — prueba de **lista blanca**: cada resultado trae exactamente `{ id, name, age }`, y un presidente que intenta abrir la ficha de un resultado ajeno recibe «no disponible».
+      **Hecha el 2026-10-28.** Busca por el comienzo de cada palabra, para que «ma» no traiga a todas las «Hermanas»; pide dos letras y trae veinte como máximo. Verificada a 360 px.
 
 - [ ] T216 [US13] · BIS: la marca, el ámbito sobre los simpatizantes y la asignación
       Archivos: `database/migrations/<ts>_mark_bis_and_assignments.php` · `app/Models/Sympathizer.php` · `app/Models/Committee.php` · `app/Policies/SympathizerPolicy.php` · `app/Http/Controllers/SympathizerController.php` · `app/Http/Controllers/SympathizerAssignmentController.php`

@@ -1,4 +1,5 @@
 import InfoNote from '@/components/info-note';
+import AddToList from '@/components/members/add-to-list';
 import MemberCard from '@/components/members/member-card';
 import MemberFilters from '@/components/members/member-filters';
 import SearchBox from '@/components/search-box';
@@ -9,7 +10,7 @@ import type { MemberCard as Member, MemberFilters as Filters } from '@/types/peo
 import type { CommitteeOption } from '@/types/schedule';
 import type { SharedProps } from '@/types/shared';
 import { Link, usePage } from '@inertiajs/react';
-import { EyeOff, FileWarning, ShieldAlert, UserPlus, UserX } from 'lucide-react';
+import { EyeOff, FileWarning, ListPlus, ShieldAlert, UserPlus, UserX } from 'lucide-react';
 import { useState } from 'react';
 
 interface Props {
@@ -19,16 +20,19 @@ interface Props {
     missingConsent: number;
     pendingProfiles: number;
     canCreate: boolean;
+    canManageList: boolean;
     committees?: CommitteeOption[];
 }
 
 /**
- * Los miembros del alcance del cargo (HU-10). Se buscan por nombre o barrio sin importar
+ * Los miembros (HU-10): el pastor ve el padrón completo y registra las fichas; cada cargo ve su
+ * lista y la arma con personas ya registradas (RF-085). Se buscan por nombre o barrio sin importar
  * mayúsculas ni tildes, se filtran combinando, y siempre se dice cuántos cumplen sobre el total.
  */
-export default function MembersIndex({ members, filters, totalCount, missingConsent, pendingProfiles, canCreate, committees }: Props) {
+export default function MembersIndex({ members, filters, totalCount, missingConsent, pendingProfiles, canCreate, canManageList, committees }: Props) {
     const { scopeHidden } = usePage<SharedProps>().props;
     const [query, setQuery] = useState('');
+    const [adding, setAdding] = useState(false);
     const shown = members.filter((member) => memberMatches(member, query));
     const hidden = scopeHidden?.members ?? 0;
 
@@ -40,6 +44,14 @@ export default function MembersIndex({ members, filters, totalCount, missingCons
                     Registrar a un hermano
                 </Link>
             )}
+
+            {canManageList && committees && (
+                <button type="button" aria-expanded={adding} onClick={() => setAdding(!adding)} className={`${adding ? buttonClass.secondary : buttonClass.primary} mb-4 lg:w-fit lg:px-6`}>
+                    <ListPlus aria-hidden className="mr-2 size-6" />
+                    {adding ? 'Cerrar' : 'Agregar a la lista'}
+                </button>
+            )}
+            {adding && committees && <AddToList committees={committees} onDone={() => setAdding(false)} />}
 
             <div className="mb-4 flex flex-col gap-3">
                 {pendingProfiles > 0 && (
@@ -71,7 +83,7 @@ export default function MembersIndex({ members, filters, totalCount, missingCons
             ) : (
                 <ul className="grid gap-3 lg:grid-cols-2">
                     {shown.map((member) => (
-                        <MemberCard key={member.id} member={member} />
+                        <MemberCard key={member.id} member={member} canEdit={canCreate} canManageList={canManageList} />
                     ))}
                 </ul>
             )}

@@ -10,10 +10,10 @@ beforeEach(function () {
 });
 
 test('quien no está en ningún comité cuenta para el pastor y se señala como oportunidad (CL-03)', function () {
-    Member::factory()->create(['site_id' => $this->e['sede']->id, 'committee_id' => null, 'name' => 'Hermana Sin Comité']);
+    Member::factory()->forSite($this->e['sede'])->create(['name' => 'Hermana Sin Comité']);
 
     $this->actingAs($this->e['pastor'])->get('/members')
-        ->assertInertia(fn (Assert $page) => $page->where('totalCount', 1)->where('members.0.committee', null));
+        ->assertInertia(fn (Assert $page) => $page->where('totalCount', 1)->where('members.0.committees', []));
 
     $this->actingAs($this->e['presidente'])->get('/members')->assertDoesntShow('Hermana Sin Comité');
 });

@@ -1,15 +1,15 @@
 import { matchesEveryWord } from '@/lib/search';
-import type { CommitmentLevel, Gender, MaritalStatus, MemberFilters } from '@/types/people';
+import type { BoardPosition, CommitmentLevel, Gender, MaritalStatus, MemberFilters, Membership, MembershipRole } from '@/types/people';
 
 export const GENDERS = [
     { value: 'f', label: 'Mujer' },
     { value: 'm', label: 'Hombre' },
 ] as const;
 
-export const MARITAL_STATUSES: MaritalStatus[] = ['single', 'married', 'widowed', 'separated', 'common_law'];
+export const MARITAL_STATUSES: MaritalStatus[] = ['single', 'married', 'common_law', 'separated', 'divorced', 'widowed'];
 
 /** Lo que un menor de dieciocho años no puede figurar (RF-032). La misma regla del servidor. */
-export const ADULT_ONLY: MaritalStatus[] = ['married', 'widowed', 'separated', 'common_law'];
+export const ADULT_ONLY: MaritalStatus[] = ['married', 'common_law', 'separated', 'divorced', 'widowed'];
 
 const MARITAL: Record<MaritalStatus, { f: string; m: string; any: string }> = {
     single: { f: 'Soltera', m: 'Soltero', any: 'Soltero o soltera' },
@@ -17,7 +17,39 @@ const MARITAL: Record<MaritalStatus, { f: string; m: string; any: string }> = {
     widowed: { f: 'Viuda', m: 'Viudo', any: 'Viudo o viuda' },
     separated: { f: 'Separada', m: 'Separado', any: 'Separado o separada' },
     common_law: { f: 'En unión libre', m: 'En unión libre', any: 'En unión libre' },
+    divorced: { f: 'Divorciada', m: 'Divorciado', any: 'Divorciado o divorciada' },
 };
+
+/** Lo que hace la persona en la lista de un comité (RF-084, RF-106). */
+export const MEMBERSHIP_ROLES: { value: MembershipRole; label: string }[] = [
+    { value: 'member', label: 'Integrante' },
+    { value: 'board', label: 'De la directiva' },
+    { value: 'teacher', label: 'Maestro o maestra' },
+    { value: 'assistant', label: 'Auxiliar' },
+];
+
+export const BOARD_POSITIONS: { value: BoardPosition; label: string }[] = [
+    { value: 'president', label: 'Presidente' },
+    { value: 'secretary', label: 'Secretario' },
+    { value: 'treasurer', label: 'Tesorero' },
+    { value: 'vocal', label: 'Vocal' },
+];
+
+const FUNCTION_WORDS: Record<MembershipRole | BoardPosition, { f: string; m: string }> = {
+    member: { f: 'Integrante', m: 'Integrante' },
+    board: { f: 'De la directiva', m: 'De la directiva' },
+    teacher: { f: 'Maestra', m: 'Maestro' },
+    assistant: { f: 'Auxiliar', m: 'Auxiliar' },
+    president: { f: 'Presidenta', m: 'Presidente' },
+    secretary: { f: 'Secretaria', m: 'Secretario' },
+    treasurer: { f: 'Tesorera', m: 'Tesorero' },
+    vocal: { f: 'Vocal', m: 'Vocal' },
+};
+
+/** «Presidenta», «Maestro» o «Integrante»: la función dicha como corresponde a la persona. */
+export function functionLabel(membership: Pick<Membership, 'role' | 'boardPosition'>, gender: Gender): string {
+    return FUNCTION_WORDS[membership.role === 'board' && membership.boardPosition ? membership.boardPosition : membership.role][gender];
+}
 
 /** El estado civil dicho como corresponde a la persona; sin saber si es hombre o mujer, las dos formas. */
 export function maritalLabel(status: MaritalStatus, gender?: Gender | null): string {

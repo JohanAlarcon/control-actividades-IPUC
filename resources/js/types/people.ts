@@ -1,5 +1,15 @@
 export type Gender = 'f' | 'm';
-export type MaritalStatus = 'single' | 'married' | 'widowed' | 'separated' | 'common_law';
+export type MaritalStatus = 'single' | 'married' | 'common_law' | 'separated' | 'divorced' | 'widowed';
+export type MembershipRole = 'board' | 'teacher' | 'assistant' | 'member';
+export type BoardPosition = 'president' | 'secretary' | 'treasurer' | 'vocal';
+
+/** Una lista en la que está la persona, con su función ahí (D-32, RF-084). Solo las del ámbito. */
+export interface Membership {
+    id: number;
+    name: string;
+    role: MembershipRole;
+    boardPosition: BoardPosition | null;
+}
 export type ConsentMeans = 'signature' | 'verbal' | 'message';
 export type CommitmentLevel = 'growing' | 'stable' | 'drifting';
 export type AgeMode = 'date' | 'age';
@@ -7,9 +17,10 @@ export type AgeMode = 'date' | 'age';
 /** Un miembro en la lista: lo que muestra su tarjeta y lo que le falta a su ficha. */
 export interface MemberCard {
     id: number;
+    code: string | null;
     name: string;
     age: number | null;
-    committee: string | null;
+    committees: Membership[];
     gender: Gender;
     maritalStatus: MaritalStatus;
     baptized: boolean;
@@ -30,6 +41,7 @@ export interface MemberFilters {
 /** La ficha completa de un miembro, como la corrige el formulario. */
 export interface MemberDetail {
     id: number;
+    code: string | null;
     name: string;
     ageMode: AgeMode;
     birthDate: string | null;
@@ -41,9 +53,10 @@ export interface MemberDetail {
     baptized: boolean;
     baptizedAt: string | null;
     joinedAt: string | null;
-    committeeId: number | null;
+    committeeIds: number[];
     phone: string | null;
     neighborhood: string | null;
+    notes: string | null;
     dataConsent: boolean;
     dataConsentAt: string | null;
     dataConsentMeans: ConsentMeans | null;

@@ -20,7 +20,7 @@ beforeEach(function () {
 test('HU-10 escenario 6 y HU-13 escenario 4: marcar la autorización sin fecha o sin medio se rechaza, en miembros y en simpatizantes', function (string $ruta, array $ficha, string $campo) {
     $sin = [$campo => ''] + $ficha + $this->comun;
 
-    $this->actingAs($this->e['liderSonido'])->post($ruta, $sin + ['committee_id' => $this->e['sonido']->id])
+    $this->actingAs($ruta === '/members' ? $this->e['pastor'] : $this->e['liderSonido'])->post($ruta, $sin + ['committee_ids' => [$this->e['sonido']->id]])
         ->assertSessionHasErrors($campo);
 })->with([
     'miembro sin fecha' => ['/members', ['name' => 'Hermana Uno', 'marital_status' => 'single'], 'data_consent_at'],
@@ -30,7 +30,7 @@ test('HU-10 escenario 6 y HU-13 escenario 4: marcar la autorización sin fecha o
 ]);
 
 test('con su fecha y su medio, la autorización queda guardada en las dos fichas', function () {
-    $this->actingAs($this->e['liderSonido'])->post('/members', ['name' => 'Hermana Uno', 'marital_status' => 'single', 'committee_id' => $this->e['sonido']->id] + $this->comun)
+    $this->actingAs($this->e['pastor'])->post('/members', ['name' => 'Hermana Uno', 'marital_status' => 'single', 'committee_ids' => [$this->e['sonido']->id]] + $this->comun)
         ->assertSessionHasNoErrors();
     $this->actingAs($this->e['liderSonido'])->post('/sympathizers', ['name' => 'Visitante Uno', 'arrival_source' => 'invitation', 'first_contact_at' => '2026-06-10'] + $this->comun)
         ->assertSessionHasNoErrors();

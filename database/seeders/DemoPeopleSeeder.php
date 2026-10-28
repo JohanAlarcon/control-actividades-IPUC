@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Committee;
+use App\Models\CommitteeMember;
 use App\Models\Member;
 use App\Models\Sympathizer;
 use App\Models\User;
@@ -52,9 +53,8 @@ class DemoPeopleSeeder extends Seeder
         Committee::where('site_id', $pastor->site_id)->where('name', 'Comité de Evangelismo')->update(['follows_sympathizers' => true]);
 
         foreach (self::MIEMBROS as $i => [$nombre, $genero, $edad, $civil, $bautismo, $comite]) {
-            Member::create([
+            $miembro = Member::create([
                 'site_id' => $pastor->site_id,
-                'committee_id' => $comite ? Committee::where('site_id', $pastor->site_id)->where('name', $comite)->value('id') : null,
                 'name' => $nombre,
                 'birth_date' => is_string($edad) ? $edad : null,
                 'age_reported' => is_int($edad) ? $edad : null,
@@ -72,6 +72,16 @@ class DemoPeopleSeeder extends Seeder
                 'data_consent_at' => $i % 4 !== 3 ? now()->subMonths(3)->toDateString() : null,
                 'data_consent_means' => $i % 4 !== 3 ? ['signature', 'verbal', 'message'][$i % 3] : null,
             ]);
+
+            if ($comite) {
+                CommitteeMember::create([
+                    'site_id' => $pastor->site_id,
+                    'member_id' => $miembro->id,
+                    'committee_id' => Committee::where('site_id', $pastor->site_id)->where('name', $comite)->value('id'),
+                    'role' => 'member',
+                    'since' => now()->subYears(2)->toDateString(),
+                ]);
+            }
         }
 
         $evangelismo = Committee::where('site_id', $pastor->site_id)->where('follows_sympathizers', true)->firstOrFail();

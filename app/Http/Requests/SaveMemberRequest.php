@@ -10,8 +10,10 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 /**
- * Registrar o corregir a un miembro (HU-10). Nunca se bloquea por un dato que la congregacion no
- * tiene: sin fecha ni edad, basta con confirmar la mayoria de edad (RF-032, principio IV).
+ * Registrar o corregir a un miembro (HU-10), que es cosa del pastor (RF-085). Nunca se bloquea por
+ * un dato que la congregacion no tiene: sin fecha ni edad, basta con confirmar la mayoria de edad
+ * (RF-032, principio IV). Los comites a los que pertenece son opcionales, y la direccion no se pide
+ * (RF-031).
  */
 class SaveMemberRequest extends FormRequest
 {
@@ -42,7 +44,9 @@ class SaveMemberRequest extends FormRequest
             'baptized' => ['boolean'],
             'baptized_at' => ['nullable', 'required_if_accepted:baptized', 'date_format:Y-m-d', 'before_or_equal:today'],
             'joined_at' => ['nullable', 'date_format:Y-m-d', 'before_or_equal:today'],
-            'committee_id' => [$scope->isPastor() ? 'nullable' : 'required', 'integer', Rule::in($scope->committeeIds())],
+            'notes' => ['nullable', 'string', 'max:2000'],
+            'committee_ids' => ['array'],
+            'committee_ids.*' => ['integer', Rule::in($scope->committeeIds())],
         ];
     }
 
@@ -85,11 +89,17 @@ class SaveMemberRequest extends FormRequest
             'baptized' => $this->boolean('baptized'),
             'baptized_at' => $this->boolean('baptized') ? $this->validated('baptized_at') : null,
             'joined_at' => $this->validated('joined_at'),
-            'committee_id' => $this->validated('committee_id'),
+            'notes' => $this->validated('notes'),
             'adult_confirmed' => $confirmado,
             'adult_confirmed_at' => $confirmado ? ($antes?->adult_confirmed_at ?? now('America/Bogota')->toDateString()) : null,
             'profile_pending' => $sinEdad,
         ];
+    }
+
+    /** @return array<int> los comites que el pastor marco, sin repetir */
+    public function committeeIds(): array
+    {
+        return array_values(array_unique(array_map('intval', $this->validated('committee_ids') ?? [])));
     }
 
     public function messages(): array
@@ -102,9 +112,10 @@ class SaveMemberRequest extends FormRequest
             'baptized_at.before_or_equal' => 'La fecha de bautismo no puede ser después de hoy.',
             'joined_at.date_format' => 'Escoja la fecha de ingreso en el calendario.',
             'joined_at.before_or_equal' => 'La fecha de ingreso no puede ser después de hoy.',
-            'committee_id.required' => 'Escoja el comité o sub-comité de la persona.',
-            'committee_id.in' => 'Escoja uno de los comités de la lista.',
-            'committee_id.integer' => 'Escoja uno de los comités de la lista.',
+            'notes.max' => 'Las observaciones son muy largas. Resúmalas en menos de 2.000 letras.',
+            'committee_ids.array' => 'Escoja los comités de la lista.',
+            'committee_ids.*.integer' => 'Escoja los comités de la lista.',
+            'committee_ids.*.in' => 'Escoja los comités de la lista.',
         ];
     }
 }

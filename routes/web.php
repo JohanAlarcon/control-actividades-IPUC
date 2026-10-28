@@ -6,9 +6,11 @@ use App\Http\Controllers\ActivityTypeController;
 use App\Http\Controllers\AnnualPlanController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\CommitteeController;
+use App\Http\Controllers\CommitteeMemberController;
 use App\Http\Controllers\CommitteeUserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MemberController;
+use App\Http\Controllers\MemberPickerController;
 use App\Http\Controllers\RoleSwitchController;
 use App\Http\Controllers\SympathizerController;
 use App\Http\Controllers\SympathizerStageController;
@@ -60,10 +62,13 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('activity-types/{activityType}', [ActivityTypeController::class, 'update'])->whereNumber('activityType')->name('activity-types.update');
 
     Route::get('members', [MemberController::class, 'index'])->name('members.index');
+    Route::get('members/picker', MemberPickerController::class)->name('members.picker');
     Route::get('members/create', [MemberController::class, 'create'])->name('members.create');
     Route::post('members', [MemberController::class, 'store'])->name('members.store');
     Route::get('members/{member}/edit', [MemberController::class, 'edit'])->whereNumber('member')->name('members.edit');
     Route::put('members/{member}', [MemberController::class, 'update'])->whereNumber('member')->name('members.update');
+    Route::post('committees/{committee}/members', [CommitteeMemberController::class, 'store'])->whereNumber('committee')->name('committee-members.store');
+    Route::delete('committees/{committee}/members/{member}', [CommitteeMemberController::class, 'destroy'])->whereNumber(['committee', 'member'])->name('committee-members.destroy');
 
     Route::get('sympathizers', [SympathizerController::class, 'index'])->name('sympathizers.index');
     Route::get('sympathizers/create', [SympathizerController::class, 'create'])->name('sympathizers.create');

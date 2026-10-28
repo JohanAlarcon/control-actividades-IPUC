@@ -123,7 +123,7 @@ La excepción está amparada por el principio I, excepción 1, de la constituci�
 | `/members/{member}/edit` | GET | `Members/Form` | `member`, `committees[]`, `canLeaveWithoutCommittee` |
 | `/members/{member}` | PUT | — | corrige; conserva el valor anterior (RF-056) |
 | `/members/{member}/history` | GET | `Members/History` | `trail[]` leído por la relación del modelo, nunca de `activity_log` (V-01) |
-| `/members/picker` | GET | — (respuesta para el buscador) | `results[]`: `{ id, name, age }` y **nada más** — excepción 4 (`Member::forPicker()`, D-33) |
+| `/members/picker` | GET | — (respuesta para el buscador) | `results[]`: `{ id, name, age }` y **nada más** — excepción 4 (`Member::forPicker()`, D-33); `q` de dos letras o más, por el comienzo de cada palabra, veinte como máximo |
 | `/committees/{committee}/members` | POST | — | agrega a la lista del nodo a un miembro ya registrado, con su función (RF-084, RF-085) |
 | `/committees/{committee}/members/{member}` | DELETE | — | lo quita de la lista: cierra la pertenencia, no la borra |
 | `/members/import` | GET, POST | `Members/Import` | `preview[]`, `errors[]`, `validCount`, `invalidCount`, `duplicates[]` |

@@ -34,6 +34,7 @@ const TABLAS_CON_AMBITO_DE_COMITE = [
     'activities',
     'approvals',
     'members',
+    'committee_member',
     'sympathizers',
 ];
 

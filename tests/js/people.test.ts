@@ -1,4 +1,4 @@
-import { ageText, daysAgo, maritalLabel, memberMatches, membersUrl, STAGES } from '@/lib/people';
+import { ADULT_ONLY, ageText, daysAgo, functionLabel, maritalLabel, memberMatches, membersUrl, STAGES } from '@/lib/people';
 import { describe, expect, it } from 'vitest';
 
 describe('maritalLabel', () => {
@@ -58,5 +58,25 @@ describe('memberMatches: buscar a un hermano por nombre o por barrio (HU-10, esc
 
     it('cada palabra tiene que estar', () => {
         expect(memberMatches(hermano, 'julian salado')).toBe(false);
+    });
+});
+
+describe('el estado civil «divorciado» (RF-031)', () => {
+    it('se dice como corresponde y es solo de mayores de edad', () => {
+        expect(maritalLabel('divorced', 'f')).toBe('Divorciada');
+        expect(maritalLabel('divorced', 'm')).toBe('Divorciado');
+        expect(ADULT_ONLY).toContain('divorced');
+    });
+});
+
+describe('functionLabel: lo que hace la persona en la lista de un comité (RF-084)', () => {
+    it('dice el cargo de la directiva, y si es hombre o mujer', () => {
+        expect(functionLabel({ role: 'board', boardPosition: 'president' }, 'f')).toBe('Presidenta');
+        expect(functionLabel({ role: 'board', boardPosition: 'vocal' }, 'm')).toBe('Vocal');
+    });
+
+    it('las demás funciones, sin cargo', () => {
+        expect(functionLabel({ role: 'teacher', boardPosition: null }, 'f')).toBe('Maestra');
+        expect(functionLabel({ role: 'member', boardPosition: null }, 'm')).toBe('Integrante');
     });
 });

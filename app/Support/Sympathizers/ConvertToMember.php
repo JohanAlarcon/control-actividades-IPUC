@@ -9,7 +9,7 @@ use App\Models\Sympathizer;
  * El paso a miembro, una vez lo aprueba el pastor (RF-045, RN-06). La persona entra a la lista de
  * miembros conservando su fecha de bautismo, y la ficha de simpatizante queda enlazada —nunca se
  * borra—, con su primer contacto y todo su camino (CL-10). La ficha nueva queda por completar: el
- * estado civil y el comite los anota quien la reciba.
+ * estado civil lo anota el pastor, y cada comite la agrega a su lista (RF-085).
  */
 class ConvertToMember
 {
@@ -19,7 +19,6 @@ class ConvertToMember
 
         $miembro = Member::create([
             'site_id' => $persona->site_id,
-            'committee_id' => null,
             'name' => $persona->name,
             'birth_date' => $persona->birth_date,
             'age_reported' => $persona->age_reported,

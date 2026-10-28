@@ -14,23 +14,22 @@ class MemberPolicy
         return true;
     }
 
-    /** Registra el pastor o cualquier cargo, en los comites de su alcance. */
+    /** El padrón lo lleva el pastor: solo él registra una ficha (RF-085, D-33). */
     public function create(User $quien): bool
     {
-        $scope = app(CurrentScope::class);
-
-        return $scope->user()?->is($quien) === true && ($scope->isPastor() || $scope->activeRole() !== null);
+        return $this->esElPastor($quien);
     }
 
-    /** Corrige quien la ve por su cargo. A quien no esta en ningun comite lo corrige el pastor (CL-03). */
+    /** Y solo él la corrige. Los cargos arman su lista, sin tocar los datos de nadie (CL-28). */
     public function update(User $quien, Member $miembro): bool
+    {
+        return $this->esElPastor($quien);
+    }
+
+    private function esElPastor(User $quien): bool
     {
         $scope = app(CurrentScope::class);
 
-        if ($scope->user()?->is($quien) !== true) {
-            return false;
-        }
-
-        return $scope->isPastor() || ($scope->activeRole() !== null && $miembro->committee_id !== null && $scope->sees($miembro->committee_id));
+        return $scope->user()?->is($quien) === true && $scope->isPastor();
     }
 }

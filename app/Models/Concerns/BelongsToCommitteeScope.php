@@ -18,29 +18,19 @@ trait BelongsToCommitteeScope
         static::addGlobalScope('committee', function (Builder $query) {
             $scope = app(CurrentScope::class);
 
-            if (! $scope->isActive()) {
-                return;
+            if ($scope->isActive()) {
+                $query->getModel()->applyCommitteeScope($query, $scope);
             }
-
-            $columna = $query->getModel()->getTable().'.'.$query->getModel()->committeeScopeColumn();
-
-            $query->where(function (Builder $filtro) use ($query, $scope, $columna) {
-                $filtro->whereIn($columna, $scope->committeeIds());
-
-                if ($scope->isPastor() && $query->getModel()->unassignedVisibleToPastor()) {
-                    $filtro->orWhereNull($columna);
-                }
-            });
         });
     }
 
     /**
-     * Si el pastor ve tambien las filas sin comite. Solo las fichas de miembros las tienen: quien no
-     * esta en ningun comite sigue contando en los reportes de la congregacion (CL-03).
+     * El filtro de siempre: el comite de la fila, dentro del ambito. Un modelo que llega a su comite
+     * de otra forma —los miembros, por sus pertenencias— lo sobrescribe.
      */
-    public function unassignedVisibleToPastor(): bool
+    public function applyCommitteeScope(Builder $query, CurrentScope $scope): void
     {
-        return false;
+        $query->whereIn($this->getTable().'.'.$this->committeeScopeColumn(), $scope->committeeIds());
     }
 
     /** El modelo que no guarde el comite en committee_id sobrescribe esto. */
