@@ -100,6 +100,54 @@ class DemoCalendarSeeder extends Seeder
                 $this->actividad($comite, $titulo, $clase, Carbon::create($anio + 1, $mes, 14, 19, 0, 0, 'America/Bogota'), $proximo, null);
             }
         }
+
+        $this->internos($anio);
+    }
+
+    /**
+     * Dos cronogramas internos, como los que piden los comités en el levantamiento (HU-27). Sus
+     * actividades no pasan por aprobación y se cruzan con el general. Quien dirige va por su cargo.
+     */
+    private function internos(int $anio): void
+    {
+        $internos = [
+            ['Comité de Alabanza', 'Ensayos del segundo semestre', 7, 12, 'Ensayo', [['Ensayo general', 'El director de alabanza'], ['Ensayo de voces', 'La directora del coro'], ['Ensayo con instrumentos', 'El director de alabanza']]],
+            ['Comité de Escuela Dominical', 'Clases de Semillitas de Amor', 2, 11, 'Reunión', [['Clase: la creación', 'La maestra de Semillitas'], ['Clase: el arca de Noé', 'La maestra de Semillitas']]],
+        ];
+
+        foreach ($internos as [$nombre, $cronograma, $desde, $hasta, $clase, $actividades]) {
+            $comite = Committee::where('name', $nombre)->firstOrFail();
+            $interno = Schedule::create([
+                'site_id' => $comite->site_id,
+                'committee_id' => $comite->id,
+                'kind' => Schedule::INTERNAL,
+                'year' => $anio,
+                'name' => $cronograma,
+                'starts_on' => Carbon::create($anio, $desde, 1),
+                'ends_on' => Carbon::create($anio, $hasta, 1)->endOfMonth(),
+            ]);
+            $quien = CommitteeUser::current()->where('committee_id', $comite->id)->value('user_id') ?? User::where('username', 'pastor')->value('id');
+
+            foreach ($actividades as $vez => [$titulo, $dirige]) {
+                $fecha = now('America/Bogota')->startOfWeek()->addWeeks($vez + 1)->next(Carbon::SATURDAY)->setTime(15, 0);
+                $fecha = $fecha->month > $hasta ? Carbon::create($anio, $hasta, 1, 15, 0, 0, 'America/Bogota') : $fecha;
+
+                Activity::create([
+                    'site_id' => $comite->site_id,
+                    'committee_id' => $comite->id,
+                    'schedule_id' => $interno->id,
+                    'title' => $titulo,
+                    'scheduled_at' => $fecha,
+                    'ends_at' => $fecha->copy()->addHours(2),
+                    'location' => 'Templo central',
+                    'responsible_name' => $dirige,
+                    'activity_type_id' => ActivityType::where('site_id', $comite->site_id)->where('name', $clase)->value('id'),
+                    'status' => Activity::APPROVED,
+                    'proposed_by_user_id' => $quien,
+                    'proposed_at' => now(),
+                ]);
+            }
+        }
     }
 
     private function actividad(string $comite, string $titulo, string $clase, Carbon $fecha, AnnualPlan $plan, ?User $aprobo): Activity

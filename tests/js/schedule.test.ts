@@ -1,5 +1,5 @@
 import { dateLimits } from '@/lib/activities';
-import { dayParts, HIGHLIGHT_INFO, isOwn, lookOf, scheduleUrl, STATUS_INFO } from '@/lib/schedule';
+import { periodLabel, dayParts, HIGHLIGHT_INFO, isOwn, lookOf, scheduleUrl, STATUS_INFO } from '@/lib/schedule';
 import type { OwnActivity, SharedActivity } from '@/types/schedule';
 import { describe, expect, it } from 'vitest';
 
@@ -74,5 +74,15 @@ describe('dateLimits del plan', () => {
 
     it('para el plan de este año, desde hoy', () => {
         expect(dateLimits(new Date('2026-03-10T10:00:00-05:00'), 2026)).toEqual({ min: '2026-03-10', max: '2026-12-31' });
+    });
+});
+
+describe('periodLabel: el periodo de un cronograma interno', () => {
+    it('dice de qué día a qué día va, con el año al final', () => {
+        expect(periodLabel('2026-02-01', '2026-06-30')).toBe('Del 1 de febrero al 30 de junio de 2026');
+    });
+
+    it('el primero de enero sigue siendo el primero de enero, en cualquier zona horaria', () => {
+        expect(periodLabel('2026-01-01', '2026-12-31')).toBe('Del 1 de enero al 31 de diciembre de 2026');
     });
 });

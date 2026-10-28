@@ -390,6 +390,7 @@ pastor aprueba, en un acto único, y queda identificado con quién y cuándo (RF
 | `scheduled_at` | datetime | obligatorio, dentro del año en curso, no pasada (CL-07) |
 | `ends_at` | datetime | obligatoria, el mismo día y después de la hora de inicio (RF-028, D-37) |
 | `location` | string, nulo | |
+| `responsible_name` | string(80), nulo | quién la dirige, escrito a mano como en las tareas (HU-27 esc. 2); reservado al comité, no viaja en el cronograma compartido |
 | `activity_type_id` | fk → `activity_types` | obligatorio; la clase debe estar activa al proponer (D-25) |
 | `status` | enum | `pending` \| `approved` \| `in_progress` \| `completed` \| `rejected` (RF-026) |
 | `progress` | tinyint | 0..100, **calculado** desde las tareas (RF-027) |

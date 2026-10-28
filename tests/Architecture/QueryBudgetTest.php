@@ -43,6 +43,7 @@ const MEDIDAS_EN_SU_PRUEBA = [
     'committees.show' => 'tests/Feature/Committees/CommitteeShowTest.php',
     'committees.identity.edit' => 'tests/Feature/Committees/CommitteeIdentityTest.php',
     'committees.logo' => 'tests/Feature/Committees/CommitteeIdentityTest.php',
+    'schedules.show' => 'tests/Feature/Schedules/InternalScheduleTest.php',
     'activities.show' => 'tests/Feature/Activities/ActivityShowTest.php',
     'members.edit' => 'tests/Feature/Members/MemberIndexTest.php',
     'sympathizers.show' => 'tests/Feature/Sympathizers/SympathizerShowTest.php',

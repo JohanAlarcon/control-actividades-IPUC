@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\Activity;
 use App\Models\CommitteeUser;
 use App\Models\Schedule;
+use App\Support\Activities\LocalTime;
 use App\Support\Activities\ScheduleConflict;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Carbon;
@@ -130,8 +131,7 @@ class StoreActivityRequest extends FormRequest
 
     private function momento(string $hora): Carbon
     {
-        return Carbon::createFromFormat('Y-m-d H:i', $this->input('date').' '.$hora, self::ZONE)
-            ->setTimezone(config('app.timezone'));
+        return LocalTime::of($this->input('date'), $hora);
     }
 
     public function messages(): array

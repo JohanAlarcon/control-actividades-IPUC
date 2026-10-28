@@ -40,6 +40,7 @@ class Activity extends Model
         'scheduled_at',
         'ends_at',
         'location',
+        'responsible_name',
         'activity_type_id',
         'status',
         'budget_amount',

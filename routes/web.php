@@ -14,6 +14,7 @@ use App\Http\Controllers\MemberController;
 use App\Http\Controllers\MemberPickerController;
 use App\Http\Controllers\MonthNoteController;
 use App\Http\Controllers\RoleSwitchController;
+use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\SiteMottoController;
 use App\Http\Controllers\SympathizerAssignmentController;
 use App\Http\Controllers\SympathizerController;
@@ -64,6 +65,11 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('annual-plan/{year}/activities', [AnnualPlanController::class, 'storeActivity'])->whereNumber('year')->name('annual-plan.activities.store');
     Route::post('annual-plan/{year}/approve', [AnnualPlanController::class, 'approve'])->whereNumber('year')->name('annual-plan.approve');
+
+    Route::get('schedules', [ScheduleController::class, 'index'])->name('schedules.index');
+    Route::post('schedules', [ScheduleController::class, 'store'])->name('schedules.store');
+    Route::get('schedules/{schedule}', [ScheduleController::class, 'show'])->whereNumber('schedule')->name('schedules.show');
+    Route::post('schedules/{schedule}/activities', [ScheduleController::class, 'storeActivity'])->whereNumber('schedule')->name('schedules.activities.store');
 
     Route::post('month-notes', [MonthNoteController::class, 'store'])->name('month-notes.store');
     Route::delete('month-notes/{note}', [MonthNoteController::class, 'destroy'])->whereNumber('note')->name('month-notes.destroy');

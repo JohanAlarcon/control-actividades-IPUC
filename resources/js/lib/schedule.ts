@@ -17,6 +17,18 @@ export const HIGHLIGHT_INFO: Record<Highlight, { label: string; text: string }> 
     national: { label: 'Nacional', text: 'text-distrito' },
 };
 
+const dayAndMonth = new Intl.DateTimeFormat('es-CO', { timeZone: 'UTC', day: 'numeric', month: 'long' });
+
+/**
+ * «Del 1 de febrero al 30 de junio de 2026»: el periodo de un cronograma interno. Las fechas llegan
+ * sin hora y se leen en UTC, para que el 1 de enero no se vuelva el 31 de diciembre.
+ */
+export function periodLabel(startsOn: string, endsOn: string): string {
+    const [from, to] = [new Date(`${startsOn}T00:00:00Z`), new Date(`${endsOn}T00:00:00Z`)];
+
+    return `Del ${dayAndMonth.format(from)} al ${dayAndMonth.format(to)} de ${to.getUTCFullYear()}`;
+}
+
 export const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
 /** Lo propio trae su avance; lo ajeno, solo los seis datos compartidos. */
