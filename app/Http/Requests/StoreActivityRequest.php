@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\Activity;
 use App\Models\CommitteeUser;
+use App\Models\Schedule;
 use App\Support\Activities\ScheduleConflict;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Carbon;
@@ -100,6 +101,7 @@ class StoreActivityRequest extends FormRequest
         return [
             'site_id' => $cargo->site_id,
             'committee_id' => $cargo->committee_id,
+            'schedule_id' => Schedule::generalOf($cargo->site_id, $this->scheduledAt()->year)->id,
             'title' => $this->validated('title'),
             'theme' => $this->validated('theme'),
             'highlight' => $this->validated('highlight'),

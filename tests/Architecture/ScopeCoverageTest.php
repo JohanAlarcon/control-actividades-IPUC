@@ -36,6 +36,7 @@ const TABLAS_CON_AMBITO_DE_COMITE = [
     'members',
     'committee_member',
     'sympathizers',
+    'schedules',
 ];
 
 function modelosDelProyecto(): array

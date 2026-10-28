@@ -959,8 +959,9 @@ se repite, comprobando que se cruzan sin problema y que un cargo ajeno no los ve
 **Escenarios de Aceptación**:
 
 1. **Dado** que soy presidente, **cuando** creo un cronograma interno con su nombre y sus fechas
-   —por ejemplo «Módulo 1, enero a marzo»—, **entonces** queda solo para mi comité, mis
-   sub-comités y el pastor.
+   —por ejemplo «Módulo 1, enero a marzo»—, **entonces** lo ven solo los cargos de mi comité y el
+   pastor. El líder de un sub-comité ve los internos de su sub-comité, no los del comité (RF-086,
+   principio I).
 2. **Dado** que tengo un cronograma interno, **cuando** agrego una actividad con título, tema,
    fecha, hora de inicio y de fin, lugar y responsable, **entonces** queda registrada sin pasar por
    aprobación (P-03).

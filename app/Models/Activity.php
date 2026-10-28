@@ -32,6 +32,7 @@ class Activity extends Model
         'site_id',
         'committee_id',
         'annual_plan_id',
+        'schedule_id',
         'title',
         'theme',
         'highlight',
@@ -68,6 +69,17 @@ class Activity extends Model
             'progress' => 'integer',
             'budget_amount' => 'decimal:2',
         ];
+    }
+
+    public function schedule(): BelongsTo
+    {
+        return $this->belongsTo(Schedule::class);
+    }
+
+    /** Solo lo del cronograma general (D-35): lo interno de cada comité no se comparte ni se cruza. */
+    public function scopeInGeneralSchedule(Builder $query): void
+    {
+        $query->whereIn('activities.schedule_id', Schedule::query()->where('schedules.kind', Schedule::GENERAL)->select('schedules.id'));
     }
 
     public function activityType(): BelongsTo
@@ -120,7 +132,7 @@ class Activity extends Model
      * compartido. Retira el filtro del cargo, nunca el de la sede, y trae a mano solo los seis
      * datos que se comparten —titulo, fecha, hora de inicio y de fin, lugar, estado y el nombre del
      * comite— mas el numero para abrirla. Nunca la descripcion, el presupuesto, las tareas, el tema
-     * ni la marca (P-09). Solo lee: no sirve de base para modificar, borrar ni descargar, y no da
+     * ni la marca (P-09), y nada de los cronogramas internos (D-35). Solo lee: no sirve de base para modificar, borrar ni descargar, y no da
      * permiso de nada; la policy sigue negando toda escritura sobre lo ajeno. SharedCalendarTest
      * lo vigila con una lista blanca.
      */
@@ -129,6 +141,7 @@ class Activity extends Model
         return static::query()
             ->withoutGlobalScope('committee')
             ->join('committees', 'committees.id', '=', 'activities.committee_id')
+            ->inGeneralSchedule()
             ->select([
                 'activities.id',
                 'activities.title',

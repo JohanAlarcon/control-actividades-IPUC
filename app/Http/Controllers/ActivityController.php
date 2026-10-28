@@ -216,6 +216,7 @@ class ActivityController extends Controller
     private function propias(int $anio, ?int $comite): Collection
     {
         return ScheduleCards::ownQuery()
+            ->inGeneralSchedule()
             ->whereBetween('activities.scheduled_at', ScheduleCards::yearRange($anio))
             ->where('activities.status', '!=', Activity::REJECTED)
             ->get()

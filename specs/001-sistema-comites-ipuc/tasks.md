@@ -1514,10 +1514,11 @@ actividades de un sub-comité.
       Verifica: `php artisan test --filter=MonthNoteTest` — un presidente no puede registrar una nota; la nota de un mes no sale en otro.
       **Hecha el 2026-10-28.** Viajan como propiedad diferida del cronograma y de la hoja impresa, para no pasar del presupuesto. Salen en mayúsculas junto al nombre del mes, en rojo lo de la sede y en naranja lo del distrito; el pastor las agrega debajo del calendario y las quita con una segunda confirmación. Verificada a 360 px.
 
-- [ ] T224 [US27] · Cronogramas: migración, modelo y filtro
+- [x] T224 [US27] · Cronogramas: migración, modelo y filtro
       Archivos: `database/migrations/<ts>_create_schedules_table.php` · `app/Models/Schedule.php` · `database/migrations/<ts>_add_schedule_to_activities.php`
       D-35. Cada actividad que ya existe queda en el cronograma general de su año. `ScopeCoverageTest` cubre la tabla nueva. `forSharedCalendar()` y `ScheduleConflict` pasan a tomar solo el cronograma general (lo que dejó pendiente T218).
       Verifica: `php artisan test --filter=ScheduleModelTest` · `ScopeCoverageTest` en verde · `migrate:fresh --seed` sin errores.
+      **Hecha el 2026-10-28.** El general es de la sede, sin comité, y pasa el filtro para todo cargo; los internos, solo para su comité, sus ascendientes y el pastor. `Schedule::generalOf()` lo crea el primero que lo necesita: al proponer, al cargar al plan y en las semillas. `inGeneralSchedule()` deja fuera lo interno del calendario compartido, de los cruces y del cronograma general del propio comité, en pantalla y en la hoja impresa. La migración se ensayó sobre las 39 actividades de ejemplo: cada una quedó en el general de su año, y se devuelve sin error. Se corrigió el escenario 1 de HU-27, que decía que los sub-comités ven el interno del comité: contradecía RF-086 y el principio I.
 
 - [ ] T225 [US27] · Pantallas de los cronogramas internos y sus actividades
       Archivos: `app/Http/Controllers/ScheduleController.php` · `app/Http/Requests/StoreInternalActivityRequest.php` · `resources/js/pages/Schedules/Index.tsx`, `Schedules/Show.tsx` · `lib/navigation.ts`

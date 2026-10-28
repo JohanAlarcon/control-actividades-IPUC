@@ -6,6 +6,7 @@ use App\Models\Activity;
 use App\Models\ActivityType;
 use App\Models\Approval;
 use App\Models\CommitteeUser;
+use App\Models\Schedule;
 use App\Models\User;
 use App\Support\Approvals\ApprovalFlow;
 use Illuminate\Database\Seeder;
@@ -41,6 +42,7 @@ class DemoApprovalsSeeder extends Seeder
         $actividad = Activity::create([
             'site_id' => $cargo->site_id,
             'committee_id' => $cargo->committee_id,
+            'schedule_id' => Schedule::generalOf($cargo->site_id, now()->addDays(10 + $diasAtras)->year)->id,
             'title' => $titulo,
             'scheduled_at' => now()->addDays(10 + $diasAtras)->setTime(16, 0),
             'ends_at' => now()->addDays(10 + $diasAtras)->setTime(18, 0),

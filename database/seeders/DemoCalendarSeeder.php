@@ -8,6 +8,7 @@ use App\Models\AnnualPlan;
 use App\Models\Committee;
 use App\Models\CommitteeUser;
 use App\Models\MonthNote;
+use App\Models\Schedule;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
@@ -110,6 +111,7 @@ class DemoCalendarSeeder extends Seeder
             'site_id' => $donde->site_id,
             'committee_id' => $donde->id,
             'annual_plan_id' => $plan->id,
+            'schedule_id' => Schedule::generalOf($donde->site_id, $fecha->year)->id,
             'title' => $titulo,
             'theme' => self::MARCAS[$titulo][0] ?? null,
             'highlight' => self::MARCAS[$titulo][1] ?? null,
