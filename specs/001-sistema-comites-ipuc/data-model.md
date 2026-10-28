@@ -402,6 +402,8 @@ pastor aprueba, en un acto único, y queda identificado con quién y cuándo (RF
 | `rejection_reason` | text, nulo | obligatorio si `status` = `rejected` (RF-020) |
 | `completed_at` | datetime, nulo | |
 | `completed_by_user_id` | fk → `users`, nulo | quien la marcó cumplida a mano, si no tenía tareas (R-04); `restrict` (D-22) |
+| `cancelled_at` | datetime, nulo | una fecha de un cronograma interno que se canceló sola (CL-30): no se borra |
+| `cancelled_by_user_id` | fk → `users`, nulo | quién la canceló (principio III); `restrict` (D-22) |
 
 **Ámbito**: sede+comité, **con la excepción 1 del principio I** —constitución 3.0.0—:
 `Activity::forSharedCalendar()` retira el filtro de comité, toma solo las actividades del

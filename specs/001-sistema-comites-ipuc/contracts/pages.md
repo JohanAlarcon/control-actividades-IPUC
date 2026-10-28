@@ -304,7 +304,8 @@ lo que verifica la prueba de aislamiento de cada pantalla.
 | `/committees/{committee}/logo` GET | — (la imagen) | su ámbito, por el filtro del cargo; el archivo está fuera de `public/` | a otro comité: «no disponible» |
 | `/schedules` GET, POST | `Schedules/Index` | ver: todo cargo del comité dueño, sus ascendientes y el pastor; crear: el presidente o el líder, sobre su nodo | los cronogramas internos de otro comité, ni que existen (RF-086) |
 | `/schedules/{schedule}` GET | `Schedules/Show` | su ámbito; el general responde «no disponible». `types` llega diferida | — |
-| `/schedules/{schedule}/activities` POST | — | el presidente o el líder del comité dueño; crea una, o una serie con T226 (RF-088) | — |
+| `/schedules/{schedule}/activities` POST | — | el presidente o el líder del comité dueño; crea una, o una serie de hasta sesenta fechas (RF-088, D-38) | — |
+| `/activities/{activity}/move` POST · `/activities/{activity}/cancel` POST | — | el presidente o el líder del comité dueño, sobre una fecha de un interno; lo del general no se mueve ni se cancela por aquí | a otro comité: «no disponible» |
 | `/activities/{activity}/service-order` GET, PUT | `ServiceOrders/Edit` | la directiva del comité del culto | a otro comité: nada (RF-094) |
 | `/birthdays` GET | `Birthdays/Index` | todo cargo, sobre su ámbito | nadie fuera del ámbito (HU-29 esc. 5) |
 | `/print/activities` GET | `Print/Activities` | presidente y líder, sobre su nodo | lo de otro nodo |
