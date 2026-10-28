@@ -9,6 +9,7 @@ use App\Models\Sympathizer;
 use App\Models\User;
 use App\Support\Sympathizers\Assignments;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
 
 /**
  * Miembros y simpatizantes de ejemplo. TODO ES FICTICIO: la constitucion prohibe datos reales de
@@ -17,7 +18,11 @@ use Illuminate\Database\Seeder;
  */
 class DemoPeopleSeeder extends Seeder
 {
-    /** Nombre, genero, fecha de nacimiento o edad anotada, estado civil, año de bautismo y comite. */
+    /**
+     * Nombre, genero, fecha de nacimiento o edad anotada, estado civil, año de bautismo y comite. La
+     * fecha puede ir contada desde el dia en que se siembra, para que la demostracion siempre tenga
+     * cumpleaños en la semana (HU-29).
+     */
     private const MIEMBROS = [
         ['Hermano Julián Restrepo', 'm', '1979-04-12', 'married', 1998, 'Comité de Alabanza'],
         ['Hermana Marleny Ortiz', 'f', '1984-09-30', 'married', 2003, 'Sub-comité Mujeres Virtuosas'],
@@ -36,6 +41,8 @@ class DemoPeopleSeeder extends Seeder
         ['Hermano Luis Alfonso Mejía', 'm', '1981-10-10', 'common_law', null, 'Comité de Caballeros'],
         ['Hermana Paola Andrea Díaz', 'f', '1995-04-18', 'married', 2014, null],
         ['Hermano Gustavo Arango', 'm', 45, 'married', 2001, null],
+        ['Hermana Esneda Rivera', 'f', '-38 years', 'married', 2005, 'Comité de Damas Dorcas'],
+        ['Hermano Libardo Gómez', 'm', '+3 days -29 years', 'single', 2015, 'Comité de Alabanza'],
     ];
 
     /** Nombre, genero, dias desde el primer contacto, etapa alcanzada y dias atras de cada contacto. */
@@ -59,7 +66,7 @@ class DemoPeopleSeeder extends Seeder
             $miembro = Member::create([
                 'site_id' => $pastor->site_id,
                 'name' => $nombre,
-                'birth_date' => is_string($edad) ? $edad : null,
+                'birth_date' => is_string($edad) ? Carbon::parse($edad)->toDateString() : null,
                 'age_reported' => is_int($edad) ? $edad : null,
                 'age_reported_at' => is_int($edad) ? now()->subMonths(8)->toDateString() : null,
                 'gender' => $genero,

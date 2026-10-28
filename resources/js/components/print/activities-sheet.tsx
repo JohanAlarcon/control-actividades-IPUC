@@ -1,7 +1,8 @@
 import CommitteeBadge from '@/components/committees/committee-badge';
+import { dayTitle } from '@/lib/calendar';
 import { timeRange } from '@/lib/format';
 import { periodLabel } from '@/lib/schedule';
-import { byDay, dayTitle, responsibleOf } from '@/lib/share';
+import { byDay, responsibleOf } from '@/lib/share';
 import type { PrintActivity, PrintCommittee, PrintPeriod } from '@/types/print';
 
 interface Props {

@@ -79,6 +79,13 @@ export function dayLabel(date: string): string {
     return longDay.format(Date.parse(date));
 }
 
+/** «Jueves, 7 de mayo»: lo mismo, para empezar un renglón. */
+export function dayTitle(date: string): string {
+    const label = dayLabel(date);
+
+    return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
 /** El mes que se abre si no se escogió ninguno: el de hoy, si es el año en curso; si no, enero. */
 export function defaultMonth(year: number, today: string): number {
     return Number(today.slice(0, 4)) === year ? Number(today.slice(5, 7)) : 1;

@@ -5,6 +5,7 @@ use App\Http\Controllers\ActivityTaskController;
 use App\Http\Controllers\ActivityTypeController;
 use App\Http\Controllers\AnnualPlanController;
 use App\Http\Controllers\ApprovalController;
+use App\Http\Controllers\BirthdayController;
 use App\Http\Controllers\CommitteeController;
 use App\Http\Controllers\CommitteeIdentityController;
 use App\Http\Controllers\CommitteeMemberController;
@@ -60,6 +61,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('activities/create', [ActivityController::class, 'create'])->name('activities.create');
     Route::get('activities/print', [ActivityController::class, 'print'])->name('activities.print');
     Route::get('print/activities', PrintActivitiesController::class)->name('print.activities');
+    Route::get('birthdays', [BirthdayController::class, 'index'])->name('birthdays.index');
     Route::post('activities', [ActivityController::class, 'store'])->name('activities.store');
     Route::get('activities/{activity}', [ActivityController::class, 'show'])->whereNumber('activity')->name('activities.show');
     Route::post('activities/{activity}/complete', [ActivityController::class, 'complete'])->whereNumber('activity')->name('activities.complete');

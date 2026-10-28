@@ -1621,15 +1621,17 @@ llenar el orden de un culto y dejar otro incompleto, y entrar el día de un cump
       RF-093, P-04. En la pantalla de inicio de la directiva.
       Verifica: `php artisan test --filter=ServiceOrderDeadlineTest` — dieciséis días: nada; quince: pendiente; ocho: atrasado (CL-31).
 
-- [ ] T236 [US29] · Los cumpleaños y la alerta al entrar
+- [x] T236 [US29] · Los cumpleaños y la alerta al entrar
       Archivos: `app/Support/People/Birthdays.php` · `tests/Unit/People/BirthdaysTest.php` · `resources/js/components/dashboard/birthday-alert.tsx`
       D-42, RF-095. Propiedad diferida de la pantalla de inicio; se puede cerrar.
       Verifica: `php artisan test --filter=BirthdaysTest` — hoy y los próximos siete días; el 29 de febrero en un año no bisiesto (CL-32); nadie fuera del ámbito · a 360 px.
+      **Hecha el 2026-10-28.** Salen los miembros activos y los simpatizantes del ámbito, con el filtro de siempre; el simpatizante que ya es miembro sale una sola vez, como miembro. La alerta va arriba en el inicio, en su propia petición diferida: dice quién cumple hoy y cuántos años, y al abrirla, los de los siete días que siguen con su fecha; si hoy no cumple nadie, muestra directamente los de la semana. Se cierra hasta el día siguiente, y eso lo recuerda el navegador. Al final del año, los primeros días de enero cuentan como del año siguiente. Los niños se suman con la fase R4. La demostración tiene dos cumpleaños contados desde el día en que se siembra, para que la alerta se vea. Verificada a 360 px.
 
-- [ ] T237 [US29] · La lista de cumpleaños por mes
+- [x] T237 [US29] · La lista de cumpleaños por mes
       Archivos: `app/Http/Controllers/BirthdayController.php` · `resources/js/pages/Birthdays/Index.tsx`
       HU-29 escenarios 3 a 5. Miembros, simpatizantes y niños del ámbito, con su fecha y su código; cuántos no tienen fecha.
       Verifica: `php artisan test --filter=BirthdayListTest` · a 360 px · medición de consultas.
+      **Hecha el 2026-10-28.** `/birthdays`, en el menú del costado y en los atajos del inicio. Abre en el mes de hoy, y un mes que ya pasó se muestra como viene, el del año siguiente, con la edad que cumplirán. Cada persona con su día, los años que cumple y su código; el simpatizante dice «Simpatizante», porque no tiene código. Debajo, cuántas fichas no tienen fecha de nacimiento. Cinco consultas. Verificada a 360 px.
 
 - [ ] T238 [US22] · El acta sobre una actividad o una reunión imprevista
       Archivos: `database/migrations/<ts>_create_minutes_table.php` · `app/Models/Minute.php`

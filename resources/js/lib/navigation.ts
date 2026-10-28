@@ -1,6 +1,6 @@
 import { decidesApprovals } from '@/lib/roles';
 import type { SharedProps } from '@/types/shared';
-import { CalendarDays, CalendarRange, HeartHandshake, House, Inbox, Network, Quote, UserRound, UsersRound, type LucideIcon } from 'lucide-react';
+import { Cake, CalendarDays, CalendarRange, HeartHandshake, House, Inbox, Network, Quote, UserRound, UsersRound, type LucideIcon } from 'lucide-react';
 
 export interface MenuItem {
     href: string;
@@ -29,6 +29,7 @@ export function navItems({ auth, scope, pendingCount }: Pick<SharedProps, 'auth'
         { href: '/committees', label: 'Comités', icon: Network, onPhone: !decides },
         { href: '/members', label: 'Miembros', icon: UserRound, onPhone: false },
         ...(auth.followsSympathizers ? [{ href: '/sympathizers', label: 'Simpatizantes', icon: HeartHandshake, onPhone: false }] : []),
+        { href: '/birthdays', label: 'Cumpleaños', icon: Cake, onPhone: false },
         ...(isPastor ? [{ href: '/users', label: 'Cuentas', icon: UsersRound, onPhone: false }] : []),
         ...(isPastor ? [{ href: '/site-motto', label: 'Lema del año', icon: Quote, onPhone: false }] : []),
     ];

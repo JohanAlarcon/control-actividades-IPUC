@@ -1,4 +1,4 @@
-import { dayLabel } from '@/lib/calendar';
+import { dayTitle } from '@/lib/calendar';
 import { calendarDate, timeRange } from '@/lib/format';
 import { periodLabel } from '@/lib/schedule';
 import type { PrintActivity, PrintPeriod } from '@/types/print';
@@ -13,13 +13,6 @@ export function byDay(activities: PrintActivity[]): { date: string; activities: 
     }
 
     return [...days].map(([date, list]) => ({ date, activities: list }));
-}
-
-/** «Sábado, 7 de noviembre». */
-export function dayTitle(date: string): string {
-    const label = dayLabel(date);
-
-    return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
 /** La persona que se escribió o, si no, el comité; con su sub-comité, si no es el que se imprime. */

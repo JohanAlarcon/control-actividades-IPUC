@@ -3,7 +3,7 @@ import { canPropose, decidesApprovals } from '@/lib/roles';
 import { cardClass } from '@/lib/styles';
 import type { SharedProps } from '@/types/shared';
 import { Link, usePage } from '@inertiajs/react';
-import { CalendarPlus, CalendarRange, ChevronRight, HeartHandshake, Inbox, Network, Quote, Shapes, UserPlus, UserRound, UsersRound, type LucideIcon } from 'lucide-react';
+import { Cake, CalendarPlus, CalendarRange, ChevronRight, HeartHandshake, Inbox, Network, Quote, Shapes, UserPlus, UserRound, UsersRound, type LucideIcon } from 'lucide-react';
 
 /** «¿Qué quiere hacer?»: los atajos del cargo, incluidos los que no caben en el menú del celular. */
 export default function ShortcutList() {
@@ -33,6 +33,7 @@ export default function ShortcutList() {
                 <Shortcut href="/committees" icon={Network} title="Ver los comités" text="Cómo está organizada la congregación y quién encabeza cada parte." />
                 <Shortcut href="/members" icon={UserRound} title="Miembros" text="Los hermanos de su cargo: buscarlos, registrarlos y corregir su ficha." />
                 <Shortcut href="/sympathizers/create" icon={UserPlus} title="Registrar a un simpatizante" text="Alguien que visitó la iglesia, para que no se pierda de vista." />
+                <Shortcut href="/birthdays" icon={Cake} title="Cumpleaños" text="Los de cada mes, para saludar y celebrar a tiempo." />
                 {auth.followsSympathizers && (
                     <Shortcut href="/sympathizers" icon={HeartHandshake} title="Acompañar a los simpatizantes" text="Cómo va cada persona que visita la iglesia, y quién se está alejando." />
                 )}

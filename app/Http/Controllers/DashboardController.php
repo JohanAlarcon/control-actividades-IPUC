@@ -7,6 +7,7 @@ use App\Models\Approval;
 use App\Support\Activities\ScheduleCards;
 use App\Support\Activities\ScheduleSummary;
 use App\Support\Approvals\ApprovalCards;
+use App\Support\People\Birthdays;
 use App\Support\Scope\CurrentScope;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -35,7 +36,16 @@ class DashboardController extends Controller
             'myRequests' => Inertia::defer(fn () => $this->misSolicitudes($request->user()->id), 'mine'),
             'upcoming' => Inertia::defer(fn () => $this->proximas(), 'upcoming'),
             'committeeProgress' => Inertia::defer(fn () => $this->avancePorComite($anio), 'progress'),
+            'birthdays' => Inertia::defer(fn () => $this->cumpleanos(), 'birthdays'),
         ]);
+    }
+
+    /** Quienes del ambito cumplen años hoy y en la semana que sigue (RF-095, HU-29). */
+    private function cumpleanos(): array
+    {
+        $hoy = now(ScheduleCards::ZONE);
+
+        return ['today' => $hoy->toDateString(), 'people' => Birthdays::soon(Birthdays::people(), $hoy)];
     }
 
     /** Lo que espera la decision del cargo activo, lo mas antiguo primero (RF-054). */
