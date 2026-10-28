@@ -1,8 +1,9 @@
 import HighlightBadge from '@/components/schedule/highlight-badge';
+import InternalBadge from '@/components/schedule/internal-badge';
 import OriginBadge from '@/components/schedule/origin-badge';
 import StatusBadge from '@/components/schedule/status-badge';
 import { timeRange } from '@/lib/format';
-import { dayParts, HIGHLIGHT_INFO, isOwn, lookOf } from '@/lib/schedule';
+import { dayParts, isOwn, lookOf, titleTone } from '@/lib/schedule';
 import type { CalendarActivity } from '@/types/schedule';
 import { Link } from '@inertiajs/react';
 import { ChevronRight } from 'lucide-react';
@@ -42,7 +43,8 @@ export default function ActivityRow({ activity, showDay = true }: Props) {
 function Summary({ activity, showDay }: Required<Props>) {
     const { day, weekday } = dayParts(activity.scheduledAt);
     const own = isOwn(activity);
-    const { highlight, theme } = lookOf(activity);
+    const look = lookOf(activity);
+    const { highlight, theme } = look;
 
     return (
         <>
@@ -53,7 +55,7 @@ function Summary({ activity, showDay }: Required<Props>) {
                 </span>
             )}
             <span className="min-w-0 flex-1">
-                <span className={`block text-lg leading-snug font-bold break-words ${highlight ? HIGHLIGHT_INFO[highlight].text : ''}`}>{activity.title}</span>
+                <span className={`block text-lg leading-snug font-bold break-words ${titleTone(look)}`}>{activity.title}</span>
                 {theme && <span className="block text-lg leading-snug break-words text-tema">{theme}</span>}
                 <span className="block text-lg text-tinta-suave">{activity.committee}</span>
                 <span className="block text-lg text-tinta-suave">
@@ -61,8 +63,14 @@ function Summary({ activity, showDay }: Required<Props>) {
                     {activity.location && ` · ${activity.location}`}
                 </span>
                 <span className="mt-2 flex flex-wrap gap-2">
-                    <StatusBadge status={activity.status} />
-                    {own && <OriginBadge fromPlan={activity.fromPlan} />}
+                    {own && activity.internal ? (
+                        <InternalBadge name={activity.scheduleName} />
+                    ) : (
+                        <>
+                            <StatusBadge status={activity.status} />
+                            {own && <OriginBadge fromPlan={activity.fromPlan} />}
+                        </>
+                    )}
                     {highlight && <HighlightBadge highlight={highlight} />}
                 </span>
                 {own && activity.progress > 0 && (

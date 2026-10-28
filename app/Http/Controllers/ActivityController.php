@@ -48,12 +48,13 @@ class ActivityController extends Controller
     {
         $hoy = now(ScheduleCards::ZONE)->year;
         $filtros = $this->filtros($request);
-        $tarjetas = $this->tarjetas($filtros);
+        $tarjetas = $this->tarjetas($filtros, internas: true);
 
         return Inertia::render('Activities/Index', [
             'filters' => $filtros,
             'years' => ['from' => $hoy - self::YEARS_BACK, 'to' => $hoy + 1],
-            'summary' => ScheduleSummary::of($tarjetas),
+            // El resumen es el del plan del año: lo interno se ve en el calendario, pero no se cuenta.
+            'summary' => ScheduleSummary::of($tarjetas->reject(fn (array $tarjeta) => $tarjeta['internal'] ?? false)),
             'months' => ScheduleCards::byMonth($tarjetas, $filtros['month']),
             'canPropose' => Gate::allows('create', Activity::class),
             'annualPlan' => Inertia::defer(fn () => $this->plan($filtros['year']), 'plan'),
@@ -73,7 +74,7 @@ class ActivityController extends Controller
 
         return Inertia::render('Activities/Print', [
             'filters' => $filtros,
-            'months' => ScheduleCards::byMonth($this->tarjetas($filtros), $filtros['month']),
+            'months' => ScheduleCards::byMonth($this->tarjetas($filtros, internas: false), $filtros['month']),
             'notes' => Inertia::defer(fn () => $this->notas($filtros['year']), 'notes'),
         ]);
     }
@@ -202,10 +203,14 @@ class ActivityController extends Controller
         ];
     }
 
-    /** Lo propio completo y lo ajeno con los seis datos, con los filtros puestos y en orden de fecha. */
-    private function tarjetas(array $filtros): Collection
+    /**
+     * Lo propio completo y lo ajeno con los seis datos, con los filtros puestos y en orden de fecha.
+     * En la pantalla, lo propio trae también los cronogramas internos de su ámbito (RF-119); la hoja
+     * impresa es solo el cronograma general, porque se reparte a toda la congregación.
+     */
+    private function tarjetas(array $filtros, bool $internas): Collection
     {
-        return $this->propias($filtros['year'], $filtros['committee'])
+        return $this->propias($filtros['year'], $filtros['committee'], $internas)
             ->concat($filtros['committee'] ? [] : $this->ajenas($filtros['year']))
             ->filter(fn (array $tarjeta) => ! $filtros['month'] || ScheduleCards::monthOf($tarjeta) === $filtros['month'])
             ->filter(fn (array $tarjeta) => ! $filtros['status'] || $tarjeta['status'] === $filtros['status'])
@@ -213,10 +218,11 @@ class ActivityController extends Controller
             ->values();
     }
 
-    private function propias(int $anio, ?int $comite): Collection
+    private function propias(int $anio, ?int $comite, bool $internas): Collection
     {
         return ScheduleCards::ownQuery()
-            ->inGeneralSchedule()
+            ->when(! $internas, fn ($consulta) => $consulta->inGeneralSchedule())
+            ->whereNull('activities.cancelled_at')
             ->whereBetween('activities.scheduled_at', ScheduleCards::yearRange($anio))
             ->where('activities.status', '!=', Activity::REJECTED)
             ->get()

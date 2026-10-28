@@ -64,7 +64,8 @@ export function cellTone(day: CalendarDay): string {
 }
 
 /** La marca de una actividad en la casilla del celular: rojo, naranja, o el azul del cronograma. */
-export function markerTone(highlight: Highlight | null): string {
+export function markerTone({ highlight, internal = false }: { highlight: Highlight | null; internal?: boolean }): string {
+    if (internal) return 'bg-interno';
     if (highlight === 'special_day') return 'bg-especial';
     if (highlight) return 'bg-cronograma-naranja';
 

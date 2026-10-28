@@ -1,8 +1,9 @@
 import { cellTone, dayLabel, markerTone, type CalendarDay } from '@/lib/calendar';
 import { shortTimeRange } from '@/lib/format';
-import { HIGHLIGHT_INFO, isOwn, lookOf } from '@/lib/schedule';
+import { isOwn, lookOf, titleTone } from '@/lib/schedule';
 import type { CalendarActivity } from '@/types/schedule';
 import { Link } from '@inertiajs/react';
+import { CalendarRange } from 'lucide-react';
 
 interface Props {
     day: CalendarDay;
@@ -39,7 +40,7 @@ export default function MonthDay({ day, selected, today, onSelect }: Props) {
 
             <span aria-hidden className="flex flex-col gap-1 p-1.5 xl:hidden">
                 {day.activities.slice(0, 3).map((activity) => (
-                    <span key={activity.id} className={`h-1.5 rounded-full ${markerTone(lookOf(activity).highlight)}`} />
+                    <span key={activity.id} className={`h-1.5 rounded-full ${markerTone(lookOf(activity))}`} />
                 ))}
             </span>
 
@@ -61,14 +62,23 @@ export default function MonthDay({ day, selected, today, onSelect }: Props) {
     );
 }
 
-/** Lo que se escribe en la casilla grande: el nombre en su color, el tema en azul y las horas. */
+/**
+ * Lo que se escribe en la casilla grande: el nombre en su color, el tema en azul y las horas. Lo de
+ * un cronograma interno lleva además su icono, para no depender solo del verde (RF-119).
+ */
 function Entry({ activity, label }: { activity: CalendarActivity; label: string }) {
-    const { highlight, theme } = lookOf(activity);
+    const look = lookOf(activity);
     const content = (
         <>
-            <span className="sr-only">{label}: </span>
-            <span className={`block leading-tight font-semibold break-words ${highlight ? HIGHLIGHT_INFO[highlight].text : ''}`}>{activity.title}</span>
-            {theme && <span className="block leading-tight break-words text-tema">{theme}</span>}
+            <span className="sr-only">
+                {label}
+                {look.internal ? ', cronograma interno' : ''}:{' '}
+            </span>
+            <span className={`block leading-tight font-semibold break-words ${titleTone(look)}`}>
+                {look.internal && <CalendarRange aria-hidden className="mr-1 inline size-4 align-baseline" />}
+                {activity.title}
+            </span>
+            {look.theme && <span className="block leading-tight break-words text-tema">{look.theme}</span>}
             <span className="block leading-tight text-tinta-suave">{shortTimeRange(activity.scheduledAt, activity.endsAt)}</span>
         </>
     );

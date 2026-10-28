@@ -31,7 +31,7 @@ export default function MonthNoteForm({ year, month }: { year: number; month: nu
         return (
             <button type="button" onClick={() => setOpen(true)} className={`${buttonClass.secondary} mt-6`}>
                 <StickyNote aria-hidden className="mr-2 size-6" />
-                Agregar una nota a {MONTHS[month - 1].toLowerCase()}
+                Agregar una nota del mes
             </button>
         );
     }

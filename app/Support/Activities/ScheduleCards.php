@@ -3,6 +3,7 @@
 namespace App\Support\Activities;
 
 use App\Models\Activity;
+use App\Models\Schedule;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -27,12 +28,15 @@ class ScheduleCards
             ->join('committees', 'committees.id', '=', 'activities.committee_id')
             ->leftJoin('committees as parents', 'parents.id', '=', 'committees.parent_id')
             ->leftJoin('activity_types', 'activity_types.id', '=', 'activities.activity_type_id')
+            ->leftJoin('schedules', 'schedules.id', '=', 'activities.schedule_id')
             ->select([
                 'activities.*',
                 'committees.name as committee_name',
                 'committees.parent_id as committee_parent_id',
                 'parents.name as parent_name',
                 'activity_types.name as type_name',
+                'schedules.kind as schedule_kind',
+                'schedules.name as schedule_name',
             ]);
     }
 
@@ -70,6 +74,9 @@ class ScheduleCards
             'progress' => $actividad->progress,
             'budget' => $actividad->budget_amount === null ? null : (float) $actividad->budget_amount,
             'fromPlan' => $actividad->annual_plan_id !== null,
+            // Lo de un cronograma interno sale en el calendario de su comité, en su propio color (RF-119).
+            'internal' => $actividad->schedule_kind === Schedule::INTERNAL,
+            'scheduleName' => $actividad->schedule_kind === Schedule::INTERNAL ? $actividad->schedule_name : null,
         ];
     }
 

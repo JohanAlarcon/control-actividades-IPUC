@@ -103,6 +103,7 @@
     --color-celda-azul: #f2f9ff; /* las columnas alternas del mes */
     --color-celda-domingo: #f9f2e6; /* la columna del domingo */
     --color-celda-fuera: #f5f5f5; /* los dias de otro mes */
+    --color-interno: #2f6b2f; /* lo de los cronogramas internos de su comite, en el calendario (RF-119). 5,7:1 en crema */
 }
 
 /*

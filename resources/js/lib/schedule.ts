@@ -60,6 +60,13 @@ export function dayParts(iso: string): { day: string; weekday: string } {
 }
 
 /** La marca y el tema solo los trae lo propio: de lo ajeno no viajan (P-09). */
-export function lookOf(activity: CalendarActivity): { highlight: Highlight | null; theme: string | null } {
-    return isOwn(activity) ? { highlight: activity.highlight, theme: activity.theme } : { highlight: null, theme: null };
+export function lookOf(activity: CalendarActivity): { highlight: Highlight | null; theme: string | null; internal: boolean } {
+    return isOwn(activity) ? { highlight: activity.highlight, theme: activity.theme, internal: activity.internal } : { highlight: null, theme: null, internal: false };
+}
+
+/** El color del nombre: verde lo de un cronograma interno (RF-119); rojo o naranja, según su marca (RF-116). */
+export function titleTone({ highlight, internal }: { highlight: Highlight | null; internal: boolean }): string {
+    if (internal) return 'text-interno';
+
+    return highlight ? HIGHLIGHT_INFO[highlight].text : '';
 }

@@ -24,6 +24,9 @@ export interface OwnActivity extends SharedActivity {
     progress: number;
     budget: number | null;
     fromPlan: boolean;
+    /** De un cronograma interno de su ámbito: sale en el calendario en su propio color (RF-119). */
+    internal: boolean;
+    scheduleName: string | null;
 }
 
 export type CalendarActivity = SharedActivity | OwnActivity;

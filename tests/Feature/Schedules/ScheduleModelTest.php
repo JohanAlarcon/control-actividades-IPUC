@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Support\Activities\ScheduleConflict;
 use App\Support\Scope\CurrentScope;
 use Illuminate\Support\Carbon;
+use Inertia\Testing\AssertableInertia as Assert;
 
 /*
  * Los cronogramas (T224; D-35, RF-086): el general de cada año, uno por sede, y los internos de
@@ -73,7 +74,7 @@ test('un interno lo ven su comité, sus ascendientes y el pastor; el general, to
     expect(Schedule::find($deDamas->id))->toBeNull();
 });
 
-test('lo interno no entra al calendario compartido, ni al cronograma general, ni cuenta para los cruces', function () {
+test('lo interno sale en el calendario de su comité y del pastor, marcado; nunca en el de otro, ni en la hoja impresa, ni en los cruces', function () {
     $modulo = Schedule::factory()->internalOf($this->e['damas'], 'Clases de Semillitas de Amor')->create();
     Activity::factory()->forCommittee($this->e['damas'])->approved()->create([
         'schedule_id' => $modulo->id,
@@ -91,12 +92,31 @@ test('lo interno no entra al calendario compartido, ni al cronograma general, ni
         ->assertShows('Vigilia de damas')
         ->assertDoesntShow('Clase de Semillitas')
         ->assertDoesntShow('Semillitas de Amor');
-    $this->actingAs($this->e['presidentaDamas'])->get('/activities?year=2026')
-        ->assertShows('Vigilia de damas')
-        ->assertDoesntShow('Clase de Semillitas');
+    foreach (['presidentaDamas', 'pastor'] as $quien) {
+        $this->actingAs($this->e[$quien])->get('/activities?year=2026')
+            ->assertInertia(fn (Assert $page) => $page->where('months', function ($meses) {
+                $clase = collect($meses)->flatMap(fn ($mes) => $mes['activities'])->firstWhere('title', 'Clase de Semillitas');
+
+                return $clase !== null && $clase['internal'] === true && $clase['scheduleName'] === 'Clases de Semillitas de Amor';
+            }));
+    }
     $this->actingAs($this->e['presidentaDamas'])->get('/activities/print?year=2026')
+        ->assertShows('Vigilia de damas')
         ->assertDoesntShow('Clase de Semillitas');
 
     expect(ScheduleConflict::with(Carbon::parse('2026-04-18 19:30', 'America/Bogota'), Carbon::parse('2026-04-18 20:30', 'America/Bogota')))->toBe([]);
     $this->actingAs($this->e['presidente'])->post('/activities', $this->propuesta)->assertSessionHasNoErrors();
+});
+
+test('el resumen del año cuenta solo el cronograma general, y una fecha interna cancelada no sale en el calendario', function () {
+    $modulo = Schedule::factory()->internalOf($this->e['damas'], 'Clases de Semillitas de Amor')->create();
+    $clases = Activity::factory()->count(2)->forCommittee($this->e['damas'])->approved()->create(['schedule_id' => $modulo->id, 'title' => 'Clase de Semillitas']);
+    Activity::factory()->forCommittee($this->e['damas'])->approved()->create(['title' => 'Vigilia de damas']);
+    $clases[0]->update(['cancelled_at' => now(), 'cancelled_by_user_id' => $this->e['presidentaDamas']->id]);
+
+    $this->actingAs($this->e['presidentaDamas'])->get('/activities?year=2026')
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('summary.total', 1)
+            ->where('months', fn ($meses) => collect($meses)->flatMap(fn ($mes) => $mes['activities'])->pluck('id')->doesntContain($clases[0]->id)
+                && collect($meses)->flatMap(fn ($mes) => $mes['activities'])->pluck('id')->contains($clases[1]->id)));
 });

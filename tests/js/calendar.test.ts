@@ -52,10 +52,15 @@ describe('los colores de la casilla', () => {
     });
 
     it('la marca de cada actividad: rojo el día especial, naranja lo del distrito o nacional', () => {
-        expect(markerTone('special_day')).toBe('bg-especial');
-        expect(markerTone('district')).toBe('bg-cronograma-naranja');
-        expect(markerTone('national')).toBe('bg-cronograma-naranja');
-        expect(markerTone(null)).toBe('bg-cronograma');
+        expect(markerTone({ highlight: 'special_day' })).toBe('bg-especial');
+        expect(markerTone({ highlight: 'district' })).toBe('bg-cronograma-naranja');
+        expect(markerTone({ highlight: 'national' })).toBe('bg-cronograma-naranja');
+        expect(markerTone({ highlight: null })).toBe('bg-cronograma');
+    });
+
+    it('lo de un cronograma interno lleva su verde, aunque tenga otra marca (RF-119)', () => {
+        expect(markerTone({ highlight: null, internal: true })).toBe('bg-interno');
+        expect(markerTone({ highlight: 'special_day', internal: true })).toBe('bg-interno');
     });
 });
 

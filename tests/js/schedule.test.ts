@@ -1,5 +1,5 @@
 import { dateLimits } from '@/lib/activities';
-import { periodLabel, dayParts, HIGHLIGHT_INFO, isOwn, lookOf, scheduleUrl, STATUS_INFO } from '@/lib/schedule';
+import { periodLabel, dayParts, HIGHLIGHT_INFO, isOwn, lookOf, scheduleUrl, STATUS_INFO, titleTone } from '@/lib/schedule';
 import type { OwnActivity, SharedActivity } from '@/types/schedule';
 import { describe, expect, it } from 'vitest';
 
@@ -30,6 +30,8 @@ const own: OwnActivity = {
     progress: 50,
     budget: null,
     fromPlan: true,
+    internal: false,
+    scheduleName: null,
 };
 
 describe('isOwn', () => {
@@ -41,8 +43,12 @@ describe('isOwn', () => {
 
 describe('lookOf: el tema y la marca de color', () => {
     it('lo propio los trae; de lo ajeno no viajan (P-09)', () => {
-        expect(lookOf(own)).toEqual({ highlight: 'special_day', theme: 'Mujeres de fe' });
-        expect(lookOf(shared)).toEqual({ highlight: null, theme: null });
+        expect(lookOf(own)).toEqual({ highlight: 'special_day', theme: 'Mujeres de fe', internal: false });
+        expect(lookOf(shared)).toEqual({ highlight: null, theme: null, internal: false });
+    });
+
+    it('lo de un cronograma interno de su comité se reconoce como tal (RF-119)', () => {
+        expect(lookOf({ ...own, internal: true, scheduleName: 'Ensayos' }).internal).toBe(true);
     });
 
     it('cada marca se dice con palabras, no solo con el color', () => {
@@ -84,5 +90,16 @@ describe('periodLabel: el periodo de un cronograma interno', () => {
 
     it('el primero de enero sigue siendo el primero de enero, en cualquier zona horaria', () => {
         expect(periodLabel('2026-01-01', '2026-12-31')).toBe('Del 1 de enero al 31 de diciembre de 2026');
+    });
+});
+
+describe('titleTone: el color del nombre de una actividad', () => {
+    it('lo de un cronograma interno, en verde (RF-119)', () => {
+        expect(titleTone({ highlight: null, internal: true })).toBe('text-interno');
+    });
+
+    it('lo del general, según su marca (RF-116)', () => {
+        expect(titleTone({ highlight: 'special_day', internal: false })).toBe('text-especial');
+        expect(titleTone({ highlight: null, internal: false })).toBe('');
     });
 });

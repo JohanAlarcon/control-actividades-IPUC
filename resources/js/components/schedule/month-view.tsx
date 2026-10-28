@@ -3,7 +3,7 @@ import MonthCalendar from '@/components/schedule/month-calendar';
 import MonthNoteForm from '@/components/schedule/month-note-form';
 import { defaultMonth, initialDay, monthWeeks } from '@/lib/calendar';
 import { calendarDate } from '@/lib/format';
-import { MONTHS, scheduleUrl } from '@/lib/schedule';
+import { lookOf, MONTHS, scheduleUrl } from '@/lib/schedule';
 import { buttonClass } from '@/lib/styles';
 import type { MonthGroup, MonthNoteItem, ScheduleFilters } from '@/types/schedule';
 import type { SharedProps } from '@/types/shared';
@@ -31,6 +31,7 @@ export default function MonthView({ filters, years, months, notes = [] }: Props)
     const days = weeks.flat().filter((day) => day.inMonth);
     const [picked, setPicked] = useState<string | null>(null);
     const selected = days.find((day) => day.date === picked) ?? days.find((day) => day.date === initialDay(weeks, today)) ?? days[0];
+    const hasInternal = days.some((day) => day.activities.some((activity) => lookOf(activity).internal));
 
     return (
         <>
@@ -44,6 +45,12 @@ export default function MonthView({ filters, years, months, notes = [] }: Props)
                 notes={notes.filter((note) => note.month === month)}
                 canRemoveNotes={isPastor}
             />
+            {hasInternal && (
+                <p className="mt-3 flex items-center gap-2 px-1 text-lg text-tinta-suave">
+                    <span aria-hidden className="size-3 shrink-0 rounded-full bg-interno" />
+                    En verde, lo de los cronogramas internos: los demás comités no lo ven.
+                </p>
+            )}
             <DayAgenda day={selected} />
             {isPastor && <MonthNoteForm key={`${filters.year}-${month}`} year={filters.year} month={month} />}
 

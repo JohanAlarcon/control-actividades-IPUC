@@ -79,6 +79,7 @@ El cronograma tiene además los colores de su formato, el del portafolio de la s
 | `bg-celda-azul` | `#f2f9ff` | las columnas alternas del mes | — |
 | `bg-celda-domingo` | `#f9f2e6` crema | la columna del domingo | — |
 | `bg-celda-fuera` | `#f5f5f5` gris | los días de otro mes | — |
+| `text-interno` `bg-interno` | `#2f6b2f` verde | lo de los cronogramas internos de su comité en el calendario (RF-119) | 5,7:1 en crema |
 
 El rojo y el azul del tema son los del papel, oscurecidos lo justo para leerse sobre la casilla
 crema. El naranja del papel no alcanza en la pantalla: ahí se usa `text-distrito`.
