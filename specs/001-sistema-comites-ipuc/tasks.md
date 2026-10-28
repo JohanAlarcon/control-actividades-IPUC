@@ -1546,6 +1546,42 @@ actividades de un sub-comité.
 
 ---
 
+## Observaciones del autor — 2026-10-28
+
+Seis observaciones que el autor pidió atender antes de seguir con T228.
+
+- [x] T258 [US09] · Lo interno en el calendario general, en verde
+      Archivos: `app/Support/Activities/ScheduleCards.php` · `app/Http/Controllers/ActivityController.php` · `resources/js/components/schedule/month-day.tsx` · `resources/js/components/schedule/internal-badge.tsx` · `resources/css/app.css`
+      RF-119. Mismo diseño del calendario; el verde `text-interno` es un color nuevo de la paleta.
+      Verifica: `php artisan test --filter=ScheduleModelTest` — lo interno sale en el calendario de su comité y del pastor, nunca en el de otro, ni en la hoja impresa, ni en el resumen, ni en los cruces · `npm run test:js` · a 360 px y a 1280 px.
+      **Hecha el 2026-10-28.** Lo propio trae `internal` y `scheduleName`; en la casilla grande va el icono del cronograma además del verde, y debajo del mes una leyenda. Las fechas internas canceladas no salen. De paso se acortó «Agregar una nota del mes», que a 360 px no cabía en el botón.
+
+- [x] T259 [US01] · El mensaje de instalación al entrar
+      Archivos: `resources/js/lib/install.ts` · `resources/js/hooks/use-install-offer.ts` · `resources/js/components/install-offer.tsx` · `tests/js/install.test.ts`
+      RF-120. El aviso del navegador se escucha desde que arranca la aplicación, porque llega una sola vez.
+      Verifica: `npm run test:js` — qué ofrecer en cada caso y las dos semanas de «Ahora no» · a 360 px.
+      **Hecha el 2026-10-28.** En el computador de desarrollo no hay https y el navegador no da el aviso: se comprobó simulándolo. El botón abre la ventana del navegador y el mensaje desaparece.
+
+- [x] T260 [US20] · «Salir» y el menú que se encoge
+      Archivos: `resources/js/components/layout/side-nav.tsx` · `resources/js/hooks/use-collapsed-menu.ts` · `resources/js/layouts/main-layout.tsx`
+      RF-121. Encogido mide 80 px y el contenido pasa de `max-w-5xl` a `max-w-7xl`.
+      Verifica: a 1280 px — encoger, abrir, y «Salir» siempre a la vista.
+      **Hecha el 2026-10-28.** El logo, encoger y «Salir» quedan fijos; solo la lista se desplaza si la pantalla es baja. Encogido, cada sección muestra su nombre al pasar el ratón y lo dice al lector de pantalla.
+
+- [x] T261 [US10] · Paginar miembros, cuentas y simpatizantes
+      Archivos: `resources/js/lib/paging.ts` · `resources/js/components/pager.tsx` · `tests/js/paging.test.ts`
+      RF-122. Se pagina en el celular lo que ya cumple la búsqueda y los filtros: la búsqueda sigue mirando toda la lista.
+      Verifica: `npm run test:js` — páginas de veinte, la última con lo que sobra, y una página que ya no existe se corrige · en pantalla.
+      **Hecha el 2026-10-28.** La página y la búsqueda se recuerdan al volver atrás desde una ficha; si cambian los filtros de miembros, se vuelve a la primera.
+
+- [x] T262 [US02] · Preparar la sede y las cuentas de cada cargo
+      Archivos: `app/Console/Commands/PrepareSite.php` · `app/Support/Committees/SiteStructure.php` · `app/Support/Users/RoleUsername.php` · `tests/Feature/Users/PrepareSiteTest.php` · `tests/Unit/Users/RoleUsernameTest.php`
+      RF-123. `php artisan site:prepare`, una vez, en el servidor. La estructura del levantamiento queda en un solo lugar, que también usa la demostración.
+      Verifica: `php artisan test --filter=PrepareSiteTest` — base vacía, correrlo otra vez, y solo los cargos vacíos · `--filter=RoleUsernameTest`.
+      **Hecha el 2026-10-28.** Las claves se generan en el servidor y no pasan por el repositorio ni por la conversación. El nombre de cada cuenta es el del cargo —«Presidente · Comité de Alabanza»— hasta que el pastor escriba el de la persona. Si un usuario ya está tomado, se le agrega un número.
+
+---
+
 ## Phase R3: Asistencia, orden de culto y cumpleaños — HU-15, HU-28, HU-29 (Priority: P2)
 
 **Goal**: la asistencia a toda actividad, el orden de cada culto y los cumpleaños al entrar.
@@ -2125,6 +2161,7 @@ Los dieciocho de la ampliación del 2026-10-24:
 | RF-081 a RF-083 | T221 a T223 |
 | RF-086 a RF-090 | T224 a T228 |
 | RF-115 a RF-118 | T255, T227, T256, T257 |
+| RF-119 a RF-123 | T258 a T262 |
 | RF-092 a RF-095 | T234 a T237 |
 | RF-098 a RF-104 | T250 a T254 |
 | RF-105 a RF-114 | T239 a T249 |

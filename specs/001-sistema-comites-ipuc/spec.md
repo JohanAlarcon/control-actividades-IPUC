@@ -1720,6 +1720,26 @@ cronograma que trae el portafolio de la sede, revisado el mismo día.
   o un evento con la fecha pendiente—, que sale junto al nombre del mes, en rojo si es de la sede y
   en naranja si es del distrito o nacional.
 
+#### Observaciones del autor del 2026-10-28
+
+- **RF-119**: En el calendario del cronograma general, cada cargo ve también las actividades de los
+  cronogramas internos de su ámbito, en verde y con su icono, y en la lista con la palabra «Interno»
+  y el nombre del cronograma. Nunca las de otro comité (RF-086). No cuentan en el resumen del plan
+  del año, no cuentan para los cruces (RF-087) y no salen en la hoja impresa, que es solo del
+  cronograma general porque se reparte a toda la congregación.
+- **RF-120**: En la entrada, el sistema ofrece instalarse como aplicación del celular: con el botón
+  de instalar si el navegador lo permite, o con los pasos de Safari en un iPhone. No lo ofrece si ya
+  está instalada, y «Ahora no» lo calla dos semanas en ese navegador.
+- **RF-121**: En el escritorio, el menú del costado termina con «Salir», y se encoge a solo los
+  iconos para dar más ancho al contenido. Lo que la persona escoja se recuerda en su navegador.
+- **RF-122**: Las listas de miembros, cuentas y simpatizantes van por páginas de veinte, con
+  «Anterior» y «Siguiente». La búsqueda y los filtros miran la lista completa, no solo la página.
+- **RF-123**: La sede se prepara en el servidor con un comando: si la base está vacía, crea la sede
+  con la estructura del levantamiento; y le da una cuenta a cada cargo sin titular y al pastor. El
+  usuario dice el cargo y el comité —«presidente.alabanza»; el del pastor es «pastor»—, y la clave
+  inicial son seis números que la persona cambia al entrar. El cuadro para entregarlas sale una sola
+  vez y no queda en el repositorio.
+
 #### Celular y lenguaje
 
 - **RF-058**: Toda pantalla se usa completa en un ancho de 360 px, sin desplazamiento horizontal,

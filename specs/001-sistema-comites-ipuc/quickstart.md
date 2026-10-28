@@ -79,6 +79,18 @@ La semilla deja la estructura real de la sede —los quince comités y sus seis 
 clave exacta se imprime al final de la siembra. Esas cuentas son solo para probar en el equipo de
 desarrollo: **nunca se siembran en el servidor**, porque su clave está escrita en el repositorio.
 
+En el servidor, la sede y sus cuentas se preparan una sola vez, después de las migraciones (RF-123):
+
+```bash
+php artisan site:prepare
+```
+
+Si la base está vacía crea la sede con los quince comités y sus seis sub-comités, y le da una
+cuenta a cada cargo sin titular y al pastor —`pastor`, `presidente.alabanza`, `lider.bethel`…—, con
+una clave inicial de seis números que cada persona cambia al entrar. El cuadro sale en la pantalla
+y en `storage/app/private/cuentas-<fecha>.csv`, que abre en Excel: se entrega a cada persona solo su
+fila y **se borra el archivo**. Correrlo otra vez no toca las cuentas que ya existen.
+
 | Usuario | Cargo | Para comprobar |
 |---|---|---|
 | `pastor` | Pastor | Ve toda la congregación y lleva el padrón |
