@@ -89,6 +89,23 @@
 }
 
 /*
+ * El formato del cronograma de la sede, medido en su portafolio (D-47). El rojo, el azul del tema
+ * y el tono del distrito estan oscurecidos lo justo para leerse sobre la casilla crema del
+ * domingo, la mas oscura. El naranja del papel no alcanza en la pantalla: solo es adorno, o
+ * texto en la hoja impresa.
+ */
+@theme {
+    --color-cronograma: #031c5f; /* la banda de los dias y el nombre del mes. 16:1 */
+    --color-cronograma-naranja: #fda105; /* el año grande, y lo del distrito en el papel. 2:1 */
+    --color-especial: #df0505; /* los dias especiales de la congregacion. 4,5:1 en crema */
+    --color-tema: #0065f2; /* el tema o lema de un culto. 4,5:1 en crema */
+    --color-distrito: #9a6203; /* lo del distrito o nacional, en la pantalla. 4,5:1 en crema */
+    --color-celda-azul: #f2f9ff; /* las columnas alternas del mes */
+    --color-celda-domingo: #f9f2e6; /* la columna del domingo */
+    --color-celda-fuera: #f5f5f5; /* los dias de otro mes */
+}
+
+/*
   The default border color has changed to `currentColor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
   looks the same as it did with Tailwind CSS v3.

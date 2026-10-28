@@ -388,7 +388,7 @@ pastor aprueba, en un acto único, y queda identificado con quién y cuándo (RF
 | `theme` | string(120), nulo | el tema o lema del culto; sale en azul en el cronograma (RF-116) |
 | `highlight` | enum, nulo | `special_day` \| `district` \| `national`: rojo o naranja en el cronograma (RF-116) |
 | `scheduled_at` | datetime | obligatorio, dentro del año en curso, no pasada (CL-07) |
-| `ends_at` | time | obligatoria, posterior a la hora de inicio (RF-028, D-37) |
+| `ends_at` | datetime | obligatoria, el mismo día y después de la hora de inicio (RF-028, D-37) |
 | `location` | string, nulo | |
 | `activity_type_id` | fk → `activity_types` | obligatorio; la clase debe estar activa al proponer (D-25) |
 | `status` | enum | `pending` \| `approved` \| `in_progress` \| `completed` \| `rejected` (RF-026) |

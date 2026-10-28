@@ -6,6 +6,8 @@ const pesos = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP
 const calendarDay = new Intl.DateTimeFormat('en-CA', { timeZone: ZONE, year: 'numeric', month: '2-digit', day: '2-digit' });
 const dayAndMonth = new Intl.DateTimeFormat('es-CO', { timeZone: ZONE, day: 'numeric', month: 'long' });
 const fullDate = new Intl.DateTimeFormat('es-CO', { timeZone: ZONE, weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' });
+const longDay = new Intl.DateTimeFormat('es-CO', { timeZone: ZONE, weekday: 'long', day: 'numeric', month: 'long' });
+const hours = new Intl.DateTimeFormat('es-CO', { timeZone: ZONE, hour: 'numeric', minute: '2-digit' });
 
 /** «2026-10-26»: el día en Colombia, escrito como lo espera un campo de fecha. */
 export function calendarDate(date: Date): string {
@@ -33,6 +35,16 @@ export function shortDate(iso: string): string {
 /** «sábado, 7 de noviembre, 7:00 p. m.»: cuándo es una actividad. */
 export function activityDate(iso: string): string {
     return fullDate.format(new Date(iso));
+}
+
+/** «5:00 a 6:00 p. m.»: de qué hora a qué hora es una actividad. */
+export function timeRange(startIso: string, endIso: string): string {
+    return hours.formatRange(new Date(startIso), new Date(endIso));
+}
+
+/** «jueves, 7 de mayo, de 5:00 a 6:00 p. m.»: cuándo es una actividad, con su hora de fin. */
+export function activityWhen(startIso: string, endIso: string): string {
+    return `${longDay.format(new Date(startIso))}, de ${timeRange(startIso, endIso)}`;
 }
 
 /**

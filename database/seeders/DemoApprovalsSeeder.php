@@ -43,6 +43,7 @@ class DemoApprovalsSeeder extends Seeder
             'committee_id' => $cargo->committee_id,
             'title' => $titulo,
             'scheduled_at' => now()->addDays(10 + $diasAtras)->setTime(19, 0),
+            'ends_at' => now()->addDays(10 + $diasAtras)->setTime(21, 0),
             'location' => 'Templo central',
             'activity_type_id' => ActivityType::where('site_id', $cargo->site_id)->where('name', $clase)->value('id'),
             'status' => Activity::PENDING,

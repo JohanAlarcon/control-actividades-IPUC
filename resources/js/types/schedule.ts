@@ -1,11 +1,14 @@
 export type ActivityStatus = 'pending' | 'approved' | 'in_progress' | 'completed' | 'rejected';
 
-/** Los siete datos que se comparten de cualquier actividad, y su número para abrirla (RF-010). */
+/** La marca de color del cronograma de la sede (RF-116): rojo la primera, naranja las otras dos. */
+export type Highlight = 'special_day' | 'district' | 'national';
+
+/** Los seis datos que se comparten de cualquier actividad, y su número para abrirla (RF-010). */
 export interface SharedActivity {
     id: number;
     title: string;
-    description: string | null;
     scheduledAt: string;
+    endsAt: string;
     location: string | null;
     committee: string;
     status: ActivityStatus;
@@ -13,6 +16,9 @@ export interface SharedActivity {
 
 /** Una actividad del propio comité: lo compartido, más lo que solo ve su comité. */
 export interface OwnActivity extends SharedActivity {
+    description: string | null;
+    theme: string | null;
+    highlight: Highlight | null;
     committeeId: number;
     type: string | null;
     progress: number;

@@ -7,6 +7,7 @@ use App\Models\ActivityType;
 use App\Models\Committee;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Carbon;
 
 /**
  * @extends Factory<Activity>
@@ -22,6 +23,7 @@ class ActivityFactory extends Factory
             'title' => 'Ensayo general del coro',
             'description' => 'Ensayo del repertorio para el culto del domingo.',
             'scheduled_at' => now()->addWeek(),
+            'ends_at' => fn (array $attrs) => Carbon::parse($attrs['scheduled_at'])->addHours(2),
             'location' => 'Templo',
             'activity_type_id' => fn (array $attrs) => ActivityType::withoutGlobalScopes()->where('site_id', $attrs['site_id'])->orderBy('position')->value('id'),
             'status' => Activity::PENDING,

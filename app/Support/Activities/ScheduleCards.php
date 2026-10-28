@@ -9,7 +9,8 @@ use Illuminate\Support\Collection;
 
 /**
  * Las actividades como las muestra el cronograma. Las propias van completas; las ajenas, solo con
- * los siete datos que se comparten (RF-010), y nada mas: ni presupuesto, ni tareas, ni avance.
+ * los seis datos que se comparten (RF-010), y nada mas: ni descripcion, ni presupuesto, ni tareas,
+ * ni avance, ni el tema ni la marca de color (P-09).
  */
 class ScheduleCards
 {
@@ -43,14 +44,14 @@ class ScheduleCards
         return [$desde->copy()->setTimezone(config('app.timezone')), $desde->copy()->endOfYear()->setTimezone(config('app.timezone'))];
     }
 
-    /** Los siete datos que se comparten de cualquier actividad, y el numero para abrirla (RF-010, R-11). */
+    /** Los seis datos que se comparten de cualquier actividad, y el numero para abrirla (RF-010, R-11). */
     public static function shared(Activity $actividad): array
     {
         return [
             'id' => $actividad->id,
             'title' => $actividad->title,
-            'description' => $actividad->description,
             'scheduledAt' => $actividad->scheduled_at->toIso8601String(),
+            'endsAt' => $actividad->ends_at->toIso8601String(),
             'location' => $actividad->location,
             'committee' => $actividad->committee_name,
             'status' => ActivityStatus::effective($actividad->status, $actividad->scheduled_at),
@@ -61,6 +62,9 @@ class ScheduleCards
     public static function own(Activity $actividad): array
     {
         return self::shared($actividad) + [
+            'description' => $actividad->description,
+            'theme' => $actividad->theme,
+            'highlight' => $actividad->highlight,
             'committeeId' => $actividad->committee_id,
             'type' => $actividad->type_name,
             'progress' => $actividad->progress,

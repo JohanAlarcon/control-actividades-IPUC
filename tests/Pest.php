@@ -163,10 +163,12 @@ function nodoDelArbol(array $arbol, string $nombre): ?array
  */
 function solicitudDe(User $quien, string $tipo = 'activity', string $titulo = 'Vigilia de jóvenes', ?float $monto = null): Approval
 {
+    // Cada actividad en su propio horario de la misma semana: aprobar varias no las cruza (D-37).
+    static $vez = 0;
     $cargo = CommitteeUser::where('user_id', $quien->id)->sole();
     $actividad = Activity::factory()
         ->forCommittee($cargo->committee)
-        ->create(['title' => $titulo, 'proposed_by_user_id' => $quien->id]);
+        ->create(['title' => $titulo, 'proposed_by_user_id' => $quien->id, 'scheduled_at' => now()->addWeek()->addHours(3 * ($vez++ % 8))]);
 
     return app(ApprovalFlow::class)->request($cargo, $actividad, $tipo, $titulo, null, $monto);
 }

@@ -5,8 +5,10 @@ namespace App\Support\Approvals;
 use App\Models\Activity;
 use App\Models\Approval;
 use App\Models\CommitteeUser;
+use App\Models\Site;
 use App\Models\Sympathizer;
 use App\Models\User;
+use App\Support\Activities\ScheduleConflict;
 use App\Support\Committees\SubtreeResolver;
 use App\Support\Sympathizers\ConvertToMember;
 use Illuminate\Database\Eloquent\Model;
@@ -166,6 +168,12 @@ class ApprovalFlow
 
         if ($solicitud->type !== Approval::TYPE_ACTIVITY || ! $objeto instanceof Activity) {
             return;
+        }
+
+        if ($solicitud->status === Approval::APPROVED) {
+            // Dos aprobaciones a la vez se turnan: la segunda ve lo que dejo aprobado la primera.
+            Site::whereKey($objeto->site_id)->lockForUpdate()->value('id');
+            ScheduleConflict::guardApproval($objeto);
         }
 
         $objeto->update($solicitud->status === Approval::APPROVED

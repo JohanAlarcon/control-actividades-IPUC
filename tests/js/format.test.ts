@@ -1,4 +1,4 @@
-import { activityDate, groupThousands, money, shortDate, waitingSince } from '@/lib/format';
+import { activityDate, activityWhen, groupThousands, money, shortDate, timeRange, waitingSince } from '@/lib/format';
 import { describe, expect, it } from 'vitest';
 
 /** Intl separa con espacios que no se parten; para comparar, basta un espacio normal. */
@@ -40,6 +40,15 @@ describe('fechas', () => {
         expect(text).toContain('sábado');
         expect(text).toContain('7 de noviembre');
         expect(text).toContain('7:00');
+    });
+
+    it('dice de qué hora a qué hora es, en hora de Colombia', () => {
+        expect(plain(timeRange('2026-05-07T17:00:00-05:00', '2026-05-07T18:00:00-05:00'))).toBe('5:00 a 6:00 p. m.');
+        expect(plain(timeRange('2026-05-07T15:00:00Z', '2026-05-07T23:00:00Z'))).toBe('10:00 a. m. a 6:00 p. m.');
+    });
+
+    it('dice el día y las dos horas', () => {
+        expect(plain(activityWhen('2026-05-07T17:00:00-05:00', '2026-05-07T18:00:00-05:00'))).toBe('jueves, 7 de mayo, de 5:00 a 6:00 p. m.');
     });
 });
 

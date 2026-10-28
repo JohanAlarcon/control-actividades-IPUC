@@ -83,6 +83,7 @@ class DemoCalendarSeeder extends Seeder
             'title' => $titulo,
             'description' => "{$titulo} del {$comite}.",
             'scheduled_at' => $fecha,
+            'ends_at' => $fecha->copy()->addHours(2),
             'location' => 'Templo central',
             'activity_type_id' => ActivityType::where('site_id', $donde->site_id)->where('name', $clase)->value('id'),
             'status' => $aprobo ? Activity::APPROVED : Activity::PENDING,

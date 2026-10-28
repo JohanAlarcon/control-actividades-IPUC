@@ -5,16 +5,17 @@ use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia as Assert;
 
 /*
- * La prueba obligatoria de la unica excepcion al filtro (T079, RG-03, constitucion v2.0.0). Es una
- * lista blanca: lo ajeno trae exactamente los siete datos que se comparten, y el numero para
- * abrirlo. Una columna nueva en activities deja esta prueba roja hasta que alguien decida si se
- * comparte. Y ver lo ajeno no da permiso de tocarlo.
+ * La prueba obligatoria de la excepcion 1 al filtro (T079, T218, RG-03, constitucion 3.0.0). Es una
+ * lista blanca: lo ajeno trae exactamente los seis datos que se comparten —titulo, fecha, hora de
+ * inicio y de fin, lugar, comite y estado— y el numero que lo identifica. Una columna nueva en
+ * activities deja esta prueba roja hasta que alguien decida si se comparte. Ver lo ajeno no da
+ * permiso de tocarlo, y su ficha responde como fuera del ambito (D-36).
  */
 
 beforeEach(function () {
     $this->e = estructuraDePrueba();
     $this->travelTo(Carbon::parse('2026-03-10 10:00', 'America/Bogota'));
-    $this->llaves = ['committee', 'description', 'id', 'location', 'scheduledAt', 'status', 'title'];
+    $this->llaves = ['committee', 'endsAt', 'id', 'location', 'scheduledAt', 'status', 'title'];
 
     $this->ajena = Activity::factory()->forCommittee($this->e['damas'])->create([
         'title' => 'Retiro de damas',
@@ -22,11 +23,14 @@ beforeEach(function () {
         'budget_amount' => 987654,
         'scheduled_at' => Carbon::parse('2026-08-18 19:00', 'America/Bogota'),
         'location' => 'Finca La Esperanza',
+        'description' => 'Salimos a las seis desde el templo.',
+        'theme' => 'Mujeres de fe',
+        'highlight' => 'special_day',
     ]);
     $this->tarea = $this->ajena->tasks()->create(['site_id' => $this->ajena->site_id, 'description' => 'Contratar el bus']);
 });
 
-test('en el cronograma, una actividad ajena trae exactamente los siete datos que se comparten', function () {
+test('en el cronograma, una actividad ajena trae exactamente los seis datos que se comparten', function () {
     $respuesta = $this->actingAs($this->e['presidente'])->get('/activities?year=2026');
 
     $respuesta->assertInertia(fn (Assert $page) => $page->where('months', function ($meses) {
@@ -39,23 +43,26 @@ test('en el cronograma, una actividad ajena trae exactamente los siete datos que
         return true;
     }));
 
-    $respuesta->assertShows('Retiro de damas')->assertDoesntShow('987654')->assertDoesntShow('Contratar el bus');
+    $respuesta->assertShows('Retiro de damas')
+        ->assertDoesntShow('987654')
+        ->assertDoesntShow('Contratar el bus')
+        ->assertDoesntShow('Salimos a las seis')
+        ->assertDoesntShow('Mujeres de fe');
 });
 
-test('en la ficha, también: los siete datos y nada más, sin tareas ni rastro', function () {
+test('la ficha de una actividad ajena responde como fuera del ámbito: el detalle es de su comité', function () {
     $this->actingAs($this->e['presidente'])->get("/activities/{$this->ajena->id}")
+        ->assertNotFound()
+        ->assertDoesntShow('Retiro de damas');
+});
+
+test('el comité dueño sí ve su descripción, su tema y su marca', function () {
+    $this->actingAs($this->e['presidentaDamas'])->get("/activities/{$this->ajena->id}")
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
-            ->component('Activities/Show')
-            ->where('mine', false)
-            ->where('activity', function ($actividad) {
-                expect($actividad->keys()->sort()->values()->all())->toBe($this->llaves);
-
-                return true;
-            })
-            ->missing('tasks')
-            ->missing('trail'))
-        ->assertDoesntShow('987654');
+            ->where('activity.description', 'Salimos a las seis desde el templo.')
+            ->where('activity.theme', 'Mujeres de fe')
+            ->where('activity.highlight', 'special_day'));
 });
 
 test('ver una actividad ajena no da permiso de tocarla: todo intento responde no disponible', function () {

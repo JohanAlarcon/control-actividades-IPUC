@@ -1,13 +1,13 @@
 import { dateLimits } from '@/lib/activities';
-import { dayParts, isOwn, scheduleUrl, STATUS_INFO } from '@/lib/schedule';
+import { dayParts, HIGHLIGHT_INFO, isOwn, lookOf, scheduleUrl, STATUS_INFO } from '@/lib/schedule';
 import type { OwnActivity, SharedActivity } from '@/types/schedule';
 import { describe, expect, it } from 'vitest';
 
 const shared: SharedActivity = {
     id: 1,
     title: 'Retiro de damas',
-    description: null,
     scheduledAt: '2026-08-18T19:00:00-05:00',
+    endsAt: '2026-08-18T21:00:00-05:00',
     location: 'Templo central',
     committee: 'Comité de Damas Dorcas',
     status: 'approved',
@@ -20,22 +20,43 @@ describe('scheduleUrl', () => {
     });
 });
 
-describe('isOwn', () => {
-    it('lo propio trae su avance; lo ajeno, solo los siete datos', () => {
-        const own: OwnActivity = { ...shared, committeeId: 3, type: 'Salida', progress: 50, budget: null, fromPlan: true };
+const own: OwnActivity = {
+    ...shared,
+    description: null,
+    theme: 'Mujeres de fe',
+    highlight: 'special_day',
+    committeeId: 3,
+    type: 'Salida',
+    progress: 50,
+    budget: null,
+    fromPlan: true,
+};
 
+describe('isOwn', () => {
+    it('lo propio trae su avance; lo ajeno, solo los seis datos', () => {
         expect(isOwn(own)).toBe(true);
         expect(isOwn(shared)).toBe(false);
     });
 });
 
+describe('lookOf: el tema y la marca de color', () => {
+    it('lo propio los trae; de lo ajeno no viajan (P-09)', () => {
+        expect(lookOf(own)).toEqual({ highlight: 'special_day', theme: 'Mujeres de fe' });
+        expect(lookOf(shared)).toEqual({ highlight: null, theme: null });
+    });
+
+    it('cada marca se dice con palabras, no solo con el color', () => {
+        expect(HIGHLIGHT_INFO.special_day).toEqual({ label: 'Día especial', text: 'text-especial' });
+        expect(HIGHLIGHT_INFO.district.text).toBe(HIGHLIGHT_INFO.national.text);
+    });
+});
+
 describe('dayParts', () => {
-    it('dice el día, el día de la semana y la hora, en hora de Colombia', () => {
-        const parts = dayParts('2026-08-18T19:00:00-05:00');
+    it('dice el día y el día de la semana, en hora de Colombia', () => {
+        const parts = dayParts('2026-08-19T00:30:00Z');
 
         expect(parts.day).toBe('18');
         expect(parts.weekday).toContain('mar');
-        expect(parts.time.replace(/\s/g, ' ')).toContain('7:00');
     });
 });
 

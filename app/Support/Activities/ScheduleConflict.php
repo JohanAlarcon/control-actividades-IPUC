@@ -4,55 +4,71 @@ namespace App\Support\Activities;
 
 use App\Models\Activity;
 use Carbon\CarbonInterface;
+use Illuminate\Validation\ValidationException;
 
 /**
- * El aviso de cruce (RF-028, CL-08, CE-04): otras actividades de la congregacion el mismo dia, de
- * cualquier comite. Mira el cronograma compartido, asi que solo ve los siete datos: nunca el
- * presupuesto ni las tareas de otro comite. Es un aviso, no un bloqueo: insistir es de las personas.
+ * El cruce en el cronograma general (RF-028, D-37, CL-08): dos actividades el mismo dia con
+ * horarios que se sobreponen, de cualquier comite, sin importar el lugar (P-02). No es un aviso:
+ * se impide. Las contiguas —una termina a la hora en que empieza la otra— no se cruzan. Mira el
+ * cronograma compartido, asi que de lo ajeno solo ve los seis datos, nunca el presupuesto.
  */
 class ScheduleConflict
 {
-    /** @return array<int, array{title: string, committee: string, at: CarbonInterface, location: ?string, sameSlot: bool}> */
-    public static function on(CarbonInterface $cuando, ?string $lugar): array
-    {
-        $dia = $cuando->copy()->setTimezone(ScheduleCards::ZONE);
+    /** Lo que ya tiene su horario tomado al aprobar: lo aprobado, lo que va en camino y lo cumplido. */
+    private const TAKEN = [Activity::APPROVED, Activity::IN_PROGRESS, Activity::COMPLETED];
 
+    /**
+     * Las actividades que se sobreponen con ese horario. Al proponer cuenta todo lo que no se
+     * rechazo, porque lo que espera aprobacion tambien aparta su hora.
+     *
+     * @return array<int, array{title: string, committee: string, at: CarbonInterface, until: CarbonInterface}>
+     */
+    public static function with(CarbonInterface $desde, CarbonInterface $hasta, ?int $salvo = null, bool $soloAprobadas = false): array
+    {
         return Activity::forSharedCalendar()
-            ->whereBetween('activities.scheduled_at', [
-                $dia->copy()->startOfDay()->setTimezone(config('app.timezone')),
-                $dia->copy()->endOfDay()->setTimezone(config('app.timezone')),
-            ])
-            ->where('activities.status', '!=', Activity::REJECTED)
+            ->where('activities.scheduled_at', '<', $hasta)
+            ->where('activities.ends_at', '>', $desde)
+            ->when($soloAprobadas,
+                fn ($consulta) => $consulta->whereIn('activities.status', self::TAKEN),
+                fn ($consulta) => $consulta->where('activities.status', '!=', Activity::REJECTED))
+            ->when($salvo, fn ($consulta) => $consulta->where('activities.id', '!=', $salvo))
             ->orderBy('activities.scheduled_at')
             ->get()
             ->map(fn (Activity $otra) => [
                 'title' => $otra->title,
                 'committee' => $otra->committee_name,
                 'at' => $otra->scheduled_at,
-                'location' => $otra->location,
-                'sameSlot' => $otra->scheduled_at->format('H:i') === $cuando->format('H:i') && self::mismoLugar($otra->location, $lugar),
+                'until' => $otra->ends_at,
             ])
             ->all();
     }
 
-    /** La advertencia en palabras, para quien propone: que actividad es, de que comite, a que hora y donde. */
+    /** El cruce en palabras: que actividad es, de que comite y de que hora a que hora. */
     public static function describe(array $choques): string
     {
-        $partes = array_map(function (array $choque) {
-            $hora = $choque['at']->copy()->setTimezone(ScheduleCards::ZONE)->locale('es')->isoFormat('h:mm a');
-            $donde = filled($choque['location']) ? " en {$choque['location']}" : '';
-            $exacto = $choque['sameSlot'] ? 'a la misma hora y en el mismo lugar, ' : '';
+        $partes = array_map(
+            fn (array $choque) => "«{$choque['title']}» de {$choque['committee']}, de ".self::hora($choque['at']).' a '.self::hora($choque['until']),
+            $choques,
+        );
 
-            return "{$exacto}«{$choque['title']}» de {$choque['committee']}, a las {$hora}{$donde}";
-        }, $choques);
-
-        $cuantas = count($choques) === 1 ? 'otra actividad' : 'otras actividades';
-
-        return "Ese día ya hay {$cuantas}: ".implode('; ', $partes).'. Coordínenlo antes de insistir.';
+        return 'Ese horario se cruza con '.implode('; ', $partes).'. En el cronograma general dos actividades no se pueden cruzar: escoja otra hora u otro día, o coordínelo con ese comité.';
     }
 
-    private static function mismoLugar(?string $uno, ?string $otro): bool
+    /**
+     * Antes de aprobar se revisa otra vez, contra lo ya aprobado: dos propuestas que llegaron al
+     * mismo tiempo no pueden quedar aprobadas las dos. Quien llama lo hace dentro de un bloqueo.
+     */
+    public static function guardApproval(Activity $actividad): void
     {
-        return filled($uno) && filled($otro) && mb_strtolower(trim($uno)) === mb_strtolower(trim($otro));
+        $choques = self::with($actividad->scheduled_at, $actividad->ends_at, $actividad->id, soloAprobadas: true);
+
+        if ($choques !== []) {
+            throw ValidationException::withMessages(['approval' => "«{$actividad->title}» no se puede aprobar. ".self::describe($choques)]);
+        }
+    }
+
+    private static function hora(CarbonInterface $momento): string
+    {
+        return $momento->copy()->setTimezone(ScheduleCards::ZONE)->locale('es')->isoFormat('h:mm a');
     }
 }

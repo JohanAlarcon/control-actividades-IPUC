@@ -1436,20 +1436,23 @@ rehacen **antes** de tocar el código.
       RF-096, CL-09. Las sugerencias salen solo del ámbito; fuera de él, `DuplicateCheck` sigue respondiendo sí o no.
       Verifica: `php artisan test --filter=SympathizerSuggestTest` — un comité nunca recibe en las sugerencias a un simpatizante de otro; el aviso de duplicado ajeno no trae nombre ni comité.
 
-- [ ] T218 [US09] · El calendario compartido con seis datos, solo del cronograma general
+- [x] T218 [US09] · El calendario compartido con seis datos, solo del cronograma general
       Archivos: `app/Models/Activity.php` · `tests/Feature/Schedule/SharedCalendarTest.php`
       D-36, RF-010. `forSharedCalendar()` deja de seleccionar `description` y toma solo actividades del cronograma general (cuando exista T224, por `schedule.kind`). La ficha de una actividad ajena responde como fuera del ámbito.
+      **Hecha el 2026-10-28**, salvo el filtro por `schedule.kind`, que llega con T224: hoy todas las actividades son del cronograma general. En la lista, lo ajeno se ve sin enlace a su ficha.
       Verifica: `php artisan test --filter=SharedCalendarTest` — lista blanca de **seis** llaves; el caso de escritura sigue negado.
 
-- [ ] T219 [US05] · Hora de fin y cruce impedido en el cronograma general
+- [x] T219 [US05] · Hora de fin y cruce impedido en el cronograma general
       Archivos: `database/migrations/<ts>_add_ends_at_to_activities.php` · `app/Support/Schedule/ScheduleConflict.php` · `app/Http/Requests/StoreActivityRequest.php` · `app/Support/Approvals/ApprovalFlow.php` · `resources/js/components/activities/proposal-form.tsx`
       D-37, RF-028. Las actividades que ya existen reciben su hora de inicio más dos horas. El cruce se impide al proponer, al cargar al plan y al aprobar, dentro de un bloqueo.
+      **Hecha el 2026-10-28.** Al proponer cuenta todo lo que no se rechazó; al aprobar, solo lo aprobado, con la sede bloqueada para que dos aprobaciones se turnen. El plan del año se aprueba sin volver a revisar: cada actividad ya se revisó al cargarla.
       Verifica: `php artisan test --filter=ScheduleConflictTest` — dos actividades generales con horario sobrepuesto el mismo día no se guardan y el mensaje dice cuál y de qué comité; contiguas sí; dos aprobaciones simultáneas no se cruzan (CL-08).
 
-- [ ] T255 [US09] · El tema y la marca de cada actividad
+- [x] T255 [US09] · El tema y la marca de cada actividad
       Archivos: `database/migrations/<ts>_add_theme_and_highlight_to_activities.php` · `app/Models/Activity.php` · `app/Http/Requests/StoreActivityRequest.php` · `resources/js/components/activities/proposal-form.tsx` · `app/Support/Activities/ScheduleCards.php`
       RF-116, D-47. Dos columnas opcionales: el tema, hasta 120 letras, y la marca —día especial, del distrito o nacional—. Viajan solo con lo propio (P-09).
       Verifica: `php artisan test --filter=ActivityHighlightTest` — se guardan al proponer y al cargar al plan; una marca que no existe se rechaza con un mensaje claro; de una actividad ajena no llegan.
+      **Hecha el 2026-10-28.**
 
 - [ ] T227 [US09] · El calendario del mes, con el formato de la sede
       Archivos: `resources/js/components/schedule/month-calendar.tsx`, `month-day.tsx`, `day-agenda.tsx` · `resources/js/lib/calendar.ts` · `tests/js/calendar.test.ts` · `resources/css/app.css`
@@ -1501,7 +1504,7 @@ actividades de un sub-comité.
 
 - [ ] T224 [US27] · Cronogramas: migración, modelo y filtro
       Archivos: `database/migrations/<ts>_create_schedules_table.php` · `app/Models/Schedule.php` · `database/migrations/<ts>_add_schedule_to_activities.php`
-      D-35. Cada actividad que ya existe queda en el cronograma general de su año. `ScopeCoverageTest` cubre la tabla nueva.
+      D-35. Cada actividad que ya existe queda en el cronograma general de su año. `ScopeCoverageTest` cubre la tabla nueva. `forSharedCalendar()` y `ScheduleConflict` pasan a tomar solo el cronograma general (lo que dejó pendiente T218).
       Verifica: `php artisan test --filter=ScheduleModelTest` · `ScopeCoverageTest` en verde · `migrate:fresh --seed` sin errores.
 
 - [ ] T225 [US27] · Pantallas de los cronogramas internos y sus actividades

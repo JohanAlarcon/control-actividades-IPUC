@@ -1,22 +1,21 @@
 import DecisionTrail from '@/components/activities/decision-trail';
 import TaskList from '@/components/activities/task-list';
-import InfoNote from '@/components/info-note';
+import HighlightBadge from '@/components/schedule/highlight-badge';
 import OriginBadge from '@/components/schedule/origin-badge';
 import StatusBadge from '@/components/schedule/status-badge';
 import MainLayout from '@/layouts/main-layout';
-import { activityDate, money } from '@/lib/format';
-import { isOwn, scheduleUrl } from '@/lib/schedule';
+import { activityWhen, money } from '@/lib/format';
+import { scheduleUrl } from '@/lib/schedule';
 import { cardClass } from '@/lib/styles';
-import type { CalendarActivity, OwnActivity, TaskItem, TrailEvent } from '@/types/schedule';
+import type { OwnActivity, TaskItem, TrailEvent } from '@/types/schedule';
 import { usePage } from '@inertiajs/react';
-import { CalendarDays, Eye, HandCoins, MapPin, Shapes, UserRound } from 'lucide-react';
+import { CalendarDays, HandCoins, MapPin, Shapes, UserRound } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 type Detail = OwnActivity & { proposedBy: string | null; planYear: number | null; rejectionReason: string | null };
 
 interface Props {
-    activity: CalendarActivity | Detail;
-    mine: boolean;
+    activity: Detail;
     tasks?: TaskItem[];
     canEdit?: boolean;
     canCheckTasks?: boolean;
@@ -24,12 +23,11 @@ interface Props {
 }
 
 /**
- * La ficha de una actividad (HU-09). La propia trae sus tareas y el rastro de decisiones; la de otro
- * comité, solo los siete datos que se comparten con toda la congregación (RF-010).
+ * La ficha de una actividad (HU-09), con sus tareas y el rastro de decisiones. Solo la abren su
+ * comité, sus ascendientes y el pastor: de lo ajeno, el calendario muestra lo que se comparte (D-36).
  */
-export default function ActivityShow({ activity, mine, tasks = [], canEdit = false, canCheckTasks = false, trail }: Props) {
+export default function ActivityShow({ activity, tasks = [], canEdit = false, canCheckTasks = false, trail }: Props) {
     const { errors } = usePage<{ errors: Record<string, string> }>().props;
-    const own = isOwn(activity) ? (activity as Detail) : null;
     const year = new Date(activity.scheduledAt).getFullYear();
 
     return (
@@ -45,33 +43,26 @@ export default function ActivityShow({ activity, mine, tasks = [], canEdit = fal
                     <section className={`mb-6 p-4 ${cardClass}`}>
                         <div className="mb-3 flex flex-wrap gap-2">
                             <StatusBadge status={activity.status} />
-                            {own && <OriginBadge fromPlan={own.fromPlan} />}
+                            <OriginBadge fromPlan={activity.fromPlan} />
+                            {activity.highlight && <HighlightBadge highlight={activity.highlight} />}
                         </div>
+                        {activity.theme && <p className="mb-3 text-lg font-semibold break-words text-tema">{activity.theme}</p>}
                         <ul className="flex flex-col gap-2">
-                            <Fact icon={CalendarDays}>{activityDate(activity.scheduledAt)}</Fact>
+                            <Fact icon={CalendarDays}>{activityWhen(activity.scheduledAt, activity.endsAt)}</Fact>
                             {activity.location && <Fact icon={MapPin}>{activity.location}</Fact>}
-                            {own?.type && <Fact icon={Shapes}>{own.type}</Fact>}
-                            {own?.budget != null && <Fact icon={HandCoins}>Presupuesto estimado: {money(own.budget)}</Fact>}
-                            {own?.proposedBy && <Fact icon={UserRound}>La propuso {own.proposedBy}</Fact>}
+                            {activity.type && <Fact icon={Shapes}>{activity.type}</Fact>}
+                            {activity.budget != null && <Fact icon={HandCoins}>Presupuesto estimado: {money(activity.budget)}</Fact>}
+                            {activity.proposedBy && <Fact icon={UserRound}>La propuso {activity.proposedBy}</Fact>}
                         </ul>
                         {activity.description && <p className="mt-3 border-t border-ipuc/10 pt-3 text-lg leading-relaxed">{activity.description}</p>}
-                        {own?.rejectionReason && <p className="mt-3 rounded-xl bg-alerta/10 p-3 text-lg text-alerta">Motivo: {own.rejectionReason}</p>}
+                        {activity.rejectionReason && <p className="mt-3 rounded-xl bg-alerta/10 p-3 text-lg text-alerta">Motivo: {activity.rejectionReason}</p>}
                     </section>
-
-                    {!mine && (
-                        <InfoNote icon={Eye}>
-                            Es una actividad de {activity.committee}. Aquí ve lo que se comparte con toda la congregación; su presupuesto y sus tareas son de
-                            ese comité.
-                        </InfoNote>
-                    )}
                 </div>
 
-                {own && (
-                    <div>
-                        <TaskList activityId={own.id} tasks={tasks} progress={own.progress} canEdit={canEdit} canCheck={canCheckTasks} />
-                        <DecisionTrail events={trail} />
-                    </div>
-                )}
+                <div>
+                    <TaskList activityId={activity.id} tasks={tasks} progress={activity.progress} canEdit={canEdit} canCheck={canCheckTasks} />
+                    <DecisionTrail events={trail} />
+                </div>
             </div>
         </MainLayout>
     );

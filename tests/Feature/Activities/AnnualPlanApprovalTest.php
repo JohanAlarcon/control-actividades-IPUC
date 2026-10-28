@@ -23,7 +23,7 @@ beforeEach(function () {
             'activity_type_id' => ActivityType::withoutGlobalScopes()->where('site_id', $this->e['sede']->id)->where('name', 'Culto')->value('id'),
             'date' => $fecha,
             'time' => '19:00',
-            'confirm_conflict' => true,
+            'ends' => '21:00',
         ]);
 });
 

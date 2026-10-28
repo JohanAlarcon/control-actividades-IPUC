@@ -38,7 +38,7 @@ class ActivityController extends Controller
     ) {}
 
     /**
-     * El cronograma del año (HU-09): lo propio completo y lo ajeno con los siete datos que se
+     * El cronograma del año (HU-09): lo propio completo y lo ajeno con los seis datos que se
      * comparten (RF-010). Los totales y el cumplimiento se recalculan con el filtro (RF-030). El
      * plan del año y las opciones de comite llegan aparte, para que la pantalla quepa en su
      * presupuesto de consultas.
@@ -73,8 +73,9 @@ class ActivityController extends Controller
     }
 
     /**
-     * La ficha (HU-09, escenario 3). Lo propio trae todo; lo ajeno, solo lo que se comparte, y se
-     * busca por el cronograma compartido: la unica salida del filtro, que solo lee (RF-010).
+     * La ficha (HU-09, escenario 3): el detalle es solo del comite dueño, sus ascendientes y el
+     * pastor. De lo ajeno, el calendario ya muestra los seis datos que se comparten; su ficha
+     * responde como cualquier registro fuera del ambito (D-36).
      */
     public function show(int $activity): Response
     {
@@ -92,16 +93,7 @@ class ActivityController extends Controller
             ])
             ->withCasts(['plan_approved_at' => 'datetime'])
             ->where('activities.id', $activity)
-            ->first();
-
-        if ($actividad === null) {
-            $ajena = Activity::forSharedCalendar()
-                ->where('activities.id', $activity)
-                ->where('activities.status', '!=', Activity::REJECTED)
-                ->firstOrFail();
-
-            return Inertia::render('Activities/Show', ['activity' => ScheduleCards::shared($ajena), 'mine' => false]);
-        }
+            ->firstOrFail();
 
         $puedeEditar = Gate::allows('update', $actividad);
 
@@ -111,7 +103,6 @@ class ActivityController extends Controller
                 'planYear' => $actividad->plan_year,
                 'rejectionReason' => $actividad->rejection_reason,
             ],
-            'mine' => true,
             'tasks' => fn () => $actividad->tasks()->orderBy('id')->get()->map(fn (ActivityTask $tarea) => [
                 'id' => $tarea->id,
                 'description' => $tarea->description,

@@ -15,15 +15,16 @@ beforeEach(function () {
     $this->e = estructuraDePrueba();
     $this->travelTo(Carbon::parse('2026-03-10 10:00', 'America/Bogota'));
 
+    $this->vez = 0;
     $this->proponerYRevisar = function (string $titulo): Approval {
         $this->actingAs($this->e['liderSonido'])->post('/activities', [
             'title' => $titulo,
             'activity_type_id' => ActivityType::withoutGlobalScopes()->where('site_id', $this->e['sede']->id)->where('name', 'Culto')->value('id'),
-            'date' => '2026-04-18',
+            'date' => Carbon::parse('2026-04-18')->addDays($this->vez++)->toDateString(),
             'time' => '19:00',
+            'ends' => '21:00',
             'location' => 'Templo central',
             'budget' => '350.000',
-            'confirm_conflict' => true,
         ]);
         $solicitud = Approval::withoutGlobalScopes()->where('title', $titulo)->sole();
         $this->actingAs($this->e['presidente'])->post("/approvals/{$solicitud->id}/approve");

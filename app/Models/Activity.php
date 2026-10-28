@@ -13,21 +13,31 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Activity extends Model
 {
-    use HasFactory, BelongsToSite, BelongsToCommitteeScope;
+    use BelongsToCommitteeScope, BelongsToSite, HasFactory;
 
     public const PENDING = 'pending';
+
     public const APPROVED = 'approved';
+
     public const IN_PROGRESS = 'in_progress';
+
     public const COMPLETED = 'completed';
+
     public const REJECTED = 'rejected';
+
+    /** Las marcas de color del cronograma de la sede (RF-116): rojo la primera, naranja las otras dos. */
+    public const HIGHLIGHTS = ['special_day', 'district', 'national'];
 
     protected $fillable = [
         'site_id',
         'committee_id',
         'annual_plan_id',
         'title',
+        'theme',
+        'highlight',
         'description',
         'scheduled_at',
+        'ends_at',
         'location',
         'activity_type_id',
         'status',
@@ -51,6 +61,7 @@ class Activity extends Model
     {
         return [
             'scheduled_at' => 'datetime',
+            'ends_at' => 'datetime',
             'proposed_at' => 'datetime',
             'approved_at' => 'datetime',
             'completed_at' => 'datetime',
@@ -105,11 +116,11 @@ class Activity extends Model
     }
 
     /**
-     * La unica salida del filtro de alcance que enumera la constitucion (principio I, enmienda del
-     * 2026-10-18; RF-010, D-15): el cronograma compartido. Retira el filtro del cargo, nunca el de
-     * la sede, y trae a mano solo los siete datos que se comparten —titulo, descripcion, fecha y
-     * hora, lugar, estado y el nombre del comite— mas el numero para abrirla. Nunca el presupuesto
-     * ni las tareas. Solo lee: no sirve de base para modificar, borrar ni descargar, y no da
+     * La excepcion 1 del principio I (constitucion 3.0.0; RF-010, D-15, D-36): el cronograma
+     * compartido. Retira el filtro del cargo, nunca el de la sede, y trae a mano solo los seis
+     * datos que se comparten —titulo, fecha, hora de inicio y de fin, lugar, estado y el nombre del
+     * comite— mas el numero para abrirla. Nunca la descripcion, el presupuesto, las tareas, el tema
+     * ni la marca (P-09). Solo lee: no sirve de base para modificar, borrar ni descargar, y no da
      * permiso de nada; la policy sigue negando toda escritura sobre lo ajeno. SharedCalendarTest
      * lo vigila con una lista blanca.
      */
@@ -121,8 +132,8 @@ class Activity extends Model
             ->select([
                 'activities.id',
                 'activities.title',
-                'activities.description',
                 'activities.scheduled_at',
+                'activities.ends_at',
                 'activities.location',
                 'activities.status',
                 'committees.name as committee_name',

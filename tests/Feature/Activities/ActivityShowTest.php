@@ -39,7 +39,6 @@ test('marcar una tarea recalcula el avance y el estado, sin que nadie los escrib
     $this->actingAs($this->e['liderSonido'])->get("/activities/{$actividad->id}")
         ->assertInertia(fn (Assert $page) => $page
             ->component('Activities/Show')
-            ->where('mine', true)
             ->where('activity.progress', 50)
             ->where('tasks.0.done', true)
             ->where('canCheckTasks', true));
