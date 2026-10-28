@@ -5,6 +5,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { route as routeFn } from 'ziggy-js';
 import { initializeTheme } from './hooks/use-appearance';
+import { listenForInstall } from './lib/install';
 
 declare global {
     const route: typeof routeFn;
@@ -35,3 +36,6 @@ initializeTheme();
 if ('serviceWorker' in navigator && window.isSecureContext) {
     window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
 }
+
+// El aviso para instalarla llega una sola vez y puede llegar antes de pintar la entrada (RF-120).
+listenForInstall();

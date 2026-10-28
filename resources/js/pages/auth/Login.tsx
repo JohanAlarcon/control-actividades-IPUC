@@ -1,4 +1,5 @@
 import InfoNote from '@/components/info-note';
+import InstallOffer from '@/components/install-offer';
 import PasswordField from '@/components/password-field';
 import AuthLayout from '@/layouts/auth-layout';
 import { bigButtonClass, errorClass, iconFieldClass } from '@/lib/styles';
@@ -22,7 +23,12 @@ export default function Login() {
             title="Entrar"
             heading="Le damos la bienvenida"
             intro="Entre con el usuario y la clave que le entregó el pastor."
-            footer={<InfoNote icon={CircleHelp}>¿Olvidó su clave? Pídale al pastor que se la restablezca.</InfoNote>}
+            footer={
+                <>
+                    <InstallOffer />
+                    <InfoNote icon={CircleHelp}>¿Olvidó su clave? Pídale al pastor que se la restablezca.</InfoNote>
+                </>
+            }
         >
             <form onSubmit={enviar} className="mt-6 flex flex-col gap-5">
                 <div>
