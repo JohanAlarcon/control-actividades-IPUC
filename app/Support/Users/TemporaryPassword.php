@@ -20,4 +20,13 @@ class TemporaryPassword
 
         return $palabra.random_int(1000, 9999);
     }
+
+    /**
+     * Seis números, para las cuentas que se entregan de una vez en un cuadro (RF-123). Sin un cero
+     * adelante, para que la hoja de cálculo no lo borre al abrir el cuadro.
+     */
+    public static function numerica(): string
+    {
+        return (string) random_int(100000, 999999);
+    }
 }
