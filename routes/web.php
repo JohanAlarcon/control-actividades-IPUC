@@ -12,6 +12,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\MemberPickerController;
 use App\Http\Controllers\RoleSwitchController;
+use App\Http\Controllers\SiteMottoController;
 use App\Http\Controllers\SympathizerAssignmentController;
 use App\Http\Controllers\SympathizerController;
 use App\Http\Controllers\SympathizerStageController;
@@ -58,6 +59,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('annual-plan/{year}/activities', [AnnualPlanController::class, 'storeActivity'])->whereNumber('year')->name('annual-plan.activities.store');
     Route::post('annual-plan/{year}/approve', [AnnualPlanController::class, 'approve'])->whereNumber('year')->name('annual-plan.approve');
+
+    Route::get('site-motto', [SiteMottoController::class, 'index'])->name('site-motto.index');
+    Route::post('site-motto', [SiteMottoController::class, 'store'])->name('site-motto.store');
 
     Route::get('activity-types', [ActivityTypeController::class, 'index'])->name('activity-types.index');
     Route::post('activity-types', [ActivityTypeController::class, 'store'])->name('activity-types.store');

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Committee;
 use App\Models\CommitteeUser;
 use App\Models\Site;
+use App\Models\SiteMotto;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -28,6 +29,15 @@ class DemoSeeder extends Seeder
 
         $comites = $this->crearEstructura($sede);
         $this->crearCuentas($sede, $comites);
+
+        // El lema publico de la sede para este año, como lo trae su portafolio (RF-082).
+        SiteMotto::create([
+            'site_id' => $sede->id,
+            'year' => now('America/Bogota')->year,
+            'text' => 'Unánimes, teniendo un mismo sentir en la misión',
+            'citation' => 'Filipenses 2:2',
+            'recorded_by_user_id' => User::where('username', 'pastor')->value('id'),
+        ]);
         $this->call(DemoApprovalsSeeder::class);
         $this->call(DemoCalendarSeeder::class);
         $this->call(DemoPeopleSeeder::class);

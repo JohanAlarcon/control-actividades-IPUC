@@ -68,6 +68,10 @@ npm run dev              # en otra
 
 ---
 
+> **Si cambia a mano el nombre de la sede**, borre la memoria donde se guarda con
+> `php artisan cache:clear file`: el nombre y el lema del año viajan desde ahí en todas las
+> pantallas (D-43). Al guardar un lema desde la pantalla «Lema del año» se borra solo.
+
 ## 3. Las cuentas con las que se valida
 
 La semilla deja la estructura real de la sede —los quince comités y sus seis sub-comités (S-11)— con

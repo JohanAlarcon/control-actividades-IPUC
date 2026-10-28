@@ -4,12 +4,14 @@ use App\Models\Committee;
 use App\Models\CommitteeUser;
 use App\Models\Site;
 use App\Models\User;
+use App\Support\Site\SiteIdentity;
 use Illuminate\Support\Facades\DB;
 
 beforeEach(function () {
     $this->site = Site::factory()->create();
     $this->pastor = User::factory()->create(['site_id' => $this->site->id, 'is_pastor' => true]);
     $this->alabanza = Committee::factory()->for($this->site)->create(['name' => 'Comité de Alabanza']);
+    SiteIdentity::for($this->pastor);
 });
 
 it('el pastor crea una cuenta con clave temporal que exige cambiarse al entrar', function () {

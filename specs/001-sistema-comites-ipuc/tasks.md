@@ -1492,12 +1492,13 @@ WhatsApp. **Hitos 1 y 2.**
 internos con una actividad repetida, verlos en el calendario del mes, e imprimir y compartir las
 actividades de un sub-comité.
 
-- [ ] T221 [US25] · El nombre de la sede y el lema del año
+- [x] T221 [US25] · El nombre de la sede y el lema del año
       Archivos: `database/migrations/<ts>_create_site_mottos_table.php` · `app/Models/SiteMotto.php` · `app/Http/Controllers/SiteMottoController.php` · `app/Http/Middleware/HandleInertiaRequests.php` · `resources/js/layouts/auth-layout.tsx` · `resources/js/components/layout/top-bar.tsx`
       D-43, RF-081, RF-082. `site` viaja en el bloque compartido desde la memoria de la aplicación, que se borra al guardar un lema. Solo el pastor registra el lema.
-      Verifica: `php artisan test --filter=SiteIdentityTest` — la entrada trae el nombre y el lema del año en curso; sin lema, solo el nombre (CL-40); un presidente no puede registrar el lema · el bloque compartido sigue en dos consultas · a 360 px.
+      Verifica: `php artisan test --filter=SiteMottoTest` — la entrada trae el nombre y el lema del año en curso; sin lema, solo el nombre (CL-40); un presidente no puede registrar el lema · el bloque compartido sigue en tres consultas como máximo · a 360 px.
+      **Hecha el 2026-10-28.** `Support/Site/SiteIdentity` guarda el nombre y el lema en la memoria de la aplicación, por sede y por año: el primero de enero aparece solo el del año nuevo. Si esa memoria vive en la base de datos, se guarda en archivos, para no sumar una consulta por pantalla. Las pruebas que miden consultas la calientan antes, como queda en el día a día. El lema se ve en la entrada, en la barra —un renglón con puntos suspensivos en el celular— y el pastor lo registra en «Lema del año», para este año o el que viene. Verificada a 360 px.
 
-- [ ] T222 [US25] · Prueba: los cuatro escenarios de HU-25
+- [x] T222 [US25] · Prueba: los cuatro escenarios de HU-25
       Archivos: `tests/Feature/Site/SiteMottoTest.php`
       Verifica: `php artisan test --filter=SiteMottoTest` — un escenario por cada uno de HU-25, incluido el cambio de año.
 

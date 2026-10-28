@@ -1,5 +1,6 @@
 import IpucLogo from '@/components/ipuc-logo';
-import { Head } from '@inertiajs/react';
+import type { SharedProps } from '@/types/shared';
+import { Head, usePage } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 
 interface Props {
@@ -18,13 +19,21 @@ interface Props {
  * sobre el azul de la iglesia, y el formulario en una tarjeta blanca que sube encima.
  */
 export default function AuthLayout({ title, heading, intro, top, footer, children }: Props) {
+    const { site } = usePage<Partial<SharedProps>>().props;
+
     return (
         <div className="min-h-screen bg-fondo text-tinta">
             <Head title={title} />
 
             <IpucLogo>
-                <p className="mt-4 text-2xl font-bold">Comités IPUC</p>
-                <p className="text-lg text-white/85">Control de actividades</p>
+                <p className="mt-4 text-2xl font-bold">{site ? [site.name, site.city].filter(Boolean).join(' - ') : 'Comités IPUC'}</p>
+                {site?.motto ? (
+                    <p className="mt-2 max-w-sm text-lg leading-snug text-white/90">
+                        «{site.motto.text}»{site.motto.citation && <span className="block text-base text-white/80">{site.motto.citation}</span>}
+                    </p>
+                ) : (
+                    <p className="text-lg text-white/85">Control de actividades</p>
+                )}
             </IpucLogo>
 
             <main className="relative -mt-14 px-4 pb-10">

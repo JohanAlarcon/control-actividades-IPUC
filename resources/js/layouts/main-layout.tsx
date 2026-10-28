@@ -1,5 +1,6 @@
 import FlashMessages from '@/components/flash-messages';
 import BottomNav from '@/components/layout/bottom-nav';
+import MottoLine from '@/components/layout/motto-line';
 import NoticeToast from '@/components/layout/notice-toast';
 import PageTitle from '@/components/layout/page-title';
 import ScopeRibbon from '@/components/layout/scope-ribbon';
@@ -38,6 +39,7 @@ export default function MainLayout({ title, subtitle, back, children }: Props) {
             <header className="bg-linear-to-br from-ipuc to-ipuc-oscuro pb-10 text-white">
                 <div className={container}>
                     <TopBar user={user} />
+                    <MottoLine />
                     {user && <ScopeRibbon />}
                     <PageTitle title={title} subtitle={subtitle} back={back} />
                 </div>

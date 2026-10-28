@@ -6,6 +6,7 @@ use App\Models\Committee;
 use App\Models\CommitteeUser;
 use App\Models\Site;
 use App\Models\User;
+use App\Support\Site\SiteIdentity;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
@@ -81,6 +82,9 @@ function congregacionDePrueba(): array
         Activity::factory()->forCommittee($comite)->create();
         Approval::factory()->forCommittee($comite)->create();
     }
+
+    // El nombre y el lema ya están en la memoria de la aplicación, como en el día a día (D-43).
+    SiteIdentity::for($presidente);
 
     return [
         'sede' => $sede,

@@ -9,6 +9,7 @@ use App\Models\Site;
 use App\Models\Sympathizer;
 use App\Models\User;
 use App\Support\Approvals\ApprovalFlow;
+use App\Support\Site\SiteIdentity;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
 use Illuminate\View\View;
@@ -81,6 +82,10 @@ function estructuraDePrueba(): array
 
         return $usuario;
     };
+
+    // La memoria de la aplicación ya tiene el nombre y el lema de la sede, como en el día a día:
+    // las mediciones de consultas cuentan lo de cada pantalla, no lo que se guarda una vez al año.
+    SiteIdentity::for(User::factory()->make(['site_id' => $sede->id]));
 
     return [
         'sede' => $sede,

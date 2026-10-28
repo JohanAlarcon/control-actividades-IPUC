@@ -8,12 +8,16 @@ import { Link, usePage } from '@inertiajs/react';
  */
 export default function SideNav() {
     const { props, url } = usePage<SharedProps>();
+    const site = props.site;
 
     return (
         <nav aria-label="Menú principal" className="fixed inset-y-0 left-0 z-10 hidden w-72 flex-col gap-8 bg-ipuc-oscuro px-4 py-5 text-white lg:flex">
             <Link href="/dashboard" className="flex items-center gap-3 rounded-xl px-2 py-1 focus-visible:outline-2 focus-visible:outline-white">
                 <img src="/img/logo-ipuc.webp" alt="" width={58} height={40} className="h-10 w-auto" />
-                <span className="text-lg font-bold tracking-wide">Comités IPUC</span>
+                <span className="text-lg leading-tight font-bold tracking-wide">
+                    {site?.name ?? 'Comités IPUC'}
+                    {site?.city && <span className="block text-base font-normal text-white/80">{site.city}</span>}
+                </span>
             </Link>
 
             <ul className="flex flex-col gap-1">

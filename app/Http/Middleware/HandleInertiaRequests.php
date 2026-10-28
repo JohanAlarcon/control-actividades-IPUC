@@ -7,6 +7,7 @@ use App\Models\Sympathizer;
 use App\Support\Approvals\ApprovalCards;
 use App\Support\Scope\CurrentScope;
 use App\Support\Scope\HiddenCounts;
+use App\Support\Site\SiteIdentity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
@@ -50,6 +51,7 @@ class HandleInertiaRequests extends Middleware
 
         return array_merge(parent::share($request), [
             'name' => config('app.name'),
+            'site' => fn () => SiteIdentity::for($usuario),
             'flash' => [
                 'notice' => fn () => $request->session()->get('notice'),
                 'temporaryPassword' => fn () => $request->session()->get('temporaryPassword'),
