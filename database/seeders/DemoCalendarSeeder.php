@@ -39,6 +39,18 @@ class DemoCalendarSeeder extends Seeder
         'Comité de Jóvenes' => [['Retiro de jóvenes', 'Salida', 6]],
     ];
 
+    /** El tema y la marca de color de algunas, como en el cronograma de la sede (RF-116). */
+    private const MARCAS = [
+        'Culto de alabanza' => ['Alabadle al son de bocina', null],
+        'Campaña evangelística' => ['Falta uno en el rebaño', 'special_day'],
+        'Vigilia de jóvenes' => ['Y fueron todos llenos del Espíritu Santo', null],
+        'Convención juvenil' => [null, 'district'],
+        'Encuentro de familias' => ['Familias con propósito', 'special_day'],
+        'Capacitación de maestros' => [null, 'district'],
+        'Vigilia de damas' => ['La cura del corazón roto', null],
+        'Campaña de fin de año' => ['Vuelve a casa', 'special_day'],
+    ];
+
     private const TAREAS = ['Reservar el templo', 'Invitar a la congregación', 'Preparar el programa'];
 
     public function run(): void
@@ -81,6 +93,8 @@ class DemoCalendarSeeder extends Seeder
             'committee_id' => $donde->id,
             'annual_plan_id' => $plan->id,
             'title' => $titulo,
+            'theme' => self::MARCAS[$titulo][0] ?? null,
+            'highlight' => self::MARCAS[$titulo][1] ?? null,
             'description' => "{$titulo} del {$comite}.",
             'scheduled_at' => $fecha,
             'ends_at' => $fecha->copy()->addHours(2),

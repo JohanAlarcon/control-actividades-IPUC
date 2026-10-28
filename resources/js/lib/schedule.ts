@@ -24,14 +24,17 @@ export function isOwn(activity: CalendarActivity): activity is OwnActivity {
     return 'progress' in activity;
 }
 
-/** La dirección del cronograma con sus filtros: así una pantalla filtrada se puede compartir (RF-029). */
-export function scheduleUrl(filters: Partial<ScheduleFilters>): string {
+/**
+ * La dirección del cronograma con sus filtros: así una pantalla filtrada se puede compartir
+ * (RF-029). Con `/activities/print`, la de su hoja para imprimir (RF-117).
+ */
+export function scheduleUrl(filters: Partial<ScheduleFilters>, path = '/activities'): string {
     const query = Object.entries(filters)
         .filter(([, value]) => value !== null && value !== undefined)
         .map(([key, value]) => `${key}=${encodeURIComponent(String(value))}`)
         .join('&');
 
-    return query ? `/activities?${query}` : '/activities';
+    return query ? `${path}?${query}` : path;
 }
 
 const dayNumber = new Intl.DateTimeFormat('es-CO', { timeZone: ZONE, day: 'numeric' });

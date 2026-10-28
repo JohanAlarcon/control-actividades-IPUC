@@ -203,3 +203,23 @@
         @apply bg-background text-foreground;
     }
 }
+
+/*
+ * La hoja impresa del cronograma (D-47): una carta horizontal por mes. La impresora no pone margen
+ * porque la hoja trae el suyo, y los colores de fondo se imprimen: sin pedirlo, el navegador los
+ * quita y la banda azul y las casillas salen en blanco.
+ */
+@page cronograma {
+    size: letter landscape;
+    margin: 0;
+}
+
+@media print {
+    .hoja-cronograma {
+        page: cronograma;
+        zoom: 1 !important;
+        break-after: page;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}

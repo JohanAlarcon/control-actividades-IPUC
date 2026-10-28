@@ -45,6 +45,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('activities', [ActivityController::class, 'index'])->name('activities.index');
     Route::get('activities/create', [ActivityController::class, 'create'])->name('activities.create');
+    Route::get('activities/print', [ActivityController::class, 'print'])->name('activities.print');
     Route::post('activities', [ActivityController::class, 'store'])->name('activities.store');
     Route::get('activities/{activity}', [ActivityController::class, 'show'])->whereNumber('activity')->name('activities.show');
     Route::post('activities/{activity}/complete', [ActivityController::class, 'complete'])->whereNumber('activity')->name('activities.complete');

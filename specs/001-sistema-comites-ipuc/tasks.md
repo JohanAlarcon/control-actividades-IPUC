@@ -1454,15 +1454,17 @@ rehacen **antes** de tocar el código.
       Verifica: `php artisan test --filter=ActivityHighlightTest` — se guardan al proponer y al cargar al plan; una marca que no existe se rechaza con un mensaje claro; de una actividad ajena no llegan.
       **Hecha el 2026-10-28.**
 
-- [ ] T227 [US09] · El calendario del mes, con el formato de la sede
-      Archivos: `resources/js/components/schedule/month-calendar.tsx`, `month-day.tsx`, `day-agenda.tsx` · `resources/js/lib/calendar.ts` · `tests/js/calendar.test.ts` · `resources/css/app.css`
+- [x] T227 [US09] · El calendario del mes, con el formato de la sede
+      Archivos: `resources/js/components/schedule/month-calendar.tsx`, `month-day.tsx`, `day-agenda.tsx`, `month-view.tsx` · `resources/js/lib/calendar.ts` · `tests/js/calendar.test.ts` · `resources/css/app.css`
       RF-029, RF-115, D-47, HU-09 escenarios 5 y 8. Lo general de todos por la excepción 1; lo interno, solo lo propio, cuando exista T224. Se adelantó de la fase R2 por pedido del autor.
-      Verifica: `npm run test:js` — las semanas empiezan el lunes, los días de otro mes completan la primera y la última semana, y cada actividad cae en su día en hora de Colombia · `php artisan test --filter=ActivityIndexTest` · a 360 px el mes se lee sin desplazarse de lado · medición de consultas.
+      Verifica: `npm run test:js` — las semanas empiezan el lunes, los días de otro mes completan la primera y la última semana, y cada actividad cae en su día en hora de Colombia · `php artisan test --filter=ScheduleIndexTest` · a 360 px el mes se lee sin desplazarse de lado · medición de consultas.
+      **Hecha el 2026-10-28.** Verificada a 360 px —casillas de 49 px dentro del marco de prueba, 51 px en un celular— y a 1463 px, con las actividades escritas en la casilla. Febrero de 2026 empieza el lunes 26 de enero, como en el papel. El mes cambia con el filtro de mes, y la vista «Mes por mes» del año dejó su lugar a este calendario.
 
-- [ ] T256 [US09] · Imprimir el cronograma con el formato de la sede
-      Archivos: `app/Http/Controllers/SchedulePrintController.php` · `resources/js/pages/Activities/Print.tsx` · `resources/js/components/schedule/print-sheet.tsx`
+- [x] T256 [US09] · Imprimir el cronograma con el formato de la sede
+      Archivos: `app/Http/Controllers/ActivityController.php` (`print`, que reutiliza los filtros y las tarjetas del cronograma) · `resources/js/pages/Activities/Print.tsx` · `resources/js/components/schedule/print-sheet.tsx` · `resources/js/hooks/use-fit-width.ts`
       RF-117, D-47, HU-09 escenario 7. Una hoja horizontal por mes, o un solo mes; sin el molde de las pantallas.
       Verifica: `php artisan test --filter=SchedulePrintTest` — un presidente imprime lo que ve, sin datos reservados de lo ajeno; el pastor, todo · medición de consultas · a 360 px la vista previa no se desplaza de lado.
+      **Hecha el 2026-10-28.** La hoja mide una carta horizontal; los colores de fondo se imprimen (`print-color-adjust`), y si un día trae tanto que no cabe, la letra de la hoja se encoge hasta un sesenta por ciento para que el mes salga en una sola hoja. Para WhatsApp: «Guardar como PDF» al imprimir.
 
 - [ ] T220 · Las cuatro excepciones de la constitución 3.0.0, vigiladas
       Archivos: `tests/Architecture/NoRawQueriesTest.php` · `tests/Architecture/ScopeExceptionsTest.php`

@@ -37,9 +37,14 @@ export function activityDate(iso: string): string {
     return fullDate.format(new Date(iso));
 }
 
-/** «5:00 a 6:00 p. m.»: de qué hora a qué hora es una actividad. */
+/** «5:00 a 6:00 p. m.»: de qué hora a qué hora es una actividad. El «p. m.» nunca se parte en dos renglones. */
 export function timeRange(startIso: string, endIso: string): string {
-    return hours.formatRange(new Date(startIso), new Date(endIso));
+    return hours.formatRange(new Date(startIso), new Date(endIso)).replace(/([ap])\.\s+m\./g, '$1.\u00a0m.');
+}
+
+/** «5 a 6 p. m.»: las horas en corto, para la casilla del mes, como en el cronograma de la sede. */
+export function shortTimeRange(startIso: string, endIso: string): string {
+    return timeRange(startIso, endIso).replace(/:00/g, '');
 }
 
 /** «jueves, 7 de mayo, de 5:00 a 6:00 p. m.»: cuándo es una actividad, con su hora de fin. */

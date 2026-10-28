@@ -46,20 +46,8 @@ class ActivityController extends Controller
     public function index(Request $request): Response
     {
         $hoy = now(ScheduleCards::ZONE)->year;
-        $anio = min(max($request->integer('year') ?: $hoy, $hoy - self::YEARS_BACK), $hoy + 1);
-        $filtros = [
-            'year' => $anio,
-            'committee' => $request->integer('committee') ?: null,
-            'month' => in_array($request->integer('month'), range(1, 12), true) ? $request->integer('month') : null,
-            'status' => in_array($request->query('status'), self::STATUS_FILTERS, true) ? $request->query('status') : null,
-        ];
-
-        $tarjetas = $this->propias($anio, $filtros['committee'])
-            ->concat($filtros['committee'] ? [] : $this->ajenas($anio))
-            ->filter(fn (array $tarjeta) => ! $filtros['month'] || ScheduleCards::monthOf($tarjeta) === $filtros['month'])
-            ->filter(fn (array $tarjeta) => ! $filtros['status'] || $tarjeta['status'] === $filtros['status'])
-            ->sortBy('scheduledAt')
-            ->values();
+        $filtros = $this->filtros($request);
+        $tarjetas = $this->tarjetas($filtros);
 
         return Inertia::render('Activities/Index', [
             'filters' => $filtros,
@@ -67,8 +55,23 @@ class ActivityController extends Controller
             'summary' => ScheduleSummary::of($tarjetas),
             'months' => ScheduleCards::byMonth($tarjetas, $filtros['month']),
             'canPropose' => Gate::allows('create', Activity::class),
-            'annualPlan' => Inertia::defer(fn () => $this->plan($anio), 'plan'),
+            'annualPlan' => Inertia::defer(fn () => $this->plan($filtros['year']), 'plan'),
             'committees' => Inertia::defer(fn () => CommitteeOptions::forScope(), 'committees'),
+        ]);
+    }
+
+    /**
+     * El cronograma para imprimir, con el formato de la sede (RF-117, D-47): el año completo, una
+     * hoja por mes, o solo el mes escogido. Cada quien imprime lo que ve: lo ajeno sale con los
+     * seis datos que se comparten, y el pastor, que ve todo, imprime el cronograma completo.
+     */
+    public function print(Request $request): Response
+    {
+        $filtros = $this->filtros($request);
+
+        return Inertia::render('Activities/Print', [
+            'filters' => $filtros,
+            'months' => ScheduleCards::byMonth($this->tarjetas($filtros), $filtros['month']),
         ]);
     }
 
@@ -169,6 +172,30 @@ class ActivityController extends Controller
         $activity->update(['status' => Activity::COMPLETED, 'completed_at' => now(), 'completed_by_user_id' => $request->user()->id]);
 
         return back()->with('notice', 'Listo. La actividad quedó cumplida, con su nombre y la fecha.');
+    }
+
+    /** Los filtros del cronograma, como llegan en la dirección y acotados a lo que se puede consultar. */
+    private function filtros(Request $request): array
+    {
+        $hoy = now(ScheduleCards::ZONE)->year;
+
+        return [
+            'year' => min(max($request->integer('year') ?: $hoy, $hoy - self::YEARS_BACK), $hoy + 1),
+            'committee' => $request->integer('committee') ?: null,
+            'month' => in_array($request->integer('month'), range(1, 12), true) ? $request->integer('month') : null,
+            'status' => in_array($request->query('status'), self::STATUS_FILTERS, true) ? $request->query('status') : null,
+        ];
+    }
+
+    /** Lo propio completo y lo ajeno con los seis datos, con los filtros puestos y en orden de fecha. */
+    private function tarjetas(array $filtros): Collection
+    {
+        return $this->propias($filtros['year'], $filtros['committee'])
+            ->concat($filtros['committee'] ? [] : $this->ajenas($filtros['year']))
+            ->filter(fn (array $tarjeta) => ! $filtros['month'] || ScheduleCards::monthOf($tarjeta) === $filtros['month'])
+            ->filter(fn (array $tarjeta) => ! $filtros['status'] || $tarjeta['status'] === $filtros['status'])
+            ->sortBy('scheduledAt')
+            ->values();
     }
 
     private function propias(int $anio, ?int $comite): Collection
