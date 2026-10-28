@@ -68,18 +68,23 @@ npm run dev              # en otra
 
 ---
 
-## 3. Las cinco cuentas con las que se valida
+## 3. Las cuentas con las que se valida
 
-La semilla deja estas cuentas con clave temporal, para poder recorrer los cinco puntos de vista que
-hay que validar. La clave exacta se imprime al final de la siembra.
+La semilla deja la estructura real de la sede —los quince comités y sus seis sub-comités (S-11)— con
+**personas ficticias** y estas cuentas, para recorrer los puntos de vista que hay que validar. La
+clave exacta se imprime al final de la siembra. Esas cuentas son solo para probar en el equipo de
+desarrollo: **nunca se siembran en el servidor**, porque su clave está escrita en el repositorio.
 
 | Usuario | Cargo | Para comprobar |
 |---|---|---|
-| `pastor` | Pastor | Ve toda la congregación |
-| `presidente.alabanza` | Presidente de un comité con sub-comités | Ve su comité y sus hijos |
-| `lider.sonido` | Líder de un sub-comité | Ve solo su sub-comité |
-| `presidente.evangelismo` | Presidente de Evangelismo | El único que acompaña simpatizantes |
+| `pastor` | Pastor | Ve toda la congregación y lleva el padrón |
+| `presidente.damas` | Presidenta de un comité con sub-comités | Ve su comité y sus tres sub-comités |
+| `lider.hijas` | Líder del Sub-comité Hijas del Rey | Ve solo su sub-comité |
+| `presidente.alabanza` · `secretaria.alabanza` · `tesorero.alabanza` | La directiva de un comité sin sub-comités | Lo que distingue a cada cargo |
+| `presidente.bis` · `secretario.bis` | BIS | Ve a todos los simpatizantes y los asigna |
+| `presidente.misiones1` | Presidente de un comité al que BIS le asigna simpatizantes | Acompaña a los suyos |
 | `doble.cargo` | Presidente de un comité **y** líder de un sub-comité de otro | El selector de cargo activo |
+| `nuevo.lider` | Sin cargo todavía | El cambio obligatorio de clave |
 
 ---
 
@@ -90,7 +95,7 @@ la medida que exige el principio II.
 
 ### 4.1 Entrar y cambiar la clave — HU-01
 
-1. Entre con `lider.sonido` y la clave temporal.
+1. Entre con `nuevo.lider` y la clave temporal.
 2. **Esperado**: el sistema exige cambiar la clave antes de mostrar cualquier información.
 3. Cambie la clave y vuelva a entrar: debe llevarlo directo a su pantalla de inicio.
 4. Escriba mal la clave cinco veces y pruebe una sexta.
@@ -104,9 +109,9 @@ la medida que exige el principio II.
 3. Anote el identificador de un comité ajeno (véalo con `pastor`) y ábralo directo por su URL.
 4. **Esperado**: «esa información no está disponible para su cargo», con indicación de a quién
    solicitarla, y **ningún dato del comité** en la respuesta.
-5. Con `lider.sonido`, abra la lista de miembros.
-6. **Esperado**: solo los de su sub-comité, y el sistema le dice **cuántas** personas de la
-   congregación no aparecen y por qué — nunca quiénes.
+5. Con `lider.hijas`, abra la lista de miembros.
+6. **Esperado**: solo los de la lista de su sub-comité, y el sistema le dice **cuántas** personas
+   de la congregación no aparecen y por qué — nunca quiénes.
 
 ### 4.3 El cargo activo — CL-05, corrección C-01
 
@@ -118,29 +123,28 @@ la medida que exige el principio II.
 5. Cambie de cargo con el selector y repita.
 6. **Esperado**: ahora ve el otro ámbito, y en ningún momento los dos mezclados.
 
-### 4.4 El cronograma compartido — RF-010, la única excepción que enumera la constitución
+### 4.4 El cronograma compartido — RF-010, la excepción 1 de la constitución
 
-1. Con `presidente.alabanza`, abra el cronograma del año completo.
-2. **Esperado**: ve actividades de **todos** los comités, con título, descripción, fecha, hora,
-   lugar, comité responsable y estado.
-3. Abra una actividad de otro comité.
-4. **Esperado**: la carga de la respuesta trae **exactamente** esos siete datos y ningún otro.
-   Compare el juego de llaves de la actividad con los siete; no se trata de buscar llaves
-   prohibidas. **No** aparecen su presupuesto ni sus tareas internas. Revise la carga de la
-   respuesta, no solo la pantalla.
+1. Con `presidente.alabanza`, abra el cronograma: sale el mes con el formato de la sede.
+2. **Esperado**: ve actividades de **todos** los comités, con título, fecha, horas de inicio y de
+   fin, lugar, comité responsable y estado.
+3. Revise la carga de la respuesta de una actividad de otro comité.
+4. **Esperado**: trae **exactamente** esos seis datos y su número, ningún otro. Compare el juego de
+   llaves; no se trata de buscar llaves prohibidas. **No** aparecen su descripción, su presupuesto,
+   sus tareas, su tema ni su marca de color (P-09). Su ficha responde «no disponible».
 5. Con `presidente.alabanza`, intente modificar esa actividad ajena y luego completarla.
 6. **Esperado**: las dos acciones responden «no disponible» (RF-008). El cronograma compartido
    **solo deja leer**: no concede autorización para escribir sobre una actividad de otro comité.
 
 ### 4.5 La cadena de aprobación — HU-05, HU-06, HU-07
 
-1. Con `lider.sonido`, proponga una actividad nueva.
+1. Con `lider.hijas`, proponga una actividad nueva.
 2. **Esperado**: queda como propuesta y el sistema dice **con nombre propio** a quién le llegó.
 3. Intente proponer una con título vacío y con fecha de otro año.
 4. **Esperado**: no se envía y se señala exactamente qué corregir.
-5. Proponga una en una fecha que ya tenga actividad.
-6. **Esperado**: advertencia con cuál es y de qué comité.
-7. Con `presidente.alabanza`, apruebe esa propuesta de actividad.
+5. Proponga una con un horario que se cruce con otra actividad del cronograma general.
+6. **Esperado**: no se guarda, y el mensaje dice con cuál y de qué comité (D-37).
+7. Con `presidente.damas`, dé el visto bueno a esa propuesta de actividad.
 8. **Esperado**: **no** queda cerrada: pasa al pastor, y se le informa a quien la propuso.
 9. Con `pastor`, apruebe. **Esperado**: entra al cronograma como aprobada, con su nombre y la fecha.
 10. Rechace otra. **Esperado**: exige motivo escrito, y el motivo queda visible para quien propuso.
@@ -149,20 +153,21 @@ la medida que exige el principio II.
 
 1. Con `presidente.alabanza`, pida un gasto de su propio comité.
 2. **Esperado**: le llega al pastor, que es quien aprueba. El presidente **no** lo deja aprobado.
-3. Con `lider.sonido`, solicite autorización de un gasto.
+3. Con `lider.hijas`, solicite autorización de un gasto.
 4. **Esperado**: le llega a su presidente, que solo puede darle el visto bueno —y entonces pasa al
    pastor— o devolverlo con el motivo.
 5. Registre un gasto que deje el saldo en negativo.
 6. **Esperado**: advierte expresamente que se está pasando del presupuesto y **permite continuar**
    si se confirma.
 
-### 4.7 Los simpatizantes — HU-13, HU-14, RF-040
+### 4.7 Los simpatizantes — HU-13, HU-14, RF-040, D-34
 
-1. Con `lider.sonido`, registre un simpatizante.
-2. **Esperado**: queda registrado y su nombre queda como quien lo invitó.
-3. Intente abrir la ficha de seguimiento de ese simpatizante.
-4. **Esperado**: no la ve, y el sistema le explica por qué sin que parezca un error.
-5. Con `presidente.evangelismo`, abra la ficha.
+1. Con `presidente.bis`, registre un simpatizante y escoja el comité que lo acompañará.
+2. **Esperado**: queda asignado a ese comité; mientras escribe el nombre, le sugiere a los ya
+   registrados.
+3. Con `lider.hijas`, intente abrir la ficha de ese simpatizante.
+4. **Esperado**: «no disponible»: no es de su ámbito.
+5. Con el presidente del comité asignado, abra la ficha.
 6. **Esperado**: ve las etapas con su fecha y el nivel de compromiso **calculado**, con las señales
    que lo determinaron.
 7. Registre una visita. **Esperado**: el compromiso se recalcula solo.

@@ -21,30 +21,39 @@ class DemoCalendarSeeder extends Seeder
     /** Lo que cada comite hace en el año: titulo, clase y mes. */
     private const PLAN = [
         'Comité de Alabanza' => [['Culto de alabanza', 'Culto', 2], ['Ensayo general', 'Ensayo', 5], ['Noche de alabanza', 'Evento', 9], ['Culto de Navidad', 'Culto', 12]],
-        'Sub-comité de Sonido' => [['Revisión de los equipos de sonido', 'Reunión', 3], ['Capacitación de sonido', 'Reunión', 8]],
-        'Sub-comité de Coro' => [['Ensayo del coro para la Santa Cena', 'Ensayo', 4], ['Cantata de Navidad', 'Evento', 12]],
-        'Comité de Evangelismo' => [['Campaña evangelística', 'Campaña', 3], ['Salida a evangelizar', 'Salida', 7], ['Campaña de fin de año', 'Campaña', 11]],
-        'Sub-comité de Visitación' => [['Visita a hermanos enfermos', 'Visita', 5], ['Visita a los simpatizantes', 'Visita', 10]],
-        'Comité de Damas Dorcas' => [['Reunión de Damas Dorcas', 'Reunión', 3], ['Retiro de Damas Dorcas', 'Salida', 8], ['Vigilia de damas', 'Culto', 11]],
-        'Comité de Jóvenes' => [['Vigilia de jóvenes', 'Culto', 4], ['Convención juvenil', 'Convención', 7], ['Paseo de jóvenes', 'Salida', 10]],
+        'Comité de Sonidos' => [['Revisión de los equipos de sonido', 'Reunión', 3], ['Capacitación de sonido', 'Reunión', 8]],
+        'Comité de Damas Dorcas' => [['Culto de Damas Dorcas', 'Culto', 3], ['Retiro de Damas Dorcas', 'Salida', 8], ['Vigilia de damas', 'Culto', 11]],
+        'Sub-comité Hijas del Rey' => [['Taller de manualidades', 'Reunión', 4]],
+        'Sub-comité Mujeres Virtuosas' => [['Tarde de película con los esposos', 'Evento', 6]],
+        'Comité de Conquistadores Pentecostales' => [['Culto juvenil', 'Culto', 4], ['Campamento de Conquistadores', 'Salida', 7], ['Paseo de Conquistadores', 'Salida', 10]],
+        'Sub-comité Bethel' => [['Torneo bíblico juvenil', 'Evento', 6]],
+        'Comité de Misiones y Evangelismo 1' => [['Campaña evangelística', 'Campaña', 3], ['Tarde con amigos', 'Evento', 5]],
+        'Comité de Misiones y Evangelismo 2' => [['Día misionero', 'Culto', 4], ['Salida a evangelizar', 'Salida', 7]],
+        'Comité de Misiones y Evangelismo 3' => [['Campaña de fin de año', 'Campaña', 11]],
+        'Comité de Obra Social' => [['Canasta de amor', 'Evento', 2], ['Taller de calzado', 'Reunión', 5]],
         'Comité de Red de Familia' => [['Encuentro de familias', 'Evento', 6], ['Escuela para padres', 'Reunión', 9]],
+        'Comité de Crecimiento Espiritual' => [['Vigilia de crecimiento espiritual', 'Culto', 4], ['Amanecer con Cristo', 'Culto', 8]],
         'Comité de Escuela Dominical' => [['Capacitación de maestros', 'Reunión', 2], ['Clausura de la Escuela Dominical', 'Evento', 11]],
+        'Comité de Caballeros' => [['Desayuno de caballeros', 'Reunión', 6]],
+        'Comité Decom' => [['Taller de comunicaciones', 'Reunión', 3]],
     ];
 
     /** Lo que se carga para el año siguiente, todavia sin aprobar. */
     private const PROXIMO = [
         'Comité de Alabanza' => [['Culto de aniversario', 'Culto', 2]],
-        'Comité de Evangelismo' => [['Campaña de Semana Santa', 'Campaña', 4]],
+        'Comité de Misiones y Evangelismo 1' => [['Campaña de Semana Santa', 'Campaña', 4]],
         'Comité de Damas Dorcas' => [['Día de la mujer', 'Evento', 3]],
-        'Comité de Jóvenes' => [['Retiro de jóvenes', 'Salida', 6]],
+        'Comité de Conquistadores Pentecostales' => [['Retiro de Conquistadores', 'Salida', 6]],
     ];
 
     /** El tema y la marca de color de algunas, como en el cronograma de la sede (RF-116). */
     private const MARCAS = [
         'Culto de alabanza' => ['Alabadle al son de bocina', null],
         'Campaña evangelística' => ['Falta uno en el rebaño', 'special_day'],
-        'Vigilia de jóvenes' => ['Y fueron todos llenos del Espíritu Santo', null],
-        'Convención juvenil' => [null, 'district'],
+        'Vigilia de crecimiento espiritual' => ['Y fueron todos llenos del Espíritu Santo', null],
+        'Torneo bíblico juvenil' => [null, 'district'],
+        'Día misionero' => ['Id y haced discípulos', 'special_day'],
+        'Canasta de amor' => [null, 'special_day'],
         'Encuentro de familias' => ['Familias con propósito', 'special_day'],
         'Capacitación de maestros' => [null, 'district'],
         'Vigilia de damas' => ['La cura del corazón roto', null],
@@ -66,10 +75,13 @@ class DemoCalendarSeeder extends Seeder
         ]);
 
         $vuelta = 0;
+        // Cada actividad en su propio dia del mes: en el cronograma general no se cruzan (D-37).
+        $dias = [];
 
         foreach (self::PLAN as $comite => $actividades) {
             foreach ($actividades as [$titulo, $clase, $mes]) {
-                $actividad = $this->actividad($comite, $titulo, $clase, Carbon::create($anio, $mes, 8 + ($vuelta % 15), 19, 0, 0, 'America/Bogota'), $plan, $pastor);
+                $dias[$mes] = ($dias[$mes] ?? 5) + 3;
+                $actividad = $this->actividad($comite, $titulo, $clase, Carbon::create($anio, $mes, $dias[$mes], 19, 0, 0, 'America/Bogota'), $plan, $pastor);
                 $this->tareas($actividad, $vuelta++);
             }
         }

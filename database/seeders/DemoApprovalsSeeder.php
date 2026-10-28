@@ -19,17 +19,17 @@ class DemoApprovalsSeeder extends Seeder
 {
     public function run(ApprovalFlow $flujo): void
     {
-        $presidente = User::where('username', 'presidente.alabanza')->firstOrFail();
+        $conquistadores = User::where('username', 'presidente.conquistadores')->firstOrFail();
 
-        $this->pedir('lider.sonido', Approval::TYPE_ACTIVITY, 'Prueba de sonido para la convención', 'Evento', diasAtras: 3);
-        $this->pedir('lider.sonido', Approval::TYPE_EXPENSE, 'Cables y extensiones para el montaje', 'Evento', diasAtras: 6, monto: 850_000);
+        $this->pedir('lider.hijas', Approval::TYPE_ACTIVITY, 'Taller de manualidades para la Navidad', 'Reunión', diasAtras: 3);
+        $this->pedir('lider.hijas', Approval::TYPE_EXPENSE, 'Materiales para el taller de manualidades', 'Reunión', diasAtras: 6, monto: 850_000);
         $this->pedir('presidente.alabanza', Approval::TYPE_ACTIVITY, 'Culto de alabanza unido', 'Culto', diasAtras: 2);
 
-        $flujo->approve($this->pedir('lider.coro', Approval::TYPE_ACTIVITY, 'Ensayo general del coro para la Santa Cena', 'Ensayo', diasAtras: 5), $presidente);
+        $flujo->approve($this->pedir('lider.bethel', Approval::TYPE_ACTIVITY, 'Ensayo de la obra de teatro de Bethel', 'Ensayo', diasAtras: 5), $conquistadores);
 
         $flujo->reject(
-            $this->pedir('lider.coro', Approval::TYPE_DATE_CHANGE, 'Pasar el ensayo del coro al domingo', 'Ensayo', diasAtras: 8),
-            $presidente,
+            $this->pedir('lider.bethel', Approval::TYPE_DATE_CHANGE, 'Pasar el ensayo de Bethel al domingo', 'Ensayo', diasAtras: 8),
+            $conquistadores,
             'Ese domingo es la Santa Cena y el templo está ocupado. Mejor el sábado siguiente.',
         );
     }
@@ -42,8 +42,8 @@ class DemoApprovalsSeeder extends Seeder
             'site_id' => $cargo->site_id,
             'committee_id' => $cargo->committee_id,
             'title' => $titulo,
-            'scheduled_at' => now()->addDays(10 + $diasAtras)->setTime(19, 0),
-            'ends_at' => now()->addDays(10 + $diasAtras)->setTime(21, 0),
+            'scheduled_at' => now()->addDays(10 + $diasAtras)->setTime(16, 0),
+            'ends_at' => now()->addDays(10 + $diasAtras)->setTime(18, 0),
             'location' => 'Templo central',
             'activity_type_id' => ActivityType::where('site_id', $cargo->site_id)->where('name', $clase)->value('id'),
             'status' => Activity::PENDING,

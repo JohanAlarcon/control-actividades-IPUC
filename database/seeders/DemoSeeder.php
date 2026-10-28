@@ -11,8 +11,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
- * Datos de demostracion. TODO ES FICTICIO: la constitucion prohibe datos reales
- * de personas en el repositorio. La estructura real la carga el pastor (DEP-05).
+ * Datos de demostracion. Los comites son los quince de la sede, con sus seis sub-comites, tal como
+ * los trae el levantamiento (S-11). Las PERSONAS SON FICTICIAS: la constitucion prohibe datos reales
+ * de personas en el repositorio, y los anexos del levantamiento no se copian (DEP-05).
  */
 class DemoSeeder extends Seeder
 {
@@ -21,7 +22,7 @@ class DemoSeeder extends Seeder
     public function run(): void
     {
         $sede = Site::create([
-            'name' => 'IPUC Central Ibagué',
+            'name' => 'IPUC La Esmeralda',
             'city' => 'Ibagué',
         ]);
 
@@ -41,17 +42,21 @@ class DemoSeeder extends Seeder
         $nodos = [];
 
         $estructura = [
-            'Comité de Alabanza' => [
-                'Sub-comité de Sonido' => [],
-                'Sub-comité de Coro' => [],
-            ],
-            'Comité de Evangelismo' => [
-                'Sub-comité de Visitación' => [],
-            ],
-            'Comité de Damas Dorcas' => [],
-            'Comité de Jóvenes' => [],
+            'Comité de Damas Dorcas' => ['Sub-comité Hijas del Rey', 'Sub-comité Mensajeros de su Gracia', 'Sub-comité Mujeres Virtuosas'],
+            'Comité de Conquistadores Pentecostales' => ['Sub-comité Bethel', 'Sub-comité Emmanuel', 'Sub-comité Linaje'],
+            'Comité de Misiones y Evangelismo 1' => [],
+            'Comité de Misiones y Evangelismo 2' => [],
+            'Comité de Misiones y Evangelismo 3' => [],
+            'Comité de Obra Social' => [],
+            'Comité de Alabanza' => [],
+            'Comité Decom' => [],
+            'Comité BIS' => [],
+            'Comité de Vigilancia' => [],
+            'Comité de Sonidos' => [],
             'Comité de Red de Familia' => [],
+            'Comité de Crecimiento Espiritual' => [],
             'Comité de Escuela Dominical' => [],
+            'Comité de Caballeros' => [],
         ];
 
         $posicion = 0;
@@ -59,12 +64,8 @@ class DemoSeeder extends Seeder
         foreach ($estructura as $comite => $subComites) {
             $nodos[$comite] = $this->nodo($sede, $comite, null, $posicion++);
 
-            foreach ($subComites as $subComite => $equipos) {
-                $nodos[$subComite] = $this->nodo($sede, $subComite, $nodos[$comite], 0);
-
-                foreach ($equipos as $equipo) {
-                    $nodos[$equipo] = $this->nodo($sede, $equipo, $nodos[$subComite], 0);
-                }
+            foreach ($subComites as $orden => $subComite) {
+                $nodos[$subComite] = $this->nodo($sede, $subComite, $nodos[$comite], $orden);
             }
         }
 
@@ -80,6 +81,7 @@ class DemoSeeder extends Seeder
             'slug' => Str::slug($nombre),
             'position' => $posicion,
             'active' => true,
+            'receives_sympathizers' => $nombre === 'Comité BIS',
         ]);
     }
 
@@ -92,10 +94,17 @@ class DemoSeeder extends Seeder
             ['presidente.alabanza', 'Hermano Rigoberto Páez', 'Comité de Alabanza', CommitteeUser::PRESIDENT],
             ['secretaria.alabanza', 'Hermana Luz Mary Quintero', 'Comité de Alabanza', CommitteeUser::SECRETARY],
             ['tesorero.alabanza', 'Hermano Jairo Betancur', 'Comité de Alabanza', CommitteeUser::TREASURER],
-            ['lider.sonido', 'Hermano Andrés Molina', 'Sub-comité de Sonido', CommitteeUser::LEADER],
-            ['lider.coro', 'Hermana Omaira Lozano', 'Sub-comité de Coro', CommitteeUser::LEADER],
-            ['presidente.evangelismo', 'Hermano Gustavo Rengifo', 'Comité de Evangelismo', CommitteeUser::PRESIDENT],
             ['presidente.damas', 'Hermana Blanca Cárdenas', 'Comité de Damas Dorcas', CommitteeUser::PRESIDENT],
+            ['secretaria.damas', 'Hermana Esperanza Villamil', 'Comité de Damas Dorcas', CommitteeUser::SECRETARY],
+            ['lider.hijas', 'Hermana Omaira Lozano', 'Sub-comité Hijas del Rey', CommitteeUser::LEADER],
+            ['presidente.conquistadores', 'Hermano Andrés Molina', 'Comité de Conquistadores Pentecostales', CommitteeUser::PRESIDENT],
+            ['lider.bethel', 'Hermano Sebastián Cuervo', 'Sub-comité Bethel', CommitteeUser::LEADER],
+            ['presidente.misiones1', 'Hermano Gustavo Rengifo', 'Comité de Misiones y Evangelismo 1', CommitteeUser::PRESIDENT],
+            ['presidente.bis', 'Hermana Yamile Barrera', 'Comité BIS', CommitteeUser::PRESIDENT],
+            ['secretario.bis', 'Hermano Germán Ávila', 'Comité BIS', CommitteeUser::SECRETARY],
+            ['presidente.obrasocial', 'Hermana Carmenza Osorio', 'Comité de Obra Social', CommitteeUser::PRESIDENT],
+            ['tesorero.obrasocial', 'Hermano Álvaro Pinzón', 'Comité de Obra Social', CommitteeUser::TREASURER],
+            ['presidente.escuela', 'Hermana Libia Montaño', 'Comité de Escuela Dominical', CommitteeUser::PRESIDENT],
         ];
 
         foreach ($cargos as [$usuario, $nombre, $comite, $rol]) {
@@ -105,8 +114,8 @@ class DemoSeeder extends Seeder
 
         // Una persona con dos cargos, para probar el selector (CL-05).
         $doble = $this->cuenta($sede, 'doble.cargo', 'Hermano Efraín Salazar');
-        $this->cargo($sede, $doble, $comites['Comité de Jóvenes'], CommitteeUser::PRESIDENT);
-        $this->cargo($sede, $doble, $comites['Sub-comité de Visitación'], CommitteeUser::LEADER);
+        $this->cargo($sede, $doble, $comites['Comité de Red de Familia'], CommitteeUser::PRESIDENT);
+        $this->cargo($sede, $doble, $comites['Sub-comité Emmanuel'], CommitteeUser::LEADER);
 
         // Una cuenta recien creada, para ver el cambio obligatorio de clave.
         $this->cuenta($sede, 'nuevo.lider', 'Hermano Camilo Ruiz', debeCambiar: true);

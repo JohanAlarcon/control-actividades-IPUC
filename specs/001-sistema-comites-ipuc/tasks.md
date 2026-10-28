@@ -1406,10 +1406,11 @@ rehacen **antes** de tocar el código.
       D-31. La migración falla con un mensaje claro si queda algún nodo de nivel 3. `Committee` impide colgar un nodo de un sub-comité. `estructuraDePrueba()` deja de crear el equipo de Montaje, y las pruebas que lo usaban se rehacen con un segundo sub-comité.
       Verifica: `php artisan test` en verde · `--filter=CommitteeHierarchyTest`: crear un hijo de un sub-comité se rechaza y explica que la estructura llega hasta dos niveles (CL-17).
 
-- [ ] T212 · Semillas con los quince comités del levantamiento y personas ficticias
+- [x] T212 · Semillas con los quince comités del levantamiento y personas ficticias
       Archivos: `database/seeders/DemoSeeder.php` · `DemoPeopleSeeder.php` · `DemoCalendarSeeder.php` · `DemoApprovalsSeeder.php`
       S-11. Los quince comités y los seis sub-comités con sus nombres reales; ningún nombre, teléfono ni firma de una persona real (constitución, «Datos y seguridad»). BIS marcado. Cuentas de ejemplo para un presidente, un secretario y un tesorero de varios comités, un líder de sub-comité y uno de BIS.
       Verifica: `php artisan migrate:fresh --seed` sin errores · revisión a ojo: ningún nombre de los anexos del levantamiento aparece en las semillas.
+      **Hecha el 2026-10-28.** La sede se llama IPUC La Esmeralda; quedan 21 nodos y BIS marcado, 39 actividades sin ningún cruce —cada una en su propio día— y los simpatizantes asignados por BIS a cuatro comités. Los nombres de persona de semillas y pruebas se compararon por programa con el texto del portafolio: ninguno coincide. Las fotos de los anexos no se pueden comparar así; quedan para la revisión a ojo. `quickstart.md` quedó con las cuentas nuevas y la advertencia de no sembrarlas en el servidor.
 
 - [x] T213 [US10] · Pertenencias: `committee_member` y el filtro de los miembros por pertenencia
       Archivos: `database/migrations/<ts>_create_committee_member_table.php` · `app/Models/Member.php` · `app/Models/Concerns/BelongsToCommitteeScope.php` · `tests/Architecture/ScopeCoverageTest.php`
