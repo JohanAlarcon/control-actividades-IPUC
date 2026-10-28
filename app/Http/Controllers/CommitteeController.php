@@ -70,7 +70,7 @@ class CommitteeController extends Controller
                 'active' => $nodo->active,
             ],
             'identity' => [
-                'logoUrl' => $nodo->logo_path ? "/committees/{$nodo->id}/logo?v={$nodo->identity_updated_at?->timestamp}" : null,
+                'logoUrl' => $nodo->logoUrl(),
                 'motto' => $nodo->motto,
                 'objectives' => $nodo->objectives,
                 'updatedBy' => $nodo->identity_updated_by_name,

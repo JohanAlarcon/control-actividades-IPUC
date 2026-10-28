@@ -85,6 +85,12 @@ class Committee extends Model
         return $this->children()->exists();
     }
 
+    /** El logo pasa por una ruta con el filtro (RF-083); la versión evita que el celular muestre el anterior. */
+    public function logoUrl(): ?string
+    {
+        return $this->logo_path ? "/committees/{$this->id}/logo?v={$this->identity_updated_at?->timestamp}" : null;
+    }
+
     /**
      * MySQL no aplica un indice unico cuando una de sus columnas es nula, asi que
      * entre comites del primer nivel la restriccion hay que verificarla aqui.

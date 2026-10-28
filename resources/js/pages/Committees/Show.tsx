@@ -6,9 +6,10 @@ import SectionBlock from '@/components/section-block';
 import MainLayout from '@/layouts/main-layout';
 import { childrenTitle, levelOf, responsibleRole, structureSummary, withoutChildrenText } from '@/lib/committees';
 import { roleLabelFor } from '@/lib/roles';
-import { cardClass } from '@/lib/styles';
+import { buttonClass, cardClass } from '@/lib/styles';
 import type { CommitteeIdentity as Identity, CommitteeSummary } from '@/types/committees';
-import { Info } from 'lucide-react';
+import { Link } from '@inertiajs/react';
+import { Info, Printer } from 'lucide-react';
 
 interface Props {
     committee: { id: number; name: string; depth: number; active: boolean };
@@ -32,6 +33,12 @@ export default function CommitteeShow({ committee, identity, canEditIdentity, re
                 <div className="lg:col-span-2">
                     <SectionBlock title="Logo, lema y objetivos">
                         <CommitteeIdentity committee={committee} identity={identity} canEdit={canEditIdentity} />
+                    </SectionBlock>
+                    <SectionBlock title="Sus actividades">
+                        <Link href={`/print/activities?committee=${committee.id}`} className={`${buttonClass.secondary} lg:w-96`}>
+                            <Printer aria-hidden className="mr-2 size-6" />
+                            Imprimir o compartir
+                        </Link>
                     </SectionBlock>
                 </div>
 

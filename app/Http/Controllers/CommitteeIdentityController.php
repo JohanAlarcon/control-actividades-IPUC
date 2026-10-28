@@ -26,7 +26,7 @@ class CommitteeIdentityController extends Controller
             'committee' => [
                 'id' => $committee->id,
                 'name' => $committee->name,
-                'logoUrl' => $committee->logo_path ? "/committees/{$committee->id}/logo?v={$committee->identity_updated_at?->timestamp}" : null,
+                'logoUrl' => $committee->logoUrl(),
                 'motto' => $committee->motto,
                 'objectives' => $committee->objectives,
             ],

@@ -224,3 +224,14 @@
         print-color-adjust: exact;
     }
 }
+
+/*
+ * La hoja de un comité (HU-30): una carta vertical, con el margen de la impresora. El círculo con
+ * las iniciales del comité es un fondo, y sin pedirlo saldría en blanco.
+ */
+@media print {
+    .hoja-actividades {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
