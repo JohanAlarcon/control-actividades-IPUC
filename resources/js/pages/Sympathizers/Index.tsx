@@ -1,11 +1,13 @@
 import InfoNote from '@/components/info-note';
+import Pager from '@/components/pager';
 import ByCommittee, { type CommitteeCount } from '@/components/sympathizers/by-committee';
 import Funnel from '@/components/sympathizers/funnel';
 import SympathizerCard from '@/components/sympathizers/sympathizer-card';
 import MainLayout from '@/layouts/main-layout';
+import { pageOf } from '@/lib/paging';
 import { buttonClass, cardClass } from '@/lib/styles';
 import type { SympathizerCard as Person } from '@/types/people';
-import { Link } from '@inertiajs/react';
+import { Link, useRemember } from '@inertiajs/react';
 import { ShieldAlert, UserPlus, Users } from 'lucide-react';
 
 interface Props {
@@ -24,6 +26,8 @@ interface Props {
  * cuántos lleva cada comité; un comité, solo los asignados a él (RF-040).
  */
 export default function SympathizersIndex({ isReception, stats, funnel, list, missingConsent, byCommittee }: Props) {
+    const [page, setPage] = useRemember(1, 'pagina-simpatizantes');
+    const current = pageOf(list, page);
     const tiles = [
         { label: 'Acompañamos', value: stats.total, tone: 'text-tinta' },
         { label: 'Creciendo', value: stats.growing, tone: 'text-ipuc' },
@@ -50,7 +54,8 @@ export default function SympathizersIndex({ isReception, stats, funnel, list, mi
             {missingConsent > 0 && (
                 <div className="mb-6">
                     <InfoNote icon={ShieldAlert}>
-                        {missingConsent === 1 ? 'Una ficha no tiene' : `${missingConsent} fichas no tienen`} anotada la autorización del manejo de datos.
+                        {missingConsent === 1 ? 'Una ficha no tiene' : `${missingConsent} fichas no tienen`} anotada la autorización del manejo de
+                        datos.
                     </InfoNote>
                 </div>
             )}
@@ -61,20 +66,23 @@ export default function SympathizersIndex({ isReception, stats, funnel, list, mi
                 <Funnel funnel={funnel} />
 
                 <section aria-labelledby="personas" className="mb-6">
-                    <h2 id="personas" className="mb-3 px-1 text-xl font-bold">
+                    <h2 id="personas" className="mb-3 scroll-mt-4 px-1 text-xl font-bold">
                         Cada persona
                     </h2>
                     {list.length === 0 ? (
                         <InfoNote icon={Users}>
-                            {isReception ? 'Todavía no hay simpatizantes registrados.' : 'Su comité todavía no tiene simpatizantes asignados. Los que registre quedan en su lista.'}
+                            {isReception
+                                ? 'Todavía no hay simpatizantes registrados.'
+                                : 'Su comité todavía no tiene simpatizantes asignados. Los que registre quedan en su lista.'}
                         </InfoNote>
                     ) : (
                         <ul className="grid gap-3 xl:grid-cols-2">
-                            {list.map((person) => (
+                            {current.items.map((person) => (
                                 <SympathizerCard key={person.id} person={person} showCommittee={byCommittee !== null} />
                             ))}
                         </ul>
                     )}
+                    <Pager page={current.page} pages={current.pages} onChange={setPage} anchor="personas" />
                 </section>
             </div>
         </MainLayout>
