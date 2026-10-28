@@ -20,7 +20,7 @@ export default function RolePicker({ committees, committeeId, role, errors, onCh
         const committee = committees.find((option) => String(option.id) === id);
         const possible = committee ? rolesForDepth(committee.depth) : [];
 
-        // Un sub-comité o un equipo solo tiene líder: no hay nada que escoger.
+        // Un sub-comité solo tiene líder: no hay nada que escoger.
         onChange(id, possible.length === 1 ? possible[0] : '');
     };
 

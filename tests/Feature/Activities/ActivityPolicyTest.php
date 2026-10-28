@@ -20,7 +20,7 @@ beforeEach(function () {
 });
 
 test('proponen el líder y el presidente, y el formulario dice a quién le va a llegar', function () {
-    $this->actingAs($this->e['liderMontaje'])->get('/activities/create')
+    $this->actingAs($this->e['liderCoro'])->get('/activities/create')
         ->assertOk()
         ->assertInertia(fn ($page) => $page->component('Activities/Form')->where('recipient', 'Hermano Rigoberto Páez'));
 

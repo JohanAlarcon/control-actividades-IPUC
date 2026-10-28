@@ -40,19 +40,19 @@ test('1. la propuesta queda registrada y se dice con nombre propio a quién le l
         ->description->toBe('Con alabanza y oración.');
 });
 
-test('2. lo que propone un líder le llega primero al presidente de su comité, aunque esté dos niveles abajo', function () {
-    $this->actingAs($this->e['liderMontaje'])->post('/activities', $this->propuesta)
+test('2. lo que propone el líder de un sub-comité le llega primero al presidente de su comité', function () {
+    $this->actingAs($this->e['liderCoro'])->post('/activities', $this->propuesta)
         ->assertSessionHas('notice', 'Listo. Su propuesta le llegó a Hermano Rigoberto Páez.');
 
     expect(Approval::sole())
         ->type->toBe(Approval::TYPE_ACTIVITY)
         ->level->toBe(Approval::LEVEL_PRESIDENT)
-        ->committee_id->toBe($this->e['montaje']->id);
+        ->committee_id->toBe($this->e['coro']->id);
 
     $this->actingAs($this->e['presidente'])->get('/approvals')
         ->assertInertia(fn (Assert $page) => $page
             ->where('inbox.0.title', 'Vigilia de jóvenes')
-            ->where('inbox.0.requestedBy', 'Hermano Wilson Garzón')
+            ->where('inbox.0.requestedBy', 'Hermana Omaira Lozano')
             ->where('inbox.0.activity.location', 'Templo central'));
 });
 

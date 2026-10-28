@@ -14,7 +14,7 @@ class Committee extends Model
 {
     use BelongsToCommitteeScope, BelongsToSite, HasFactory;
 
-    public const MAX_DEPTH = 3;
+    public const MAX_DEPTH = 2;
 
     protected $fillable = [
         'site_id',
@@ -94,7 +94,7 @@ class Committee extends Model
 
     /**
      * La profundidad sale del padre y nunca se escribe a mano. Un nodo colgado de
-     * un equipo daria nivel 4, que la constitucion no permite.
+     * un sub-comite daria nivel 3, que la constitucion no permite (D-31, CL-17).
      */
     private function calculateDepth(): int
     {
@@ -106,7 +106,7 @@ class Committee extends Model
 
         if ($parent->depth >= self::MAX_DEPTH) {
             throw ValidationException::withMessages([
-                'parent_id' => 'La estructura llega hasta tres niveles: comité, sub-comité y equipo. Un equipo no se puede dividir más.',
+                'parent_id' => 'La estructura llega hasta dos niveles: comité y sub-comité. Un sub-comité no se puede dividir en otros grupos.',
             ]);
         }
 

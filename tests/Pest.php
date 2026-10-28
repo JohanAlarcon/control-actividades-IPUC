@@ -59,7 +59,7 @@ expect()->extend('toBeOne', function () {
 */
 
 /**
- * Una sede con los tres niveles y una persona en cada cargo. La usan las pruebas de la
+ * Una sede con los dos niveles y una persona en cada cargo. La usan las pruebas de la
  * estructura de comites. Los nombres son ficticios, como exige la constitucion.
  */
 function estructuraDePrueba(): array
@@ -72,7 +72,6 @@ function estructuraDePrueba(): array
 
     $alabanza = $comite('Comité de Alabanza');
     $sonido = $comite('Sub-comité de Sonido', $alabanza);
-    $montaje = $comite('Equipo de Montaje', $sonido);
     $coro = $comite('Sub-comité de Coro', $alabanza);
     $damas = $comite('Comité de Damas Dorcas');
 
@@ -87,7 +86,6 @@ function estructuraDePrueba(): array
         'sede' => $sede,
         'alabanza' => $alabanza,
         'sonido' => $sonido,
-        'montaje' => $montaje,
         'coro' => $coro,
         'damas' => $damas,
         'pastor' => User::factory()->create(['site_id' => $sede->id, 'is_pastor' => true]),
@@ -95,7 +93,6 @@ function estructuraDePrueba(): array
         'secretaria' => $persona('Hermana Luz Mary Quintero', $alabanza, 'secretary'),
         'tesorero' => $persona('Hermano Jairo Betancur', $alabanza, 'treasurer'),
         'liderSonido' => $persona('Hermano Andrés Molina', $sonido, 'leader'),
-        'liderMontaje' => $persona('Hermano Wilson Garzón', $montaje, 'leader'),
         'liderCoro' => $persona('Hermana Omaira Lozano', $coro, 'leader'),
         'presidentaDamas' => $persona('Hermana Blanca Cárdenas', $damas, 'president'),
     ];

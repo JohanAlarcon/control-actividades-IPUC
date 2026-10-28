@@ -40,9 +40,8 @@ describe('rolesForDepth: qué cargos tiene cada nivel (RF-013)', () => {
         expect(rolesForDepth(1)).toEqual(['president', 'secretary', 'treasurer']);
     });
 
-    it('un sub-comité y un equipo tienen líder', () => {
+    it('un sub-comité tiene líder', () => {
         expect(rolesForDepth(2)).toEqual(['leader']);
-        expect(rolesForDepth(3)).toEqual(['leader']);
     });
 });
 

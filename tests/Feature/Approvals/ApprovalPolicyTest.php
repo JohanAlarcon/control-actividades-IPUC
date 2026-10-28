@@ -11,8 +11,8 @@ beforeEach(function () {
     $this->e = estructuraDePrueba();
 });
 
-test('el presidente resuelve lo que le piden sus sub-comités, en cualquier nivel', function () {
-    $solicitud = solicitudDe($this->e['liderMontaje']);
+test('el presidente resuelve lo que le piden sus sub-comités', function () {
+    $solicitud = solicitudDe($this->e['liderCoro']);
 
     $this->actingAs($this->e['presidente'])->post("/approvals/{$solicitud->id}/approve")->assertRedirect();
 
@@ -45,7 +45,7 @@ test('el pastor no decide a nombre de un presidente', function () {
 });
 
 test('un líder o una secretaria no resuelven, ni siquiera lo de su propio comité', function () {
-    $solicitud = solicitudDe($this->e['liderMontaje']);
+    $solicitud = solicitudDe($this->e['liderSonido']);
 
     $this->actingAs($this->e['liderSonido'])->post("/approvals/{$solicitud->id}/approve")->assertForbidden();
     $this->actingAs($this->e['secretaria'])->post("/approvals/{$solicitud->id}/reject", ['reason' => 'No me parece.'])->assertForbidden();

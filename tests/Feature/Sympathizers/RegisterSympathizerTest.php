@@ -62,7 +62,7 @@ test('el mismo nombre con otro teléfono no se toma por la misma persona', funct
 });
 
 test('el formulario de registro se le abre a cualquier cargo', function () {
-    $this->actingAs($this->e['liderMontaje'])->get('/sympathizers/create')
+    $this->actingAs($this->e['liderSonido'])->get('/sympathizers/create')
         ->assertOk()
         ->assertInertia(fn ($page) => $page->component('Sympathizers/Form'));
 });

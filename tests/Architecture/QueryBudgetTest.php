@@ -65,20 +65,19 @@ function rutasQueSirvenPantalla(): array
     return $rutas;
 }
 
-/** Una sede con los tres niveles, una persona en cada tipo de cargo y algo de datos en cada nivel. */
+/** Una sede con los dos niveles, una persona en cada tipo de cargo y algo de datos en cada nivel. */
 function congregacionDePrueba(): array
 {
     $sede = Site::factory()->create();
     $alabanza = Committee::factory()->for($sede)->create();
     $sonido = Committee::factory()->for($sede)->childOf($alabanza)->create();
-    $montaje = Committee::factory()->for($sede)->childOf($sonido)->create();
 
     $presidente = User::factory()->create(['site_id' => $sede->id]);
     CommitteeUser::factory()->forCommittee($alabanza)->create(['user_id' => $presidente->id]);
     $lider = User::factory()->create(['site_id' => $sede->id]);
     CommitteeUser::factory()->forCommittee($sonido)->role(CommitteeUser::LEADER)->create(['user_id' => $lider->id]);
 
-    foreach ([$alabanza, $sonido, $montaje] as $comite) {
+    foreach ([$alabanza, $sonido] as $comite) {
         Activity::factory()->forCommittee($comite)->create();
         Approval::factory()->forCommittee($comite)->create();
     }
@@ -100,7 +99,7 @@ function multiplicarDatos(array $congregacion): void
 {
     foreach (range(1, 10) as $vuelta) {
         $comite = Committee::factory()->for($congregacion['sede'])->create();
-        $dentro = Committee::factory()->for($congregacion['sede'])->childOf($congregacion['sonido'])->create();
+        $dentro = Committee::factory()->for($congregacion['sede'])->childOf($congregacion['alabanza'])->create();
 
         foreach ([$comite, $dentro, $congregacion['alabanza']] as $donde) {
             Activity::factory()->forCommittee($donde)->create();

@@ -23,7 +23,6 @@ class DemoCalendarSeeder extends Seeder
         'Comité de Alabanza' => [['Culto de alabanza', 'Culto', 2], ['Ensayo general', 'Ensayo', 5], ['Noche de alabanza', 'Evento', 9], ['Culto de Navidad', 'Culto', 12]],
         'Sub-comité de Sonido' => [['Revisión de los equipos de sonido', 'Reunión', 3], ['Capacitación de sonido', 'Reunión', 8]],
         'Sub-comité de Coro' => [['Ensayo del coro para la Santa Cena', 'Ensayo', 4], ['Cantata de Navidad', 'Evento', 12]],
-        'Equipo de Montaje' => [['Montaje para la convención', 'Evento', 6]],
         'Comité de Evangelismo' => [['Campaña evangelística', 'Campaña', 3], ['Salida a evangelizar', 'Salida', 7], ['Campaña de fin de año', 'Campaña', 11]],
         'Sub-comité de Visitación' => [['Visita a hermanos enfermos', 'Visita', 5], ['Visita a los simpatizantes', 'Visita', 10]],
         'Comité de Damas Dorcas' => [['Reunión de Damas Dorcas', 'Reunión', 3], ['Retiro de Damas Dorcas', 'Salida', 8], ['Vigilia de damas', 'Culto', 11]],

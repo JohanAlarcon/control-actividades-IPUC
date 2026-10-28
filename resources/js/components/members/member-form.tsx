@@ -150,7 +150,7 @@ export default function MemberForm({ member, committees, canLeaveWithoutCommitte
 
             <div>
                 <label htmlFor="committee_id" className="block text-lg font-semibold">
-                    Comité, sub-comité o equipo
+                    Comité o sub-comité
                 </label>
                 <select
                     id="committee_id"

@@ -22,7 +22,7 @@ class DemoApprovalsSeeder extends Seeder
         $presidente = User::where('username', 'presidente.alabanza')->firstOrFail();
 
         $this->pedir('lider.sonido', Approval::TYPE_ACTIVITY, 'Prueba de sonido para la convención', 'Evento', diasAtras: 3);
-        $this->pedir('lider.montaje', Approval::TYPE_EXPENSE, 'Cables y extensiones para el montaje', 'Evento', diasAtras: 6, monto: 850_000);
+        $this->pedir('lider.sonido', Approval::TYPE_EXPENSE, 'Cables y extensiones para el montaje', 'Evento', diasAtras: 6, monto: 850_000);
         $this->pedir('presidente.alabanza', Approval::TYPE_ACTIVITY, 'Culto de alabanza unido', 'Culto', diasAtras: 2);
 
         $flujo->approve($this->pedir('lider.coro', Approval::TYPE_ACTIVITY, 'Ensayo general del coro para la Santa Cena', 'Ensayo', diasAtras: 5), $presidente);

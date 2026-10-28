@@ -15,7 +15,7 @@ function puedeVerElComite($persona, $comite): bool
 }
 
 it('un presidente ve su comité y todo lo que cuelga de él', function () {
-    foreach (['alabanza', 'sonido', 'montaje', 'coro'] as $comite) {
+    foreach (['alabanza', 'sonido', 'coro'] as $comite) {
         expect(puedeVerElComite($this->e['presidente'], $this->e[$comite]))->toBeTrue("no ve {$comite}");
     }
 });
@@ -24,17 +24,16 @@ it('un presidente no ve un comité ajeno', function () {
     expect(puedeVerElComite($this->e['presidente'], $this->e['damas']))->toBeFalse();
 });
 
-it('un líder ve su sub-comité y su equipo, pero no el comité de arriba ni el sub-comité hermano', function () {
+it('un líder ve su sub-comité, pero no el comité de arriba ni el sub-comité hermano', function () {
     $lider = $this->e['liderSonido'];
 
     expect(puedeVerElComite($lider, $this->e['sonido']))->toBeTrue()
-        ->and(puedeVerElComite($lider, $this->e['montaje']))->toBeTrue()
         ->and(puedeVerElComite($lider, $this->e['alabanza']))->toBeFalse()
         ->and(puedeVerElComite($lider, $this->e['coro']))->toBeFalse();
 });
 
 it('el pastor ve todos los comités de su sede', function () {
-    foreach (['alabanza', 'sonido', 'montaje', 'coro', 'damas'] as $comite) {
+    foreach (['alabanza', 'sonido', 'coro', 'damas'] as $comite) {
         expect(puedeVerElComite($this->e['pastor'], $this->e[$comite]))->toBeTrue("no ve {$comite}");
     }
 });

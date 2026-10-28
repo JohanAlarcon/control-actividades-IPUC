@@ -31,7 +31,7 @@ class DemoPeopleSeeder extends Seeder
         ['Hermana Yolanda Pérez', 'f', '1972-01-27', 'separated', 1996, 'Comité de Escuela Dominical'],
         ['Hermano Brayan Stiven Ruiz', 'm', '2011-05-05', 'single', null, 'Comité de Escuela Dominical'],
         ['Hermana Nubia Aguirre', 'f', null, 'married', 1985, 'Sub-comité de Visitación'],
-        ['Hermano Luis Alfonso Mejía', 'm', '1981-10-10', 'common_law', null, 'Equipo de Montaje'],
+        ['Hermano Luis Alfonso Mejía', 'm', '1981-10-10', 'common_law', null, 'Sub-comité de Sonido'],
         ['Hermana Paola Andrea Díaz', 'f', '1995-04-18', 'married', 2014, null],
         ['Hermano Gustavo Arango', 'm', 45, 'married', 2001, null],
     ];

@@ -2,6 +2,7 @@
 
 use App\Models\Activity;
 use App\Models\Approval;
+use App\Models\CommitteeUser;
 use App\Support\Approvals\ApprovalFlow;
 use Illuminate\Validation\ValidationException;
 
@@ -16,28 +17,28 @@ beforeEach(function () {
 });
 
 test('lo que pide un líder o un secretario le llega al presidente; lo del presidente, al pastor', function () {
-    expect(solicitudDe($this->e['liderMontaje'])->level)->toBe(Approval::LEVEL_PRESIDENT)
+    expect(solicitudDe($this->e['liderSonido'])->level)->toBe(Approval::LEVEL_PRESIDENT)
         ->and(solicitudDe($this->e['secretaria'])->level)->toBe(Approval::LEVEL_PRESIDENT)
         ->and(solicitudDe($this->e['presidente'])->level)->toBe(Approval::LEVEL_PASTOR);
 });
 
 test('a quién le llega: lo del líder, al presidente del comité de arriba; lo del presidente, al pastor', function () {
-    $cargoDe = fn ($persona) => App\Models\CommitteeUser::where('user_id', $persona->id)->sole();
+    $cargoDe = fn ($persona) => CommitteeUser::where('user_id', $persona->id)->sole();
 
-    expect($this->flujo->recipientFor($cargoDe($this->e['liderMontaje']))?->id)->toBe($this->e['presidente']->id)
+    expect($this->flujo->recipientFor($cargoDe($this->e['liderSonido']))?->id)->toBe($this->e['presidente']->id)
         ->and($this->flujo->recipientFor($cargoDe($this->e['liderCoro']))?->id)->toBe($this->e['presidente']->id)
         ->and($this->flujo->recipientFor($cargoDe($this->e['secretaria']))?->id)->toBe($this->e['presidente']->id)
         ->and($this->flujo->recipientFor($cargoDe($this->e['presidente']))?->id)->toBe($this->e['pastor']->id);
 });
 
 test('si la presidencia está vacante o sin acceso, no le llega a nadie todavía', function () {
-    $lider = App\Models\CommitteeUser::where('user_id', $this->e['liderSonido']->id)->sole();
+    $lider = CommitteeUser::where('user_id', $this->e['liderSonido']->id)->sole();
 
     $this->e['presidente']->update(['active' => false]);
     expect($this->flujo->recipientFor($lider))->toBeNull();
 
     $this->e['presidente']->update(['active' => true]);
-    App\Models\CommitteeUser::where('user_id', $this->e['presidente']->id)->sole()->update(['ended_at' => now()]);
+    CommitteeUser::where('user_id', $this->e['presidente']->id)->sole()->update(['ended_at' => now()]);
     expect($this->flujo->recipientFor($lider))->toBeNull();
 });
 

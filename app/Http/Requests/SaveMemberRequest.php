@@ -102,7 +102,7 @@ class SaveMemberRequest extends FormRequest
             'baptized_at.before_or_equal' => 'La fecha de bautismo no puede ser después de hoy.',
             'joined_at.date_format' => 'Escoja la fecha de ingreso en el calendario.',
             'joined_at.before_or_equal' => 'La fecha de ingreso no puede ser después de hoy.',
-            'committee_id.required' => 'Escoja el comité, sub-comité o equipo de la persona.',
+            'committee_id.required' => 'Escoja el comité o sub-comité de la persona.',
             'committee_id.in' => 'Escoja uno de los comités de la lista.',
             'committee_id.integer' => 'Escoja uno de los comités de la lista.',
         ];

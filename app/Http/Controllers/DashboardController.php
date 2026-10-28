@@ -91,7 +91,7 @@ class DashboardController extends Controller
 
         return $this->delAnio($anio)
             ->groupBy(fn (Activity $actividad) => $this->scope->isPastor()
-                ? ($actividad->grandparent_name ?? $actividad->parent_name ?? $actividad->committee_name)
+                ? ($actividad->parent_name ?? $actividad->committee_name)
                 : $actividad->committee_name)
             ->map(fn ($grupo, string $comite) => ['committee' => $comite] + ScheduleSummary::of($grupo->map(ScheduleCards::own(...))))
             ->sortBy('committee')

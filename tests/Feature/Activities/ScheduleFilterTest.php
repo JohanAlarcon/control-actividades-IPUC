@@ -21,7 +21,7 @@ beforeEach(function () {
 
     $crear($this->e['sonido'], 'Sonido uno', Activity::COMPLETED, '2026-02-10 19:00');
     $crear($this->e['sonido'], 'Sonido dos', Activity::APPROVED, '2026-03-10 19:00');
-    $crear($this->e['montaje'], 'Montaje uno', Activity::COMPLETED, '2026-04-10 19:00');
+    $crear($this->e['sonido'], 'Sonido tres', Activity::COMPLETED, '2026-04-10 19:00');
     $crear($this->e['coro'], 'Coro uno', Activity::COMPLETED, '2026-02-15 19:00');
     $crear($this->e['coro'], 'Coro dos', Activity::COMPLETED, '2026-03-15 19:00');
 });
@@ -35,7 +35,7 @@ test('al escoger un comité, la lista, el resumen y el cumplimiento se recalcula
             ->where('filters.committee', $this->e['sonido']->id)
             ->where('summary.total', 3)
             ->where('summary.compliance', 67))
-        ->assertShows('Montaje uno')
+        ->assertShows('Sonido tres')
         ->assertDoesntShow('Coro uno');
 
     $this->actingAs($this->e['presidente'])->get("/activities?committee={$this->e['coro']->id}")

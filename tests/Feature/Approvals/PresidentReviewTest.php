@@ -45,12 +45,12 @@ test('2. una actividad nueva con el visto bueno del presidente no se cierra: pas
 });
 
 test('3. si no está de acuerdo, la devuelve: se exige el motivo, quien la propuso lo ve y no llega al pastor', function () {
-    $solicitud = solicitudDe($this->e['liderMontaje']);
+    $solicitud = solicitudDe($this->e['liderCoro']);
 
     $this->actingAs($this->e['presidente'])->post("/approvals/{$solicitud->id}/reject")->assertSessionHasErrors('reason');
     $this->actingAs($this->e['presidente'])->post("/approvals/{$solicitud->id}/reject", ['reason' => 'Falta el permiso del templo.']);
 
-    $this->actingAs($this->e['liderMontaje'])->get('/approvals')
+    $this->actingAs($this->e['liderCoro'])->get('/approvals')
         ->assertInertia(fn (Assert $page) => $page->where('history.0.reason', 'Falta el permiso del templo.'));
 
     $this->actingAs($this->e['pastor'])->get('/approvals')
@@ -60,7 +60,7 @@ test('3. si no está de acuerdo, la devuelve: se exige el motivo, quien la propu
 test('4. al abrir el inicio, el presidente ve cuántas solicitudes esperan y desde cuándo', function () {
     $this->travelTo(now()->subDays(6), fn () => solicitudDe($this->e['liderSonido']));
     $this->travelTo(now()->subDays(2), fn () => solicitudDe($this->e['liderCoro']));
-    solicitudDe($this->e['liderMontaje']);
+    solicitudDe($this->e['secretaria']);
 
     $respuesta = $this->actingAs($this->e['presidente'])
         ->withHeaders(pedidoParcial('pendingCount,pendingSince'))

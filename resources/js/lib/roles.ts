@@ -22,7 +22,7 @@ export function roleLabelFor(role: Role, name?: string | null): string {
     return /^(hermana|pastora)\s/i.test((name ?? '').trim()) ? FEMININE_LABELS[role] : ROLE_LABELS[role];
 }
 
-/** La misma regla del servidor: un comité tiene presidente, secretario y tesorero; un sub-comité o un equipo, líder. */
+/** La misma regla del servidor: un comité tiene presidente, secretario y tesorero; un sub-comité, líder. */
 export function rolesForDepth(depth: number): Role[] {
     return depth === 1 ? ['president', 'secretary', 'treasurer'] : ['leader'];
 }

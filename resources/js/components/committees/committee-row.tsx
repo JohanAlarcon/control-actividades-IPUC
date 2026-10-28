@@ -4,11 +4,10 @@ import type { CommitteeSummary } from '@/types/committees';
 import { Link } from '@inertiajs/react';
 import { ChevronRight, UserRound } from 'lucide-react';
 
-/** Cada nivel con su color: el comité en azul, el sub-comité en celeste y el equipo en dorado. */
+/** Cada nivel con su color: el comité en azul y el sub-comité en celeste. */
 const TILES: Record<number, string> = {
     1: 'bg-ipuc text-white',
     2: 'bg-ipuc-claro/15 text-ipuc',
-    3: 'bg-ipuc-dorado/25 text-tinta',
 };
 
 /** «Comité de Alabanza» da «A»: la letra de lo que lo distingue, no la de la palabra «Comité». */

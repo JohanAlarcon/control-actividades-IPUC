@@ -17,11 +17,10 @@ beforeEach(function () {
 
     $this->alabanza = Committee::factory()->for($this->site)->create();
     $this->sonido = Committee::factory()->childOf($this->alabanza)->create();
-    $this->montaje = Committee::factory()->childOf($this->sonido)->create();
     $this->coro = Committee::factory()->childOf($this->alabanza)->create();
     $this->damas = Committee::factory()->for($this->site)->create();
 
-    foreach ([$this->alabanza, $this->sonido, $this->montaje, $this->coro, $this->damas] as $nodo) {
+    foreach ([$this->alabanza, $this->sonido, $this->coro, $this->damas] as $nodo) {
         Activity::factory()->forCommittee($nodo)->create(['title' => 'Actividad de '.$nodo->name]);
         Approval::factory()->forCommittee($nodo)->create();
     }
@@ -43,9 +42,9 @@ function cargoEn(Committee $comite, string $role = CommitteeUser::PRESIDENT): Us
 it('un presidente solo ve lo de su comité y sus descendientes', function () {
     actuandoComo(cargoEn($this->alabanza));
 
-    expect(Committee::count())->toBe(4)
-        ->and(Activity::count())->toBe(4)
-        ->and(Approval::count())->toBe(4)
+    expect(Committee::count())->toBe(3)
+        ->and(Activity::count())->toBe(3)
+        ->and(Approval::count())->toBe(3)
         ->and(Activity::pluck('committee_id')->all())->not->toContain($this->damas->id);
 });
 
@@ -54,23 +53,14 @@ it('un líder de sub-comité no ve a su rama hermana', function () {
 
     $comites = Committee::pluck('id')->all();
 
-    expect($comites)->toContain($this->sonido->id, $this->montaje->id)
-        ->and($comites)->not->toContain($this->coro->id)
-        ->and($comites)->not->toContain($this->alabanza->id)
-        ->and(Activity::count())->toBe(2);
-});
-
-it('un líder de equipo solo ve su equipo', function () {
-    actuandoComo(cargoEn($this->montaje, CommitteeUser::LEADER));
-
-    expect(Committee::pluck('id')->all())->toBe([$this->montaje->id])
+    expect($comites)->toBe([$this->sonido->id])
         ->and(Activity::count())->toBe(1);
 });
 
-it('un presidente sí ve a sus nietos', function () {
+it('un presidente sí ve a sus sub-comités', function () {
     actuandoComo(cargoEn($this->alabanza));
 
-    expect(Committee::find($this->montaje->id))->not->toBeNull();
+    expect(Committee::find($this->coro->id))->not->toBeNull();
 });
 
 it('abrir por identificador directo lo ajeno no devuelve nada', function () {
@@ -87,8 +77,8 @@ it('el pastor sí ve toda la congregación', function () {
 
     actuandoComo($pastor);
 
-    expect(Committee::count())->toBe(5)
-        ->and(Activity::count())->toBe(5);
+    expect(Committee::count())->toBe(4)
+        ->and(Activity::count())->toBe(4);
 });
 
 it('una persona con dos cargos ve un ámbito a la vez, nunca la unión', function () {
@@ -97,7 +87,7 @@ it('una persona con dos cargos ve un ámbito a la vez, nunca la unión', functio
     $enDamas = CommitteeUser::factory()->forCommittee($this->damas)->create(['user_id' => $hermano->id]);
 
     actuandoComo($hermano, $enAlabanza->id);
-    expect(Committee::count())->toBe(4)
+    expect(Committee::count())->toBe(3)
         ->and(Committee::find($this->damas->id))->toBeNull();
 
     actuandoComo($hermano, $enDamas->id);

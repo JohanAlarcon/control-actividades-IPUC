@@ -48,7 +48,7 @@ it('un presidente entra, escoge su clave, ve su comité, y uno ajeno le responde
 
     $this->get('/committees')->assertOk()
         ->assertShows('Comité de Alabanza')
-        ->assertShows('Equipo de Montaje')
+        ->assertShows('Sub-comité de Sonido')
         ->assertDoesntShow('Comité de Damas Dorcas');
 
     $this->get("/committees/{$this->e['damas']->id}")

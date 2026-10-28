@@ -42,7 +42,7 @@ class DemoSeeder extends Seeder
 
         $estructura = [
             'Comité de Alabanza' => [
-                'Sub-comité de Sonido' => ['Equipo de Montaje'],
+                'Sub-comité de Sonido' => [],
                 'Sub-comité de Coro' => [],
             ],
             'Comité de Evangelismo' => [
@@ -93,7 +93,6 @@ class DemoSeeder extends Seeder
             ['secretaria.alabanza', 'Hermana Luz Mary Quintero', 'Comité de Alabanza', CommitteeUser::SECRETARY],
             ['tesorero.alabanza', 'Hermano Jairo Betancur', 'Comité de Alabanza', CommitteeUser::TREASURER],
             ['lider.sonido', 'Hermano Andrés Molina', 'Sub-comité de Sonido', CommitteeUser::LEADER],
-            ['lider.montaje', 'Hermano Wilson Garzón', 'Equipo de Montaje', CommitteeUser::LEADER],
             ['lider.coro', 'Hermana Omaira Lozano', 'Sub-comité de Coro', CommitteeUser::LEADER],
             ['presidente.evangelismo', 'Hermano Gustavo Rengifo', 'Comité de Evangelismo', CommitteeUser::PRESIDENT],
             ['presidente.damas', 'Hermana Blanca Cárdenas', 'Comité de Damas Dorcas', CommitteeUser::PRESIDENT],

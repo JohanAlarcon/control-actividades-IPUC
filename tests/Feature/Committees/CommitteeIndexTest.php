@@ -21,10 +21,9 @@ it('el árbol trae cada comité con sus hijos adentro y el responsable de cada u
     $sonido = nodoDelArbol($alabanza['children'], 'Sub-comité de Sonido');
 
     expect(collect($alabanza['children'])->pluck('name'))->toContain('Sub-comité de Sonido', 'Sub-comité de Coro')
-        ->and($sonido['children'][0]['name'])->toBe('Equipo de Montaje')
+        ->and($sonido['children'])->toBe([])
         ->and($alabanza['responsible'])->toBe('Hermano Rigoberto Páez')
-        ->and($sonido['responsible'])->toBe('Hermano Andrés Molina')
-        ->and($sonido['children'][0]['responsible'])->toBe('Hermano Wilson Garzón');
+        ->and($sonido['responsible'])->toBe('Hermano Andrés Molina');
 });
 
 it('un comité sin responsable llega sin nombre, para que la pantalla lo diga', function () {
@@ -45,11 +44,11 @@ it('quien tiene el acceso retirado no aparece como responsable', function () {
     expect(nodoDelArbol(arbolDe($this, $this->e['pastor']), 'Sub-comité de Coro')['responsible'])->toBeNull();
 });
 
-it('el árbol de un líder de equipo cabe en el presupuesto y no crece con los datos', function () {
+it('el árbol de un líder de sub-comité cabe en el presupuesto y no crece con los datos', function () {
     $medir = function () {
         DB::flushQueryLog();
         DB::enableQueryLog();
-        $this->actingAs($this->e['liderMontaje'])->get('/committees')->assertOk();
+        $this->actingAs($this->e['liderSonido'])->get('/committees')->assertOk();
         $consultas = count(DB::getQueryLog());
         DB::disableQueryLog();
 

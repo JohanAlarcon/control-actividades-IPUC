@@ -5,7 +5,7 @@ const arbol = [
     {
         depth: 1,
         children: [
-            { depth: 2, children: [{ depth: 3, children: [] }] },
+            { depth: 2, children: [] },
             { depth: 2, children: [] },
         ],
     },
@@ -14,7 +14,7 @@ const arbol = [
 
 describe('structureSummary: el resumen bajo el título de Comités', () => {
     it('cuenta cada nivel con su nombre', () => {
-        expect(structureSummary(arbol)).toBe('2 comités · 2 sub-comités · 1 equipo');
+        expect(structureSummary(arbol)).toBe('2 comités · 2 sub-comités');
     });
 
     it('usa el singular cuando es uno', () => {
@@ -32,18 +32,18 @@ describe('structureSummary: el resumen bajo el título de Comités', () => {
 
 describe('flattenTree: el orden en que se recorre el árbol', () => {
     it('pone cada comité seguido de lo que cuelga de él', () => {
-        expect(flattenTree(arbol).map((nodo) => nodo.depth)).toEqual([1, 2, 3, 2, 1]);
+        expect(flattenTree(arbol).map((nodo) => nodo.depth)).toEqual([1, 2, 2, 1]);
     });
 });
 
 describe('los textos de cada nivel', () => {
     it('cada nivel tiene su nombre', () => {
-        expect([1, 2, 3].map(levelOf)).toEqual(['Comité', 'Sub-comité', 'Equipo']);
+        expect([1, 2].map(levelOf)).toEqual(['Comité', 'Sub-comité']);
     });
 
     it('un nodo sin hijos explica quién coordina, en vez de una sección vacía (CL-01)', () => {
         expect(withoutChildrenText(1)).toContain('su presidente coordina directamente');
         expect(withoutChildrenText(2)).toContain('su líder coordina directamente');
-        expect(withoutChildrenText(3)).toContain('último nivel');
+        expect(withoutChildrenText(2)).toContain('último nivel');
     });
 });

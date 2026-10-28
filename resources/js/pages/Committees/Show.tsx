@@ -34,7 +34,7 @@ export default function CommitteeShow({ committee, responsible, secretary, treas
                     </ul>
                 </SectionBlock>
 
-                <SectionBlock title={hasChildren ? childrenTitle(committee.depth) : 'Cómo se organiza'}>
+                <SectionBlock title={hasChildren ? childrenTitle() : 'Cómo se organiza'}>
                     {hasChildren ? (
                         <ul className={`divide-y divide-ipuc/5 overflow-hidden ${cardClass}`}>
                             {children.map((child) => (

@@ -21,7 +21,7 @@ test('el año muestra los doce meses y distingue cumplidas, en camino, aprobadas
     ($this->crear)($this->e['sonido'], 'Revisión de sonido', Activity::COMPLETED, '2026-03-10 19:00');
     ($this->crear)($this->e['sonido'], 'Capacitación de sonido', Activity::APPROVED, '2026-05-20 19:00');
     ($this->crear)($this->e['coro'], 'Cantata de Navidad', Activity::APPROVED, '2026-12-12 19:00');
-    ($this->crear)($this->e['montaje'], 'Montaje del templo', Activity::PENDING, '2026-07-01 19:00');
+    ($this->crear)($this->e['coro'], 'Montaje del templo', Activity::PENDING, '2026-07-01 19:00');
     ($this->crear)($this->e['sonido'], 'Paseo rechazado', Activity::REJECTED, '2026-08-01 19:00');
 
     $this->actingAs($this->e['presidente'])->get('/activities')

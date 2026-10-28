@@ -18,22 +18,19 @@ class ScheduleCards
 
     /**
      * Las actividades del cargo, con el filtro de alcance puesto. Trae el nombre del comite, el de
-     * su comite padre y abuelo (para filtrar por un comite con todo lo que cuelga de el) y la clase.
+     * su comite padre (para filtrar por un comite con todo lo que cuelga de el) y la clase.
      */
     public static function ownQuery(): Builder
     {
         return Activity::query()
             ->join('committees', 'committees.id', '=', 'activities.committee_id')
             ->leftJoin('committees as parents', 'parents.id', '=', 'committees.parent_id')
-            ->leftJoin('committees as grandparents', 'grandparents.id', '=', 'parents.parent_id')
             ->leftJoin('activity_types', 'activity_types.id', '=', 'activities.activity_type_id')
             ->select([
                 'activities.*',
                 'committees.name as committee_name',
                 'committees.parent_id as committee_parent_id',
-                'parents.parent_id as committee_grandparent_id',
                 'parents.name as parent_name',
-                'grandparents.name as grandparent_name',
                 'activity_types.name as type_name',
             ]);
     }

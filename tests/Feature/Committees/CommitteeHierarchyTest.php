@@ -11,23 +11,20 @@ it('guarda un comité en el primer nivel', function () {
         ->and($comite->isTopLevel())->toBeTrue();
 });
 
-it('calcula el nivel de un sub-comité y de un equipo', function () {
+it('calcula el nivel de un sub-comité', function () {
     $comite = Committee::factory()->create();
     $subComite = Committee::factory()->childOf($comite)->create();
-    $equipo = Committee::factory()->childOf($subComite)->create();
 
     expect($subComite->depth)->toBe(2)
-        ->and($equipo->depth)->toBe(3)
-        ->and($equipo->parent->id)->toBe($subComite->id);
+        ->and($subComite->parent->id)->toBe($comite->id);
 });
 
-it('rechaza un cuarto nivel y lo explica en lenguaje claro', function () {
+it('CL-17: rechaza colgar un grupo de un sub-comité y explica que la estructura llega hasta dos niveles', function () {
     $comite = Committee::factory()->create();
     $subComite = Committee::factory()->childOf($comite)->create();
-    $equipo = Committee::factory()->childOf($subComite)->create();
 
-    expect(fn () => Committee::factory()->childOf($equipo)->create())
-        ->toThrow(ValidationException::class, 'La estructura llega hasta tres niveles');
+    expect(fn () => Committee::factory()->childOf($subComite)->create())
+        ->toThrow(ValidationException::class, 'La estructura llega hasta dos niveles: comité y sub-comité.');
 });
 
 it('reconoce un nodo sin hijos, que es el caso límite CL-01', function () {

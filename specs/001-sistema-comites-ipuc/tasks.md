@@ -1401,10 +1401,10 @@ trae seis datos de lo ajeno; dos actividades generales no se cruzan.
 **Orden obligado** (RG-14, RG-16): en cada tarea que toca el filtro, las pruebas de aislamiento se
 rehacen **antes** de tocar el código.
 
-- [ ] T211 [US21] · Dos niveles: migración, modelo y regla de profundidad
+- [x] T211 [US21] · Dos niveles: migración, modelo y regla de profundidad
       Archivos: `database/migrations/<ts>_limit_committees_to_two_levels.php` · `app/Models/Committee.php` · `tests/Pest.php` · `tests/Feature/Scope/`
       D-31. La migración falla con un mensaje claro si queda algún nodo de nivel 3. `Committee` impide colgar un nodo de un sub-comité. `estructuraDePrueba()` deja de crear el equipo de Montaje, y las pruebas que lo usaban se rehacen con un segundo sub-comité.
-      Verifica: `php artisan test` en verde · `--filter=CommitteeDepthTest`: crear un hijo de un sub-comité se rechaza y explica que la estructura llega hasta dos niveles (CL-17).
+      Verifica: `php artisan test` en verde · `--filter=CommitteeHierarchyTest`: crear un hijo de un sub-comité se rechaza y explica que la estructura llega hasta dos niveles (CL-17).
 
 - [ ] T212 · Semillas con los quince comités del levantamiento y personas ficticias
       Archivos: `database/seeders/DemoSeeder.php` · `DemoPeopleSeeder.php` · `DemoCalendarSeeder.php` · `DemoApprovalsSeeder.php`

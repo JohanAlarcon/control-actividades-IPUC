@@ -11,14 +11,17 @@ use Illuminate\Validation\ValidationException;
 
 class CommitteeUser extends Model
 {
-    use HasFactory, BelongsToSite;
+    use BelongsToSite, HasFactory;
 
     public const PRESIDENT = 'president';
+
     public const SECRETARY = 'secretary';
+
     public const TREASURER = 'treasurer';
+
     public const LEADER = 'leader';
 
-    /** Cargos que solo existen en un comité, nunca en un sub-comité ni en un equipo. */
+    /** Cargos que solo existen en un comité, nunca en un sub-comité. */
     public const TOP_LEVEL_ROLES = [self::PRESIDENT, self::SECRETARY, self::TREASURER];
 
     protected $table = 'committee_user';
@@ -75,7 +78,7 @@ class CommitteeUser extends Model
 
         if ($esDelPrimerNivel && $committee->depth !== 1) {
             throw ValidationException::withMessages([
-                'role' => 'Presidente, secretario y tesorero son cargos de un comité. Un sub-comité o un equipo solo tiene líder.',
+                'role' => 'Presidente, secretario y tesorero son cargos de un comité. Un sub-comité solo tiene líder.',
             ]);
         }
 

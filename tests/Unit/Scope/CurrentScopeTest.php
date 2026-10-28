@@ -12,7 +12,6 @@ beforeEach(function () {
 
     $this->alabanza = Committee::factory()->for($this->site)->create();
     $this->sonido = Committee::factory()->childOf($this->alabanza)->create();
-    $this->montaje = Committee::factory()->childOf($this->sonido)->create();
     $this->coro = Committee::factory()->childOf($this->alabanza)->create();
 
     $this->damas = Committee::factory()->for($this->site)->create();
@@ -24,11 +23,11 @@ it('el pastor ve todos los comités de su sede', function () {
     $this->scope->resolve($pastor);
 
     expect($this->scope->isPastor())->toBeTrue()
-        ->and($this->scope->committeeIds())->toHaveCount(5)
+        ->and($this->scope->committeeIds())->toHaveCount(4)
         ->and($this->scope->sees($this->damas->id))->toBeTrue();
 });
 
-it('un presidente ve su comité y todo su sub-árbol, incluidos los nietos', function () {
+it('un presidente ve su comité y todos sus sub-comités', function () {
     $presidente = User::factory()->create(['site_id' => $this->site->id]);
     CommitteeUser::factory()->forCommittee($this->alabanza)->create(['user_id' => $presidente->id]);
 
@@ -36,32 +35,20 @@ it('un presidente ve su comité y todo su sub-árbol, incluidos los nietos', fun
 
     expect($this->scope->sees($this->alabanza->id))->toBeTrue()
         ->and($this->scope->sees($this->sonido->id))->toBeTrue()
-        ->and($this->scope->sees($this->montaje->id))->toBeTrue()
+        ->and($this->scope->sees($this->coro->id))->toBeTrue()
         ->and($this->scope->sees($this->damas->id))->toBeFalse();
 });
 
-it('un líder de sub-comité ve sus equipos y nada de la rama hermana', function () {
+it('un líder de sub-comité ve solo su sub-comité, nada de la rama hermana', function () {
     $lider = User::factory()->create(['site_id' => $this->site->id]);
     CommitteeUser::factory()->forCommittee($this->sonido)->role(CommitteeUser::LEADER)
         ->create(['user_id' => $lider->id]);
 
     $this->scope->resolve($lider);
 
-    expect($this->scope->sees($this->sonido->id))->toBeTrue()
-        ->and($this->scope->sees($this->montaje->id))->toBeTrue()
+    expect($this->scope->committeeIds())->toBe([$this->sonido->id])
         ->and($this->scope->sees($this->coro->id))->toBeFalse()
         ->and($this->scope->sees($this->alabanza->id))->toBeFalse();
-});
-
-it('un líder de equipo solo ve su equipo', function () {
-    $lider = User::factory()->create(['site_id' => $this->site->id]);
-    CommitteeUser::factory()->forCommittee($this->montaje)->role(CommitteeUser::LEADER)
-        ->create(['user_id' => $lider->id]);
-
-    $this->scope->resolve($lider);
-
-    expect($this->scope->committeeIds())->toBe([$this->montaje->id])
-        ->and($this->scope->sees($this->sonido->id))->toBeFalse();
 });
 
 it('con dos cargos y uno escogido, aplica solo ese ámbito y nunca la unión', function () {

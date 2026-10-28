@@ -187,7 +187,7 @@ class ActivityController extends Controller
             ->where('activities.status', '!=', Activity::REJECTED)
             ->get()
             ->filter(fn (Activity $actividad) => $comite === null
-                || in_array($comite, [$actividad->committee_id, $actividad->committee_parent_id, $actividad->committee_grandparent_id], true))
+                || in_array($comite, [$actividad->committee_id, $actividad->committee_parent_id], true))
             ->map(ScheduleCards::own(...));
     }
 

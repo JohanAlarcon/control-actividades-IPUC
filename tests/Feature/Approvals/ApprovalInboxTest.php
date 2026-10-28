@@ -14,7 +14,7 @@ beforeEach(function () {
 });
 
 test('la tarjeta dice de dónde viene, quién la pidió, qué mueve en el cronograma y desde cuándo espera', function () {
-    $solicitud = $this->travelTo(now()->subDays(4), fn () => solicitudDe($this->e['liderMontaje'], titulo: 'Montaje de la convención'));
+    $solicitud = $this->travelTo(now()->subDays(4), fn () => solicitudDe($this->e['liderCoro'], titulo: 'Montaje de la convención'));
     $solicitud->approvable->update(['scheduled_at' => '2026-11-07 19:00:00', 'location' => 'Templo central']);
 
     $this->actingAs($this->e['presidente'])->get('/approvals')
@@ -22,8 +22,8 @@ test('la tarjeta dice de dónde viene, quién la pidió, qué mueve en el cronog
             ->component('Approvals/Index')
             ->where('counts.inbox', 1)
             ->where('inbox.0.title', 'Montaje de la convención')
-            ->where('inbox.0.committee', 'Equipo de Montaje')
-            ->where('inbox.0.requestedBy', 'Hermano Wilson Garzón')
+            ->where('inbox.0.committee', 'Sub-comité de Coro')
+            ->where('inbox.0.requestedBy', 'Hermana Omaira Lozano')
             ->where('inbox.0.activity.location', 'Templo central')
             ->where('inbox.0.activity.date', fn (string $fecha) => Carbon::parse($fecha)->equalTo('2026-11-07 19:00:00'))
             ->where('inbox.0.waitingSince', fn (string $fecha) => Carbon::parse($fecha)->isSameDay(now()->subDays(4))));
