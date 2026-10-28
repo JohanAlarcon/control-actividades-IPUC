@@ -7,6 +7,7 @@ import ScopeRibbon from '@/components/layout/scope-ribbon';
 import SideNav from '@/components/layout/side-nav';
 import TopBar from '@/components/layout/top-bar';
 import UpdateBanner from '@/components/layout/update-banner';
+import { useCollapsedMenu } from '@/hooks/use-collapsed-menu';
 import type { SharedProps } from '@/types/shared';
 import { Head, usePage } from '@inertiajs/react';
 import type { ReactNode } from 'react';
@@ -18,8 +19,10 @@ interface Props {
     children: ReactNode;
 }
 
-/** El ancho del contenido: el de un celular grande y, en el escritorio, casi todo lo que deja el menú. */
-const container = 'mx-auto max-w-2xl px-4 lg:max-w-5xl lg:px-8';
+/** El ancho del contenido: el de un celular grande y, en el escritorio, casi todo lo que deja el menú; más si se encoge. */
+function containerClass(collapsed: boolean): string {
+    return `mx-auto max-w-2xl px-4 lg:px-8 ${collapsed ? 'lg:max-w-7xl' : 'lg:max-w-5xl'}`;
+}
 
 /**
  * El molde de toda pantalla interna. Arriba, sobre el azul de la iglesia, la barra, con qué
@@ -30,11 +33,13 @@ const container = 'mx-auto max-w-2xl px-4 lg:max-w-5xl lg:px-8';
 export default function MainLayout({ title, subtitle, back, children }: Props) {
     const { auth } = usePage<Partial<SharedProps>>().props;
     const user = auth?.user ?? null;
+    const [collapsed, toggleMenu] = useCollapsedMenu();
+    const container = containerClass(collapsed);
 
     return (
-        <div className={`min-h-screen bg-fondo text-tinta ${user ? 'lg:pl-72' : ''}`}>
+        <div className={`min-h-screen bg-fondo text-tinta ${user ? (collapsed ? 'lg:pl-20' : 'lg:pl-72') : ''}`}>
             <Head title={title} />
-            {user && <SideNav />}
+            {user && <SideNav collapsed={collapsed} onToggle={toggleMenu} />}
 
             <header className="bg-linear-to-br from-ipuc to-ipuc-oscuro pb-10 text-white">
                 <div className={container}>
