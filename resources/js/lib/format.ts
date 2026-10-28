@@ -8,6 +8,7 @@ const dayAndMonth = new Intl.DateTimeFormat('es-CO', { timeZone: ZONE, day: 'num
 const fullDate = new Intl.DateTimeFormat('es-CO', { timeZone: ZONE, weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' });
 const longDay = new Intl.DateTimeFormat('es-CO', { timeZone: ZONE, weekday: 'long', day: 'numeric', month: 'long' });
 const hours = new Intl.DateTimeFormat('es-CO', { timeZone: ZONE, hour: 'numeric', minute: '2-digit' });
+const clock = new Intl.DateTimeFormat('en-GB', { timeZone: ZONE, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
 
 /** «2026-10-26»: el día en Colombia, escrito como lo espera un campo de fecha. */
 export function calendarDate(date: Date): string {
@@ -25,6 +26,11 @@ export function groupThousands(text: string): string {
 /** «$ 850.000»: en pesos y sin centavos. */
 export function money(amount: number): string {
     return pesos.format(amount);
+}
+
+/** «19:00»: la hora de una actividad como la pide el reloj de un formulario, en hora de Colombia. */
+export function clockTime(iso: string): string {
+    return clock.format(new Date(iso));
 }
 
 /** «22 de octubre». */

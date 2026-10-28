@@ -10,6 +10,7 @@ use App\Http\Controllers\CommitteeIdentityController;
 use App\Http\Controllers\CommitteeMemberController;
 use App\Http\Controllers\CommitteeUserController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InternalActivityController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\MemberPickerController;
 use App\Http\Controllers\MonthNoteController;
@@ -70,6 +71,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('schedules', [ScheduleController::class, 'store'])->name('schedules.store');
     Route::get('schedules/{schedule}', [ScheduleController::class, 'show'])->whereNumber('schedule')->name('schedules.show');
     Route::post('schedules/{schedule}/activities', [ScheduleController::class, 'storeActivity'])->whereNumber('schedule')->name('schedules.activities.store');
+    Route::post('activities/{activity}/cancel', [InternalActivityController::class, 'cancel'])->whereNumber('activity')->name('activities.cancel');
+    Route::post('activities/{activity}/move', [InternalActivityController::class, 'move'])->whereNumber('activity')->name('activities.move');
 
     Route::post('month-notes', [MonthNoteController::class, 'store'])->name('month-notes.store');
     Route::delete('month-notes/{note}', [MonthNoteController::class, 'destroy'])->whereNumber('note')->name('month-notes.destroy');

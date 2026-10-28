@@ -33,6 +33,7 @@ class Activity extends Model
         'committee_id',
         'annual_plan_id',
         'schedule_id',
+        'series_id',
         'title',
         'theme',
         'highlight',
@@ -51,6 +52,8 @@ class Activity extends Model
         'rejection_reason',
         'completed_at',
         'completed_by_user_id',
+        'cancelled_at',
+        'cancelled_by_user_id',
     ];
 
     /** Para que el modelo recien creado ya sepa su estado, sin tener que releerlo. */
@@ -67,6 +70,7 @@ class Activity extends Model
             'proposed_at' => 'datetime',
             'approved_at' => 'datetime',
             'completed_at' => 'datetime',
+            'cancelled_at' => 'datetime',
             'progress' => 'integer',
             'budget_amount' => 'decimal:2',
         ];

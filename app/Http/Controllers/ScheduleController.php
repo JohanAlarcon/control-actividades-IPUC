@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreInternalActivityRequest;
 use App\Http\Requests\StoreScheduleRequest;
 use App\Models\Activity;
+use App\Models\ActivitySeries;
 use App\Models\ActivityType;
 use App\Models\Schedule;
 use App\Support\Scope\CurrentScope;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -88,7 +90,7 @@ class ScheduleController extends Controller
             'activities' => $cronograma->activities()
                 ->leftJoin('activity_types', 'activity_types.id', '=', 'activities.activity_type_id')
                 ->orderBy('activities.scheduled_at')
-                ->get(['activities.id', 'activities.title', 'activities.theme', 'activities.scheduled_at', 'activities.ends_at', 'activities.location', 'activities.responsible_name', 'activity_types.name as type_name'])
+                ->get(['activities.id', 'activities.title', 'activities.theme', 'activities.scheduled_at', 'activities.ends_at', 'activities.location', 'activities.responsible_name', 'activities.cancelled_at', 'activity_types.name as type_name'])
                 ->map(fn (Activity $actividad) => [
                     'id' => $actividad->id,
                     'title' => $actividad->title,
@@ -98,31 +100,54 @@ class ScheduleController extends Controller
                     'endsAt' => $actividad->ends_at->toIso8601String(),
                     'location' => $actividad->location,
                     'responsible' => $actividad->responsible_name,
+                    'cancelled' => $actividad->cancelled_at !== null,
                 ])->all(),
             'types' => $puedeAgregar ? Inertia::defer(fn () => ActivityType::where('active', true)->orderBy('position')->orderBy('name')->get(['id', 'name'])) : [],
             'canAdd' => $puedeAgregar,
         ]);
     }
 
-    /** Sin aprobación (P-03): queda en firme al guardarla. Sus gastos sí siguen la cadena (RF-015). */
+    /**
+     * Sin aprobación (P-03): queda en firme al guardarla. Sus gastos sí siguen la cadena (RF-015).
+     * Si se repite, cada fecha queda como una actividad suelta de la misma serie (D-38).
+     */
     public function storeActivity(StoreInternalActivityRequest $request, Schedule $schedule): RedirectResponse
     {
-        $actividad = Activity::create([
-            'site_id' => $schedule->site_id,
-            'committee_id' => $schedule->committee_id,
-            'schedule_id' => $schedule->id,
-            'title' => $request->validated('title'),
-            'theme' => $request->validated('theme'),
-            'activity_type_id' => $request->validated('activity_type_id'),
-            'scheduled_at' => $request->scheduledAt(),
-            'ends_at' => $request->endsAt(),
-            'location' => $request->validated('location'),
-            'responsible_name' => $request->validated('responsible'),
-            'status' => Activity::APPROVED,
-            'proposed_by_user_id' => $request->user()->id,
-            'proposed_at' => now(),
-        ]);
+        $fechas = $request->dates();
 
-        return redirect("/schedules/{$schedule->id}")->with('notice', "Listo. «{$actividad->title}» quedó en el cronograma. Las actividades internas no pasan por aprobación.");
+        DB::transaction(function () use ($request, $schedule, $fechas) {
+            $serie = $request->filled('repeat') ? ActivitySeries::create([
+                'site_id' => $schedule->site_id,
+                'schedule_id' => $schedule->id,
+                'frequency' => $request->validated('repeat'),
+                'starts_on' => $request->validated('date'),
+                'ends_on' => $request->validated('until'),
+            ]) : null;
+
+            foreach ($fechas as $fecha) {
+                [$desde, $hasta] = $request->timesOn($fecha->toDateString());
+
+                Activity::create([
+                    'site_id' => $schedule->site_id,
+                    'committee_id' => $schedule->committee_id,
+                    'schedule_id' => $schedule->id,
+                    'series_id' => $serie?->id,
+                    'title' => $request->validated('title'),
+                    'theme' => $request->validated('theme'),
+                    'activity_type_id' => $request->validated('activity_type_id'),
+                    'scheduled_at' => $desde,
+                    'ends_at' => $hasta,
+                    'location' => $request->validated('location'),
+                    'responsible_name' => $request->validated('responsible'),
+                    'status' => Activity::APPROVED,
+                    'proposed_by_user_id' => $request->user()->id,
+                    'proposed_at' => now(),
+                ]);
+            }
+        });
+
+        $cuantas = count($fechas) > 1 ? ' en '.count($fechas).' fechas' : '';
+
+        return redirect("/schedules/{$schedule->id}")->with('notice', "Listo. «{$request->validated('title')}» quedó en el cronograma{$cuantas}. Las actividades internas no pasan por aprobación.");
     }
 }

@@ -1,4 +1,4 @@
-import { activityDate, activityWhen, groupThousands, money, shortDate, shortTimeRange, timeRange, waitingSince } from '@/lib/format';
+import { clockTime, activityDate, activityWhen, groupThousands, money, shortDate, shortTimeRange, timeRange, waitingSince } from '@/lib/format';
 import { describe, expect, it } from 'vitest';
 
 /** Intl separa con espacios que no se parten; para comparar, basta un espacio normal. */
@@ -77,5 +77,15 @@ describe('groupThousands', () => {
     it('no deja ceros adelante, pero sí un cero solo', () => {
         expect(groupThousands('007')).toBe('7');
         expect(groupThousands('0')).toBe('0');
+    });
+});
+
+describe('clockTime: la hora para el reloj de un formulario', () => {
+    it('da la hora de Colombia en veinticuatro horas', () => {
+        expect(clockTime('2026-04-19T00:00:00Z')).toBe('19:00');
+    });
+
+    it('la medianoche es 00, no 24', () => {
+        expect(clockTime('2026-04-19T05:30:00Z')).toBe('00:30');
     });
 });

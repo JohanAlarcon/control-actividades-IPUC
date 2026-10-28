@@ -75,6 +75,7 @@ class DashboardController extends Controller
         return ScheduleCards::ownQuery()
             ->where('activities.scheduled_at', '>=', now())
             ->whereIn('activities.status', [Activity::APPROVED, Activity::IN_PROGRESS])
+            ->whereNull('activities.cancelled_at')
             ->orderBy('activities.scheduled_at')
             ->limit(self::LIST_SIZE)
             ->get()
@@ -102,6 +103,7 @@ class DashboardController extends Controller
     private function delAnio(int $anio)
     {
         return ScheduleCards::ownQuery()
+            ->inGeneralSchedule()
             ->whereBetween('activities.scheduled_at', ScheduleCards::yearRange($anio))
             ->where('activities.status', '!=', Activity::REJECTED)
             ->get();

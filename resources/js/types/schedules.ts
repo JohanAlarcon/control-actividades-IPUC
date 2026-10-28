@@ -18,4 +18,6 @@ export interface InternalActivity {
     endsAt: string;
     location: string | null;
     responsible: string | null;
+    /** Cancelada sola, sin tocar las demás fechas de su serie (CL-30). No se borra. */
+    cancelled: boolean;
 }

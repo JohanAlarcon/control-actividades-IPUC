@@ -1,11 +1,17 @@
 import InfoNote from '@/components/info-note';
-import { activityWhen } from '@/lib/format';
+import InternalActivityRow from '@/components/schedules/internal-activity-row';
 import { cardClass } from '@/lib/styles';
 import type { InternalActivity } from '@/types/schedules';
 import { CalendarPlus } from 'lucide-react';
 
+interface Props {
+    activities: InternalActivity[];
+    /** El periodo del cronograma, si quien mira lo lleva: con él mueve o cancela cada fecha. */
+    limits: { min: string; max: string } | null;
+}
+
 /** Las actividades del cronograma en orden de fecha, con quien las dirige. Sin estado: no pasan por aprobación (P-03). */
-export default function InternalActivityList({ activities }: { activities: InternalActivity[] }) {
+export default function InternalActivityList({ activities, limits }: Props) {
     if (activities.length === 0) {
         return <InfoNote icon={CalendarPlus}>Todavía no tiene actividades.</InfoNote>;
     }
@@ -13,13 +19,7 @@ export default function InternalActivityList({ activities }: { activities: Inter
     return (
         <ul className={`divide-y divide-ipuc/5 ${cardClass}`}>
             {activities.map((activity) => (
-                <li key={activity.id} className="p-4 text-lg break-words">
-                    <p className="font-semibold text-ipuc first-letter:uppercase">{activityWhen(activity.scheduledAt, activity.endsAt)}</p>
-                    <p className="font-bold">{activity.title}</p>
-                    {activity.theme && <p className="text-tema">«{activity.theme}»</p>}
-                    {(activity.type || activity.location) && <p className="text-tinta-suave">{[activity.type, activity.location].filter(Boolean).join(' · ')}</p>}
-                    {activity.responsible && <p className="text-tinta-suave">La dirige: {activity.responsible}</p>}
-                </li>
+                <InternalActivityRow key={activity.id} activity={activity} limits={limits} />
             ))}
         </ul>
     );

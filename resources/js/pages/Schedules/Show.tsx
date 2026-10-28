@@ -17,6 +17,8 @@ interface Props {
 
 /** Un cronograma interno con sus actividades (HU-27). Su presidente o su líder le agrega más. */
 export default function ScheduleShow({ schedule, activities, types, canAdd }: Props) {
+    const limits = { min: schedule.startsOn, max: schedule.endsOn };
+
     return (
         <MainLayout
             title={schedule.name}
@@ -25,13 +27,13 @@ export default function ScheduleShow({ schedule, activities, types, canAdd }: Pr
         >
             <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-6">
                 <SectionBlock title="Sus actividades">
-                    <InternalActivityList activities={activities} />
+                    <InternalActivityList activities={activities} limits={canAdd ? limits : null} />
                 </SectionBlock>
 
                 {canAdd && types && (
                     <SectionBlock title="Agregar una actividad">
                         <div className={`p-4 ${cardClass}`}>
-                            <InternalActivityForm scheduleId={schedule.id} types={types} limits={{ min: schedule.startsOn, max: schedule.endsOn }} />
+                            <InternalActivityForm scheduleId={schedule.id} types={types} limits={limits} />
                         </div>
                     </SectionBlock>
                 )}
