@@ -245,3 +245,25 @@ la sede. Se resume lo que sirve para construir; se omite todo nombre de persona.
 - Trae además las fechas distritales: encuentros, asambleas, convención y torneos.
 - Aparecen grupos que no están en la lista de comités: junta local, Rayos de Luz, Artística y
   Edad Dorada. Ver P-05 en `spec.md`.
+
+### El formato del cronograma anual
+
+El portafolio trae el cronograma en doce hojas horizontales, una por mes, todas con el mismo
+formato. Es el que la sede ya conoce y reparte, y el sistema lo reproduce (RF-115 a RF-118).
+
+- **Arriba**, el nombre del mes en azul oscuro, en versalitas, y el año grande en dorado. Junto al
+  mes va a veces una nota general: una campaña de todo el mes, o un evento con «fecha pendiente».
+- **La cuadrícula** empieza el lunes. Los nombres de los días van en una banda azul oscuro, con
+  letra blanca. Las columnas alternan blanco y un azul muy claro; el domingo va en crema, y los
+  días del mes anterior o del siguiente, en gris, con el número en gris.
+- **El número del día** va abajo a la derecha de cada casilla, en negrilla.
+- **En cada casilla**, las actividades del día, centradas, una debajo de la otra:
+  - en negro, la actividad, y en letra pequeña su hora y su lugar;
+  - en **rojo**, los días especiales de la congregación —Día misionero, Día de la familia, Día del
+    Denario, Canasta de amor— y campañas como un fin de semana evangelístico;
+  - en **naranja**, lo del distrito o lo nacional: encuentros, torneos, capacitaciones, ayunos;
+  - en **azul**, el tema o lema del culto, debajo de su nombre.
+
+Los colores, medidos en el PDF: azul oscuro `#031c5f`, dorado `#fda105`, rojo `#f00505`, azul del
+tema `#006aff`, azul claro de las columnas `#f2f9ff`, crema del domingo `#f9f2e6` y gris de los
+días de otro mes `#f5f5f5`.

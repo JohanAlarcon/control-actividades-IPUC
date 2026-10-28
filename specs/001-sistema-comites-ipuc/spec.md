@@ -7,7 +7,7 @@ rama debe crearse manualmente antes de implementar, conforme a la Gobernanza de 
 **Creada**: 2026-10-18
 
 **Estado**: Borrador — reorientado el 2026-10-28 con el levantamiento de la sede La Esmeralda
-(constitución 3.0.0). Quedan ocho puntos por confirmar con la congregación (P-01 a P-08) y las
+(constitución 3.0.0). Quedan nueve puntos por confirmar (P-01 a P-09) y las
 dependencias del cliente; ver «Supuestos».
 
 **Entrada**:
@@ -427,11 +427,17 @@ filtros, el recálculo del cumplimiento y lo que ve un cargo ajeno al comité re
    presupuesto, sus tareas internas, su soporte ni su orden de culto.
 4. **Dado** que una actividad tiene tareas pendientes, **cuando** marco una como cumplida,
    **entonces** el avance de esa actividad se recalcula solo, sin que nadie lo escriba a mano.
-5. **Dado** que quiero ver el mes, **cuando** abro el calendario, **entonces** veo por día las
-   actividades del cronograma general de todos los comités, con su hora y su comité, y al tocar
-   una de mi comité veo su detalle.
+5. **Dado** que quiero ver el mes, **cuando** abro el calendario, **entonces** lo veo con el
+   formato del cronograma de la sede (RF-115) y, por día, las actividades del cronograma general de
+   todos los comités, con su hora y su comité; al tocar una de mi comité veo su detalle.
 6. **Dado** que busco un cronograma interno de otro comité, **cuando** recorro el calendario,
    **entonces** no lo encuentro: los cronogramas internos no se comparten (HU-27).
+7. **Dado** que el pastor va a repartir el cronograma, **cuando** lo imprime, **entonces** sale
+   una hoja horizontal por mes, con el mismo formato y los mismos colores del de la sede, o solo
+   el mes que escoja (RF-117).
+8. **Dado** que una actividad es un día especial, es del distrito o trae su tema, **cuando** la
+   veo en el calendario, **entonces** sale en rojo, en naranja o con el tema en azul, y en la
+   pantalla además lo dice con palabras: el color nunca es la única señal (RF-116).
 
 ---
 
@@ -1341,7 +1347,8 @@ RF-063 a RF-080 provienen de la ampliación de alcance del 2026-10-24: estructur
 tres niveles (RF-063 a RF-066), actas de reunión (RF-067 a RF-074) y archivos adjuntos (RF-075 a
 RF-080). RF-081 a RF-114 provienen del levantamiento de la sede La Esmeralda del 2026-10-28, que
 además reescribió RF-009 a RF-011, RF-013, RF-014, RF-019, RF-028, RF-029, RF-031, RF-036, RF-040,
-RF-043, RF-046, RF-047, RF-063, RF-064, RF-067 y RF-075.
+RF-043, RF-046, RF-047, RF-063, RF-064, RF-067 y RF-075. RF-115 a RF-118 salen del formato del
+cronograma que trae el portafolio de la sede, revisado el mismo día.
 
 ### Requisitos Funcionales
 
@@ -1373,7 +1380,8 @@ RF-043, RF-046, RF-047, RF-063, RF-064, RF-067 y RF-075.
   calendario, y de una actividad de otro comité ve exactamente seis datos: título, fecha, hora,
   lugar, comité responsable y estado. La descripción, el presupuesto, las tareas internas, el
   soporte y el orden de culto quedan reservados a su comité, sus ascendientes y el pastor. Los
-  cronogramas internos no se comparten.
+  cronogramas internos no se comparten. El tema y la marca de color (RF-116) tampoco viajan de una
+  actividad ajena mientras el autor no decida otra cosa (P-09).
 - **RF-061**: Toda ficha de persona —miembro o simpatizante— guarda si esa persona autorizó el
   manejo de sus datos, la fecha de la autorización y cómo la dio: firma, de palabra en el culto o
   mensaje. El sistema informa a quien corresponda cuántas fichas de su ámbito están sin
@@ -1433,8 +1441,8 @@ RF-043, RF-046, RF-047, RF-063, RF-064, RF-067 y RF-075.
   aprobar una, el sistema no lo permite si su fecha y su horario se sobreponen con otra del
   cronograma general, y dice cuál es y de qué comité (P-02). Toda actividad tiene hora de inicio y
   de fin. Las actividades de los cronogramas internos sí se cruzan.
-- **RF-029**: El cronograma general se consulta como calendario del mes, como año completo o como
-  lista, y se filtra por comité, sub-comité, mes y estado.
+- **RF-029**: El cronograma general se consulta como calendario del mes, con el formato de la sede
+  (RF-115), o como lista del año, y se filtra por comité, sub-comité, mes y estado.
 - **RF-030**: Los totales y el porcentaje de cumplimiento se recalculan según el filtro aplicado.
 
 #### Miembros y reportes
@@ -1693,6 +1701,24 @@ RF-043, RF-046, RF-047, RF-063, RF-064, RF-067 y RF-075.
 - **RF-114**: El sistema presenta las estadísticas de los niños —cuántos hay por grupo, por género
   y por edad, y cuántos no tienen sus autorizaciones firmadas— con su tabla equivalente.
 
+#### El formato del cronograma de la sede
+
+- **RF-115**: El calendario del mes reproduce el formato del cronograma anual de la sede: el nombre
+  del mes en azul oscuro y el año en dorado; una banda azul oscuro con los días, de lunes a domingo;
+  columnas alternas en blanco y azul muy claro, el domingo en crema y los días de otro mes en gris;
+  el número del día abajo a la derecha. En el celular cada casilla lleva el número y una marca por
+  actividad, y el día escogido muestra sus actividades debajo; en una pantalla grande las
+  actividades se escriben dentro de la casilla, como en el papel.
+- **RF-116**: Cada actividad puede llevar, si se quiere, un **tema** —el lema del culto, que sale en
+  azul debajo de su nombre— y una **marca**: día especial de la congregación (en rojo), actividad
+  del distrito o actividad nacional (en naranja). En la pantalla la marca además se dice con
+  palabras, y los colores se oscurecen lo justo para leerse bien (RF-058).
+- **RF-117**: El cronograma se imprime con ese formato: el año completo, una hoja horizontal por
+  mes, o un solo mes. Cada quien imprime lo que ve: el pastor, el cronograma completo de la sede.
+- **RF-118**: El pastor anota, si quiere, una nota general para un mes —una campaña de todo el mes
+  o un evento con la fecha pendiente—, que sale junto al nombre del mes, en rojo si es de la sede y
+  en naranja si es del distrito o nacional.
+
 #### Celular y lenguaje
 
 - **RF-058**: Toda pantalla se usa completa en un ancho de 360 px, sin desplazamiento horizontal,
@@ -1813,7 +1839,8 @@ Lo siguiente no se construye. Si la congregación lo pide, se registra como prop
 - **Plan anual**: el conjunto de actividades de un año, con la constancia de quién lo aprobó y
   cuándo, y la distinción entre lo que venía en el plan y lo que se propuso después.
 - **Actividad**: lo que un comité o sub-comité va a hacer, en el cronograma general o en uno
-  interno, con título, tema o descripción, fecha, hora de inicio y de fin, lugar, comité
+  interno, con título, tema y marca de color opcionales, descripción, fecha, hora de inicio y de
+  fin, lugar, comité
   responsable, presupuesto estimado, estado, avance calculado, su soporte opcional y, si se repite,
   la serie a la que pertenece.
 - **Tarea**: unidad de trabajo de una actividad, con responsable y condición de cumplida. De ella
@@ -1945,6 +1972,10 @@ no se confirmen rige lo que dice cada uno):
   misioneras de Conquistadores—; la ofrenda es solo una parte del orden de culto.
 - **P-08**: El vocal de una directiva es una función en la lista del comité, sin cuenta ni
   permisos propios.
+- **P-09**: Si los demás comités ven el tema y la marca de color de una actividad ajena. En el papel
+  de la sede todos los ven, pero la constitución 3.0.0 enumera seis datos compartidos. Mientras el
+  autor no decida, no viajan: cada comité ve en color lo suyo, y el pastor —que ve todo— imprime el
+  cronograma completo con sus colores.
 
 **Dependencias del cliente**:
 

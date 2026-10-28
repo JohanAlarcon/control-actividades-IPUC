@@ -67,6 +67,22 @@ de la clase de Tailwind. **Ninguna pantalla escribe un `#código` a mano.**
 | `shadow-tarjeta` `shadow-barra` | el azul, apenas | tarjetas y menú de abajo, sin bordes duros | — |
 | `shadow-flotante` | el azul, más marcado | lo que flota encima del contenido, como el menú de «Mi cuenta» | — |
 
+El cronograma tiene además los colores de su formato, el del portafolio de la sede (D-47):
+
+| Clase | Color | Para qué | Contraste |
+|---|---|---|---|
+| `bg-cronograma` `text-cronograma` | `#031c5f` azul oscuro | la banda de los días y el nombre del mes | 16:1 |
+| `text-cronograma-naranja` | `#fda105` | el año grande, que es adorno, y lo del distrito **en el papel** | 2:1 |
+| `text-especial` | `#df0505` rojo | los días especiales de la congregación | 4,5:1 en crema |
+| `text-tema` | `#0065f2` azul | el tema o lema de un culto | 4,5:1 en crema |
+| `text-distrito` | `#9a6203` | lo del distrito o nacional **en la pantalla** | 4,5:1 en crema |
+| `bg-celda-azul` | `#f2f9ff` | las columnas alternas del mes | — |
+| `bg-celda-domingo` | `#f9f2e6` crema | la columna del domingo | — |
+| `bg-celda-fuera` | `#f5f5f5` gris | los días de otro mes | — |
+
+El rojo y el azul del tema son los del papel, oscurecidos lo justo para leerse sobre la casilla
+crema. El naranja del papel no alcanza en la pantalla: ahí se usa `text-distrito`.
+
 Lo que no pasa por el CSS compilado lleva una copia de los valores y una nota que remite a
 `app.css`: la barra de carga (`resources/js/app.tsx`), `public/manifest.webmanifest` y
 `public/offline.html`, que se muestra sin señal.

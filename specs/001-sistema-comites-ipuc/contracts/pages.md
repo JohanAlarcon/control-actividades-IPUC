@@ -85,6 +85,7 @@ presidente también va al pastor (RF-018). Una solicitud resuelta no se edita: `
 | Ruta | Método | Pantalla | Propiedades propias | No debe viajar |
 |---|---|---|---|---|
 | `/activities` | GET | `Activities/Index` | `filters`, `years`, `summary`, `months[]`, `canPropose` · **diferidas**: `annualPlan`, `committees[]` | de actividades ajenas: todo lo que no sean los seis datos compartidos (y su `id`); nada de los cronogramas internos ajenos |
+| `/activities/print` | GET | `Activities/Print` | `year`, `month` (nulo: el año completo), `months[]` con las mismas tarjetas del cronograma | lo mismo que `/activities`: cada quien imprime lo que ve (RF-117) |
 | `/activities/{activity}` | GET | `Activities/Show` | `activity`, `mine`, `tasks[]`, `canEdit`, `canCheckTasks` · **diferida**: `trail[]` | si es ajena: responde como fuera del ámbito; nunca descripción, presupuesto, tareas, soporte, orden de culto ni rastro |
 | `/activities/create` | GET | `Activities/Form` | `recipient`: el nombre de quien va a recibir la propuesta, o nulo si ese cargo está vacante; `types[]`: las clases activas, `{ id, name }` | — |
 | `/activity-types` | GET | `ActivityTypes/Index` | `types[]`: `{ id, name, active, uses }`. Solo el pastor (D-25) | — |

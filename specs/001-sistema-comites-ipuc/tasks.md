@@ -1446,6 +1446,21 @@ rehacen **antes** de tocar el código.
       D-37, RF-028. Las actividades que ya existen reciben su hora de inicio más dos horas. El cruce se impide al proponer, al cargar al plan y al aprobar, dentro de un bloqueo.
       Verifica: `php artisan test --filter=ScheduleConflictTest` — dos actividades generales con horario sobrepuesto el mismo día no se guardan y el mensaje dice cuál y de qué comité; contiguas sí; dos aprobaciones simultáneas no se cruzan (CL-08).
 
+- [ ] T255 [US09] · El tema y la marca de cada actividad
+      Archivos: `database/migrations/<ts>_add_theme_and_highlight_to_activities.php` · `app/Models/Activity.php` · `app/Http/Requests/StoreActivityRequest.php` · `resources/js/components/activities/proposal-form.tsx` · `app/Support/Activities/ScheduleCards.php`
+      RF-116, D-47. Dos columnas opcionales: el tema, hasta 120 letras, y la marca —día especial, del distrito o nacional—. Viajan solo con lo propio (P-09).
+      Verifica: `php artisan test --filter=ActivityHighlightTest` — se guardan al proponer y al cargar al plan; una marca que no existe se rechaza con un mensaje claro; de una actividad ajena no llegan.
+
+- [ ] T227 [US09] · El calendario del mes, con el formato de la sede
+      Archivos: `resources/js/components/schedule/month-calendar.tsx`, `month-day.tsx`, `day-agenda.tsx` · `resources/js/lib/calendar.ts` · `tests/js/calendar.test.ts` · `resources/css/app.css`
+      RF-029, RF-115, D-47, HU-09 escenarios 5 y 8. Lo general de todos por la excepción 1; lo interno, solo lo propio, cuando exista T224. Se adelantó de la fase R2 por pedido del autor.
+      Verifica: `npm run test:js` — las semanas empiezan el lunes, los días de otro mes completan la primera y la última semana, y cada actividad cae en su día en hora de Colombia · `php artisan test --filter=ActivityIndexTest` · a 360 px el mes se lee sin desplazarse de lado · medición de consultas.
+
+- [ ] T256 [US09] · Imprimir el cronograma con el formato de la sede
+      Archivos: `app/Http/Controllers/SchedulePrintController.php` · `resources/js/pages/Activities/Print.tsx` · `resources/js/components/schedule/print-sheet.tsx`
+      RF-117, D-47, HU-09 escenario 7. Una hoja horizontal por mes, o un solo mes; sin el molde de las pantallas.
+      Verifica: `php artisan test --filter=SchedulePrintTest` — un presidente imprime lo que ve, sin datos reservados de lo ajeno; el pastor, todo · medición de consultas · a 360 px la vista previa no se desplaza de lado.
+
 - [ ] T220 · Las cuatro excepciones de la constitución 3.0.0, vigiladas
       Archivos: `tests/Architecture/NoRawQueriesTest.php` · `tests/Architecture/ScopeExceptionsTest.php`
       `withoutGlobalScope` solo puede aparecer en los lugares con nombre propio que enumera el principio I: `Activity::forSharedCalendar()`, el filtro de `Sympathizer` y la lista de comités de BIS, `Member::forPicker()`, y las clases de conteo y de sí o no de `app/Support/`. Cualquier otro uso pone la prueba roja.
@@ -1479,6 +1494,11 @@ actividades de un sub-comité.
       RF-083. Logo, lema y objetivos los registra el presidente. El logo se guarda como los demás archivos, fuera de `public/`. Sin logo, las iniciales en un círculo.
       Verifica: `php artisan test --filter=CommitteeIdentityTest` — los cinco escenarios de HU-26; en el calendario general un comité ajeno solo recibe el nombre · a 360 px.
 
+- [ ] T257 [US09] · Las notas del mes
+      Archivos: `database/migrations/<ts>_create_month_notes_table.php` · `app/Models/MonthNote.php` · `app/Http/Controllers/MonthNoteController.php` · `resources/js/components/schedule/month-calendar.tsx`
+      RF-118. Solo el pastor las registra; salen junto al nombre del mes, en la pantalla y en la impresión de T256.
+      Verifica: `php artisan test --filter=MonthNoteTest` — un presidente no puede registrar una nota; la nota de un mes no sale en otro.
+
 - [ ] T224 [US27] · Cronogramas: migración, modelo y filtro
       Archivos: `database/migrations/<ts>_create_schedules_table.php` · `app/Models/Schedule.php` · `database/migrations/<ts>_add_schedule_to_activities.php`
       D-35. Cada actividad que ya existe queda en el cronograma general de su año. `ScopeCoverageTest` cubre la tabla nueva.
@@ -1487,17 +1507,12 @@ actividades de un sub-comité.
 - [ ] T225 [US27] · Pantallas de los cronogramas internos y sus actividades
       Archivos: `app/Http/Controllers/ScheduleController.php` · `app/Http/Requests/StoreInternalActivityRequest.php` · `resources/js/pages/Schedules/Index.tsx`, `Schedules/Show.tsx` · `lib/navigation.ts`
       RF-086, RF-087. Sin aprobación (P-03); los gastos sí la piden. Se cruzan sin problema.
-      Verifica: `php artisan test --filter=InternalScheduleTest` — los seis escenarios de HU-27; un cargo ajeno no ve ni que existen · a 360 px · medición de consultas.
+      Verifica: `php artisan test --filter=InternalScheduleTest` — los seis escenarios de HU-27; un cargo ajeno no ve ni que existen, tampoco en el calendario del mes de T227 (HU-09 escenario 6) · a 360 px · medición de consultas.
 
 - [ ] T226 [US27] · Actividades que se repiten
       Archivos: `database/migrations/<ts>_create_activity_series_table.php` · `app/Support/Schedule/SeriesDates.php` · `tests/Unit/Schedule/SeriesDatesTest.php`
       D-38, RF-088. Semanal, quincenal o mensual; sesenta fechas como máximo; cada fecha se mueve o se cancela sola (CL-30).
       Verifica: `php artisan test --filter=SeriesDatesTest` — el día 31 en los meses cortos, el tope de sesenta y la cancelación de una sola fecha.
-
-- [ ] T227 [US09] · El calendario del mes
-      Archivos: `resources/js/components/schedule/month-calendar.tsx` · `app/Http/Controllers/ActivityController.php`
-      RF-029, HU-09 escenarios 5 y 6. Lo general de todos por la excepción 1; lo interno, solo lo propio.
-      Verifica: `php artisan test --filter=MonthCalendarTest` — un cronograma interno ajeno no aparece · a 360 px el mes se lee sin desplazarse de lado · medición de consultas.
 
 - [ ] T228 [US30] · Imprimir y compartir por WhatsApp
       Archivos: `app/Http/Controllers/PrintActivitiesController.php` · `resources/js/pages/Print/Activities.tsx` · `resources/js/lib/share.ts` · `tests/js/share.test.ts`
@@ -1916,8 +1931,8 @@ congregación. Las fases ya cumplidas siguen contando en el hito que tenían.
 
 | Hito | Fases | Qué se puede mostrar al pastor |
 |---|---|---|
-| **1 · Cimiento** | 1 a 7, R1 (T211, T212, T220), R2 (T221 a T223) | Cada cargo entra con el nombre y el lema de la sede y ve exactamente lo suyo |
-| **2 · Decidir y programar** | 8 a 13, R1 (T218, T219), R2 (T224 a T229) | El cronograma general sin cruces, compartido en el calendario, y los internos de cada comité |
+| **1 · Cimiento** | 1 a 7, R1 (T211, T212, T220), R2 (T221 a T223, T257) | Cada cargo entra con el nombre y el lema de la sede y ve exactamente lo suyo |
+| **2 · Decidir y programar** | 8 a 13, R1 (T218, T219, T255, T227, T256), R2 (T224 a T226, T228, T229) | El cronograma general sin cruces, compartido en el calendario, y los internos de cada comité |
 | **3 · La gente** | 14 a 18, 21, R1 (T213 a T217), R3 (T233, T236, T237) | El padrón del pastor, las listas de cada comité, BIS y los cumpleaños |
 | **4 · El trabajo del comité** | 19, 20, 22, 24 a 26, R3 (T230 a T232, T234, T235, T238) | Asistencia, orden de culto, actas, soportes y presupuesto |
 | **5 · Escuela Dominical** | R4 | Grupos, niños, autorizaciones firmadas, clases y visitas |
@@ -2091,6 +2106,7 @@ Los dieciocho de la ampliación del 2026-10-24:
 | RF-075 | T229 |
 | RF-081 a RF-083 | T221 a T223 |
 | RF-086 a RF-090 | T224 a T228 |
+| RF-115 a RF-118 | T255, T227, T256, T257 |
 | RF-092 a RF-095 | T234 a T237 |
 | RF-098 a RF-104 | T250 a T254 |
 | RF-105 a RF-114 | T239 a T249 |

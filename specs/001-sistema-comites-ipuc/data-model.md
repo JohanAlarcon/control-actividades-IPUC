@@ -42,6 +42,21 @@ la constitución, para que agregar una segunda sede no sea una migración de dat
 **Ámbito**: sede. Lo registra el pastor; la entrada y la barra muestran el del año en curso, y si no
 hay, solo el nombre de la sede (RF-082, CL-40).
 
+### `month_notes` — la nota general de un mes
+
+| Columna | Tipo | Reglas |
+|---|---|---|
+| `id` | id | |
+| `site_id` | fk → `sites` | obligatorio |
+| `year` | smallint | obligatorio |
+| `month` | tinyint | 1..12 |
+| `text` | string(160) | obligatorio |
+| `highlight` | enum, nulo | como en `activities`: rojo lo de la sede, naranja lo del distrito o nacional |
+| `recorded_by_user_id` | fk → `users` | `restrict` (D-22) |
+
+**Ámbito**: sede. Las registra el pastor y se ven junto al nombre del mes, en el calendario y en la
+impresión (RF-118).
+
 ### `users` — quien tiene cargo y entra al sistema
 
 | Columna | Tipo | Reglas |
@@ -369,7 +384,9 @@ pastor aprueba, en un acto único, y queda identificado con quién y cuándo (RF
 | `schedule_id` | fk → `schedules` | obligatorio: el cronograma general de su año o uno interno (D-35) |
 | `series_id` | fk → `activity_series`, nulo | cuando es una fecha de una actividad que se repite (D-38) |
 | `title` | string | obligatorio |
-| `description` | text, nulo | el tema o la descripción |
+| `description` | text, nulo | reservada al comité responsable (RF-010) |
+| `theme` | string(120), nulo | el tema o lema del culto; sale en azul en el cronograma (RF-116) |
+| `highlight` | enum, nulo | `special_day` \| `district` \| `national`: rojo o naranja en el cronograma (RF-116) |
 | `scheduled_at` | datetime | obligatorio, dentro del año en curso, no pasada (CL-07) |
 | `ends_at` | time | obligatoria, posterior a la hora de inicio (RF-028, D-37) |
 | `location` | string, nulo | |
@@ -390,8 +407,9 @@ pastor aprueba, en un acto único, y queda identificado con quién y cuándo (RF
 cronograma **general** y selecciona a mano los seis datos que RF-010 permite compartir —título,
 fecha, hora, lugar, comité responsable y estado; es decir `title`, `scheduled_at`, `ends_at`,
 `location`, `status` y el nombre del comité responsable—. Nunca devuelve `description`,
-`budget_amount`, el soporte ni el orden de culto, ni carga tareas (R-11, D-15, D-36). Las
-actividades de los cronogramas internos nunca salen de su comité.
+`budget_amount`, el soporte ni el orden de culto, ni carga tareas (R-11, D-15, D-36). Tampoco
+`theme` ni `highlight`, mientras el autor no decida otra cosa (P-09). Las actividades de los
+cronogramas internos nunca salen de su comité.
 
 Tres condiciones hacen parte de la excepción, y quien escriba la migración, el modelo o el
 controlador las lee aquí:
