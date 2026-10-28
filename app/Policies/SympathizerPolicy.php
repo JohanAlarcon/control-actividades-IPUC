@@ -8,45 +8,47 @@ use App\Models\User;
 use App\Support\Scope\CurrentScope;
 
 /**
- * La policy mas estrecha del proyecto (RF-040, R-06). Registrar, lo puede cualquier cargo. La
- * ficha de seguimiento, solo el pastor y quien preside el comite que acompaña a los simpatizantes:
- * ni los lideres de sus sub-comites, ni su secretario ni su tesorero, ni quien registro a la persona.
+ * Los simpatizantes (RF-040, D-34). Registrarlos y acompañarlos lo hace cualquier cargo; cuales ve
+ * cada uno lo decide el filtro: BIS, todos; un comite, los asignados a su ambito. Reasignar es de
+ * BIS. El paso a miembro lo proponen BIS o el presidente del comite asignado, y lo aprueba el pastor.
  */
 class SympathizerPolicy
 {
     public function create(User $quien): bool
     {
-        $scope = app(CurrentScope::class);
-
-        return $scope->user()?->is($quien) === true && ($scope->isPastor() || $scope->activeRole() !== null);
+        return $this->conCargo($quien);
     }
 
     public function follow(User $quien, ?Sympathizer $persona = null): bool
     {
-        $scope = app(CurrentScope::class);
-
-        if ($scope->user()?->is($quien) !== true) {
-            return false;
-        }
-
-        if ($scope->isPastor()) {
-            return true;
-        }
-
-        $cargo = $scope->activeRole();
-
-        return $cargo?->role === CommitteeUser::PRESIDENT && $cargo->committee?->follows_sympathizers === true;
+        return $this->conCargo($quien);
     }
 
-    /**
-     * El paso a miembro lo propone el presidente de ese comite, cuando la persona recorrio las
-     * cinco etapas; lo aprueba el pastor (RF-019, RN-06).
-     */
+    /** Reasignar es de BIS (RF-097); el pastor, que ve todo, tambien puede. */
+    public function assign(User $quien, ?Sympathizer $persona = null): bool
+    {
+        $scope = app(CurrentScope::class);
+
+        return $scope->user()?->is($quien) === true && ($scope->isPastor() || $scope->isReception());
+    }
+
+    /** Cuando la persona recorrio las cinco etapas (HU-14 escenario 6, RN-06). */
     public function promote(User $quien, Sympathizer $persona): bool
     {
-        return $this->follow($quien, $persona)
-            && ! app(CurrentScope::class)->isPastor()
+        $scope = app(CurrentScope::class);
+        $cargo = $scope->activeRole();
+        $proponer = $scope->isReception() || ($cargo?->role === CommitteeUser::PRESIDENT && $scope->sees($persona->committee_id));
+
+        return $scope->user()?->is($quien) === true
+            && $proponer
             && $persona->stage === Sympathizer::LAST_STAGE
             && $persona->converted_member_id === null;
+    }
+
+    private function conCargo(User $quien): bool
+    {
+        $scope = app(CurrentScope::class);
+
+        return $scope->user()?->is($quien) === true && ($scope->isPastor() || $scope->activeRole() !== null);
     }
 }

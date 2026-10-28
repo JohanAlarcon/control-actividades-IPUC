@@ -314,7 +314,7 @@ descartado en la aclaración; dejar el campo invitaría a construirlo (R-06).
 | `site_id` | fk → `sites` | obligatorio |
 | `sympathizer_id` | fk → `sympathizers` | obligatorio |
 | `committee_id` | fk → `committees` | el comité al que quedó asignado |
-| `assigned_by_user_id` | fk → `users` | `restrict` (D-22) |
+| `assigned_by_user_id` | fk → `users`, nulo | `restrict` (D-22); nulo cuando lo movió el sistema al cerrarse su comité (CL-29) |
 | `assigned_at` | datetime | obligatorio |
 
 **Ámbito**: sede. Solo se agregan filas: cada asignación y cada reasignación (RF-097). Si el comité

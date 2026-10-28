@@ -76,6 +76,8 @@ export interface SympathizerCard {
     phone: string | null;
     neighborhood: string | null;
     stage: number;
+    /** El comité al que está asignada, que la acompaña (D-34). */
+    committee: string | null;
     commitment: Commitment;
     promotionPending: boolean;
     convertedAt: string | null;

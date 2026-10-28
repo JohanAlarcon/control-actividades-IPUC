@@ -5,8 +5,11 @@ import type { SympathizerCard as Person } from '@/types/people';
 import { Link } from '@inertiajs/react';
 import { ChevronRight } from 'lucide-react';
 
-/** Una persona que se acompaña: en qué etapa va, cómo va su compromiso y cuándo fue el último contacto. */
-export default function SympathizerCard({ person }: { person: Person }) {
+/**
+ * Una persona que se acompaña: en qué etapa va, cómo va su compromiso y cuándo fue el último
+ * contacto. A BIS y al pastor les dice además qué comité la acompaña.
+ */
+export default function SympathizerCard({ person, showCommittee = false }: { person: Person; showCommittee?: boolean }) {
     return (
         <li>
             <Link
@@ -18,6 +21,7 @@ export default function SympathizerCard({ person }: { person: Person }) {
                     <span className="block text-lg text-tinta-suave">
                         Etapa {person.stage} de 5 · {STAGES[person.stage - 1]}
                     </span>
+                    {showCommittee && person.committee && <span className="block text-lg text-tinta-suave">La acompaña {person.committee}</span>}
                     <span className="mt-2 flex flex-wrap items-center gap-2">
                         <CommitmentBadge level={person.commitment.level} />
                         <span className="text-lg text-tinta-suave">Último contacto {daysAgo(person.commitment.daysSinceContact)}</span>

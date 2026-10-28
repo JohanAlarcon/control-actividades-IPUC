@@ -4,10 +4,12 @@ namespace App\Models;
 
 use App\Models\Concerns\BelongsToCommitteeScope;
 use App\Models\Concerns\BelongsToSite;
+use App\Support\Sympathizers\Assignments;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 
 class Committee extends Model
@@ -26,7 +28,7 @@ class Committee extends Model
         'icon',
         'position',
         'active',
-        'follows_sympathizers',
+        'receives_sympathizers',
     ];
 
     protected function casts(): array
@@ -35,7 +37,7 @@ class Committee extends Model
             'depth' => 'integer',
             'position' => 'integer',
             'active' => 'boolean',
-            'follows_sympathizers' => 'boolean',
+            'receives_sympathizers' => 'boolean',
         ];
     }
 
@@ -44,6 +46,11 @@ class Committee extends Model
         static::saving(function (Committee $committee) {
             $committee->depth = $committee->calculateDepth();
             $committee->guardUniqueName();
+        });
+        static::updated(function (Committee $committee) {
+            if ($committee->wasChanged('active') && ! $committee->active) {
+                Assignments::returnToReception($committee);
+            }
         });
     }
 
@@ -120,15 +127,30 @@ class Committee extends Model
     }
 
     /**
-     * El comite que acompaña a los simpatizantes de la sede (D-28). Se busca fuera del filtro del
-     * cargo porque cualquiera registra a un simpatizante (RF-040), pero trae solo su numero, su sede
-     * y su nombre, que son de toda la congregacion: ningun dato de lo que hace ese comite.
+     * BIS, el comite que recibe a los simpatizantes de la sede (D-34). Se busca fuera del filtro del
+     * cargo porque a el vuelven los simpatizantes de un comite que se inactiva (CL-29), pero trae
+     * solo su numero, su sede y su nombre: ningun dato de lo que hace ese comite.
      */
-    public static function followingSympathizers(): ?self
+    public static function receivingSympathizers(int $sede): ?self
     {
         return static::withoutGlobalScope('committee')
-            ->where('follows_sympathizers', true)
+            ->where('site_id', $sede)
+            ->where('receives_sympathizers', true)
             ->where('active', true)
             ->first(['id', 'site_id', 'name']);
+    }
+
+    /**
+     * La excepcion 2 del principio I (constitucion 3.0.0, D-34): la lista para asignar
+     * simpatizantes. Trae el numero y el nombre de los comites y sub-comites activos de la sede, y
+     * nada mas de ellos. Solo lee. BisScopeTest la vigila con una lista blanca.
+     */
+    public static function forAssignment(): Collection
+    {
+        return static::withoutGlobalScope('committee')
+            ->where('active', true)
+            ->orderBy('name')
+            ->get(['id', 'name'])
+            ->map(fn (Committee $comite) => ['id' => $comite->id, 'name' => $comite->name]);
     }
 }

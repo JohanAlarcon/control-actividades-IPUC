@@ -16,9 +16,11 @@ const SALIDAS_PERMITIDAS = [
     'Support/Sympathizers/DuplicateCheck.php' => 1,
     // Excepción 4: el buscador del padrón, Member::forPicker().
     'Models/Member.php' => 1,
+    // Excepción 2: BIS. Committee::forAssignment(), la lista para asignar; el filtro de los
+    // simpatizantes no quita nada, simplemente no se aplica a un cargo de BIS.
     // No son salidas: las guardas de los modelos (nombre repetido, profundidad, cargo válido), el
     // comité que recibe simpatizantes, y el cálculo del sub-árbol del cargo.
-    'Models/Committee.php' => 3,
+    'Models/Committee.php' => 4,
     'Models/CommitteeUser.php' => 1,
     'Support/Committees/SubtreeResolver.php' => 2,
 ];

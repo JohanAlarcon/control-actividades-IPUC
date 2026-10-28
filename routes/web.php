@@ -12,8 +12,10 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\MemberPickerController;
 use App\Http\Controllers\RoleSwitchController;
+use App\Http\Controllers\SympathizerAssignmentController;
 use App\Http\Controllers\SympathizerController;
 use App\Http\Controllers\SympathizerStageController;
+use App\Http\Controllers\SympathizerSuggestController;
 use App\Http\Controllers\SympathizerVisitController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -72,11 +74,13 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('sympathizers', [SympathizerController::class, 'index'])->name('sympathizers.index');
     Route::get('sympathizers/create', [SympathizerController::class, 'create'])->name('sympathizers.create');
+    Route::get('sympathizers/suggest', SympathizerSuggestController::class)->name('sympathizers.suggest');
     Route::post('sympathizers', [SympathizerController::class, 'store'])->name('sympathizers.store');
     Route::get('sympathizers/{sympathizer}', [SympathizerController::class, 'show'])->whereNumber('sympathizer')->name('sympathizers.show');
     Route::post('sympathizers/{sympathizer}/stages', [SympathizerStageController::class, 'store'])->whereNumber('sympathizer')->name('sympathizers.stages.store');
     Route::post('sympathizers/{sympathizer}/visits', [SympathizerVisitController::class, 'store'])->whereNumber('sympathizer')->name('sympathizers.visits.store');
     Route::post('sympathizers/{sympathizer}/promote', [SympathizerController::class, 'promote'])->whereNumber('sympathizer')->name('sympathizers.promote');
+    Route::post('sympathizers/{sympathizer}/assign', [SympathizerAssignmentController::class, 'store'])->whereNumber('sympathizer')->name('sympathizers.assign');
 
     Route::get('approvals', [ApprovalController::class, 'index'])->name('approvals.index');
     Route::post('approvals/bulk-approve', [ApprovalController::class, 'bulkApprove'])->name('approvals.bulk-approve');

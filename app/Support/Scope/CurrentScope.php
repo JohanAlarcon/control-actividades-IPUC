@@ -72,6 +72,15 @@ class CurrentScope
         return $this->user;
     }
 
+    /**
+     * Si el cargo activo es de BIS, el comite que recibe a los simpatizantes (D-34). El comite ya
+     * viene cargado con los cargos: preguntarlo no cuesta consultas.
+     */
+    public function isReception(): bool
+    {
+        return $this->activeRole()?->committee?->receives_sympathizers === true;
+    }
+
     public function activeRole(): ?CommitteeUser
     {
         return $this->activeRole;

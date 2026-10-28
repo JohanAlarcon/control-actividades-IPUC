@@ -1,5 +1,5 @@
 import SearchBox from '@/components/search-box';
-import { useMemberPicker, type PickerResult } from '@/hooks/use-member-picker';
+import { useRemoteSearch } from '@/hooks/use-remote-search';
 import { ageText, BOARD_POSITIONS, MEMBERSHIP_ROLES } from '@/lib/people';
 import { buttonClass, cardClass, errorClass, fieldClass } from '@/lib/styles';
 import type { BoardPosition, MembershipRole } from '@/types/people';
@@ -8,6 +8,13 @@ import { useForm } from '@inertiajs/react';
 import { Check } from 'lucide-react';
 import { useState, type FormEvent, type ReactNode } from 'react';
 
+/** Lo que trae el buscador del padrón de cada persona, y nada más (excepción 4). */
+interface PickerResult {
+    id: number;
+    name: string;
+    age: number | null;
+}
+
 /**
  * Agregar a la lista del comité a alguien que ya está en el padrón (RF-085): se busca por el
  * nombre —el buscador solo trae nombre y edad—, se escoge el comité o sub-comité, y su función.
@@ -15,7 +22,7 @@ import { useState, type FormEvent, type ReactNode } from 'react';
  */
 export default function AddToList({ committees, onDone }: { committees: CommitteeOption[]; onDone: () => void }) {
     const [query, setQuery] = useState('');
-    const { results, searching } = useMemberPicker(query);
+    const { results, searching } = useRemoteSearch<PickerResult>('/members/picker', query);
     const [committee, setCommittee] = useState<number | ''>(committees.length === 1 ? committees[0].id : '');
     const form = useForm<{ member_id: number | ''; role: MembershipRole; board_position: BoardPosition | '' }>({ member_id: '', role: 'member', board_position: '' });
 

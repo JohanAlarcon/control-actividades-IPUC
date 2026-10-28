@@ -149,7 +149,7 @@ autorización con su fecha y medio (RF-061, RF-062).
 | `/sympathizers` | GET | `Sympathizers/Index` | `isReception` (BIS); `stats`, `funnel[]`, `list[]` con el comité asignado de cada uno, `missingConsent` |
 | `/sympathizers/create` | GET | `Sympathizers/Form` | a BIS: `committees[]` activos `{ id, name }` para asignar; a los demás: nada |
 | `/sympathizers/suggest` | GET | — (respuesta para la lista que se completa sola) | `results[]` solo del ámbito: `{ id, name, phone }` (RF-096) |
-| `/sympathizers/{sympathizer}/assign` | POST | — | solo BIS: reasigna a otro comité y deja el asiento (RF-097) |
+| `/sympathizers/{sympathizer}/assign` | POST | — | BIS, y el pastor: reasigna a otro comité y deja el asiento (RF-097) |
 | `/sympathizers/{sympathizer}` | GET | `Sympathizers/Show` | `sympathizer` (con `commitment`), `stages[]`, `thresholds`, `canPromote`, `visits[]` (diferida) |
 | `/sympathizers` | POST | — | registra; advierte duplicado (CL-09) |
 | `/sympathizers/{sympathizer}/stages` | POST | — | alcanza una etapa con su fecha (RF-042) |

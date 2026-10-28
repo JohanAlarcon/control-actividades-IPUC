@@ -6,10 +6,12 @@ use App\Http\Requests\StoreSympathizerRequest;
 use App\Models\Approval;
 use App\Models\Committee;
 use App\Models\Sympathizer;
+use App\Models\SympathizerAssignment;
 use App\Models\SympathizerStage;
 use App\Models\SympathizerVisit;
 use App\Support\Approvals\ApprovalFlow;
 use App\Support\Scope\CurrentScope;
+use App\Support\Sympathizers\Assignments;
 use App\Support\Sympathizers\CommitmentLevel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -20,31 +22,30 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Los simpatizantes (HU-13, HU-14). Registrar lo puede cualquier cargo; acompañarlos, solo el
- * pastor y quien preside el comite que los acompaña (RF-040, R-06).
+ * Los simpatizantes (HU-13, HU-14). BIS los recibe, los ve a todos y los asigna al comite que los
+ * acompaña; cada comite registra a sus amigos y acompaña a los asignados a su ambito (RF-040, D-34).
  */
 class SympathizerController extends Controller
 {
     public function __construct(private readonly CurrentScope $scope) {}
 
     /**
-     * Para quien acompaña: cuantos, como van y el embudo de las cinco etapas (HU-14, escenario 1).
-     * Para los demas: la explicacion de por que no ven las fichas, sin que parezca un error.
+     * Cuantos, como van y el embudo de las cinco etapas (HU-14, escenario 1): en BIS y para el
+     * pastor, de toda la sede y por comite asignado; en un comite, solo los suyos.
      */
     public function index(): Response
     {
-        if (Gate::denies('follow', Sympathizer::class)) {
-            return Inertia::render('Sympathizers/Index', ['canFollow' => false, 'followers' => Committee::followingSympathizers()?->name]);
-        }
+        Gate::authorize('follow', Sympathizer::class);
 
         $personas = $this->conCompromiso()
             ->whereNull('converted_member_id')
             ->orderBy('name')
             ->get();
         $tarjetas = $personas->map($this->tarjeta(...));
+        $deTodos = $this->scope->isReception() || $this->scope->isPastor();
 
         return Inertia::render('Sympathizers/Index', [
-            'canFollow' => true,
+            'isReception' => $this->scope->isReception(),
             'stats' => [
                 'total' => $tarjetas->count(),
                 'growing' => $tarjetas->where('commitment.level', CommitmentLevel::GROWING)->count(),
@@ -56,35 +57,46 @@ class SympathizerController extends Controller
                 ->all(),
             'list' => $tarjetas->values(),
             'missingConsent' => $personas->where('data_consent', false)->count(),
+            'byCommittee' => $deTodos ? $tarjetas->groupBy('committee')
+                ->map(fn ($grupo, string $comite) => [
+                    'committee' => $comite,
+                    'total' => $grupo->count(),
+                    'drifting' => $grupo->where('commitment.level', CommitmentLevel::DRIFTING)->count(),
+                ])
+                ->sortBy('committee')
+                ->values() : null,
         ]);
     }
 
+    /** BIS y el pastor escogen el comite que la acompañará, de la lista de la excepcion 2 (D-34). */
     public function create(): Response
     {
         Gate::authorize('create', Sympathizer::class);
+        $escoge = $this->scope->isReception() || $this->scope->isPastor();
 
-        return Inertia::render('Sympathizers/Form');
+        return Inertia::render('Sympathizers/Form', [
+            'committees' => $escoge ? Committee::forAssignment() : null,
+            'ownCommittee' => $escoge ? null : $this->scope->activeRole()?->committee?->name,
+        ]);
     }
 
     /**
      * Queda registrado, con quien lo registro como constancia (S-07), en la primera etapa desde su
-     * primer contacto, y su seguimiento pasa al comite que acompaña (HU-13, escenario 1).
+     * primer contacto, y asignado a un solo comite: el que escogio BIS, o el que lo registro (HU-13,
+     * escenarios 1 y 3). La asignacion queda escrita (RF-097).
      */
     public function store(StoreSympathizerRequest $request): RedirectResponse
     {
-        $comite = Committee::followingSympathizers();
-
-        if ($comite === null) {
-            throw ValidationException::withMessages(['name' => 'La congregación todavía no tiene un comité que acompañe a los simpatizantes. Hable con el pastor.']);
-        }
+        $comite = $request->assignedCommittee();
 
         $persona = DB::transaction(function () use ($request, $comite) {
             $persona = Sympathizer::create($request->sympathizerData() + [
-                'site_id' => $comite->site_id,
-                'committee_id' => $comite->id,
+                'site_id' => $request->user()->site_id,
+                'committee_id' => $comite,
                 'invited_by_user_id' => $request->user()->id,
                 'stage' => 1,
             ]);
+            Assignments::assign($persona, $comite, $request->user());
             $persona->stages()->create([
                 'site_id' => $persona->site_id,
                 'stage' => 1,
@@ -97,12 +109,7 @@ class SympathizerController extends Controller
 
         $registrado = $persona->gender === 'f' ? 'registrada' : 'registrado';
 
-        if (Gate::allows('follow', $persona)) {
-            return redirect("/sympathizers/{$persona->id}")->with('notice', "Listo. {$persona->name} quedó {$registrado}.");
-        }
-
-        return redirect('/dashboard')->with('notice', "Listo. {$persona->name} quedó {$registrado}, y usted como quien lo invitó. "
-            ."Su seguimiento lo lleva la presidencia del {$comite->name}; por eso usted no verá su ficha.");
+        return redirect("/sympathizers/{$persona->id}")->with('notice', "Listo. {$persona->name} quedó {$registrado} y la acompaña {$this->nombreDelComite($comite)}.");
     }
 
     /** La ficha: el camino con sus fechas, el compromiso y como se calculo (HU-14, escenarios 2 y 3). */
@@ -114,6 +121,7 @@ class SympathizerController extends Controller
             ->findOrFail($sympathizer);
 
         Gate::authorize('follow', $persona);
+        $puedeAsignar = Gate::allows('assign', $persona);
 
         return Inertia::render('Sympathizers/Show', [
             'sympathizer' => $this->tarjeta($persona) + [
@@ -135,6 +143,20 @@ class SympathizerController extends Controller
                 'driftingDays' => CommitmentLevel::DRIFTING_DAYS,
             ],
             'canPromote' => Gate::allows('promote', $persona) && ! $persona->promotion_pending,
+            'canAssign' => $puedeAsignar,
+            'committees' => $puedeAsignar ? Inertia::defer(fn () => Committee::forAssignment(), 'assign') : null,
+            'assignments' => Inertia::defer(fn () => SympathizerAssignment::query()
+                ->join('committees', 'committees.id', '=', 'sympathizer_assignments.committee_id')
+                ->leftJoin('users', 'users.id', '=', 'sympathizer_assignments.assigned_by_user_id')
+                ->where('sympathizer_assignments.sympathizer_id', $persona->id)
+                ->orderBy('sympathizer_assignments.assigned_at')
+                ->orderBy('sympathizer_assignments.id')
+                ->get(['sympathizer_assignments.assigned_at', 'committees.name as committee_name', 'users.name as by_name'])
+                ->map(fn (SympathizerAssignment $asignacion) => [
+                    'committee' => $asignacion->committee_name,
+                    'by' => $asignacion->by_name,
+                    'at' => $asignacion->assigned_at->toIso8601String(),
+                ]), 'history'),
             'visits' => Inertia::defer(fn () => SympathizerVisit::query()
                 ->leftJoin('users', 'users.id', '=', 'sympathizer_visits.by_user_id')
                 ->where('sympathizer_visits.sympathizer_id', $persona->id)
@@ -165,10 +187,19 @@ class SympathizerController extends Controller
         return back()->with('notice', "Listo. La solicitud para que {$sympathizer->name} pase a ser miembro le llegó al pastor.");
     }
 
+    /** El nombre del comite asignado, sin salir del filtro: el del cargo, o el de la lista para asignar. */
+    private function nombreDelComite(int $comite): string
+    {
+        $cargo = $this->scope->activeRole();
+
+        return $cargo?->committee_id === $comite ? $cargo->committee->name : (string) Committee::forAssignment()->firstWhere('id', $comite)['name'];
+    }
+
     private function conCompromiso(): Builder
     {
         return Sympathizer::query()
-            ->select('sympathizers.*')
+            ->leftJoin('committees', 'committees.id', '=', 'sympathizers.committee_id')
+            ->select(['sympathizers.*', 'committees.name as committee_name'])
             ->withCommitment()
             ->withExists(['approvals as promotion_pending' => fn (Builder $solicitudes) => $solicitudes->where('status', Approval::PENDING)]);
     }
@@ -182,6 +213,7 @@ class SympathizerController extends Controller
             'phone' => $persona->phone,
             'neighborhood' => $persona->neighborhood,
             'stage' => $persona->stage,
+            'committee' => $persona->committee_name,
             'commitment' => CommitmentLevel::forSympathizer($persona),
             'promotionPending' => (bool) $persona->promotion_pending,
             'convertedAt' => $persona->converted_at?->toDateString(),

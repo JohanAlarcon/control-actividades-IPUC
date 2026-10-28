@@ -1429,15 +1429,17 @@ rehacen **antes** de tocar el código.
       Verifica: `php artisan test --filter=MemberPickerTest` — prueba de **lista blanca**: cada resultado trae exactamente `{ id, name, age }`, y un presidente que intenta abrir la ficha de un resultado ajeno recibe «no disponible».
       **Hecha el 2026-10-28.** Busca por el comienzo de cada palabra, para que «ma» no traiga a todas las «Hermanas»; pide dos letras y trae veinte como máximo. Verificada a 360 px.
 
-- [ ] T216 [US13] · BIS: la marca, el ámbito sobre los simpatizantes y la asignación
+- [x] T216 [US13] · BIS: la marca, el ámbito sobre los simpatizantes y la asignación
       Archivos: `database/migrations/<ts>_mark_bis_and_assignments.php` · `app/Models/Sympathizer.php` · `app/Models/Committee.php` · `app/Policies/SympathizerPolicy.php` · `app/Http/Controllers/SympathizerController.php` · `app/Http/Controllers/SympathizerAssignmentController.php`
       D-34, RF-040, RF-097. `follows_sympathizers` pasa a `receives_sympathizers`. El filtro de `Sympathizer` deja pasar todo a un cargo de BIS; los demás ven lo asignado a su ámbito. Lo que registra un comité queda asignado a él; lo que registra BIS, al comité que escoge, de una lista con id y nombre de los comités activos. Reasignar deja asiento. Reemplaza lo de Evangelismo de T112 y T176.
       Verifica: `php artisan test --filter="BisScopeTest|SympathizerAssignmentTest"` — BIS ve a todos y ningún miembro ni actividad ajena (excepción 2); un comité ve solo los suyos; la lista de comités trae exactamente `{ id, name }`; un simpatizante cuyo comité se inactiva vuelve a BIS (CL-29).
+      **Hecha el 2026-10-28.** BIS se reconoce por el comité del cargo activo, que ya viene cargado: no cuesta consultas. Acompañar lo puede cualquier cargo del comité asignado, no solo su presidente; el paso a miembro lo proponen BIS o el presidente del comité asignado. El pastor también reasigna. `Support/Sympathizers/Assignments` es el único lugar que cambia el comité, y cada cambio deja su fila; la que hace el sistema al cerrarse un comité queda sin autor. Verificada a 360 px.
 
-- [ ] T217 [US13] · La lista que se completa sola y el aviso de duplicado
+- [x] T217 [US13] · La lista que se completa sola y el aviso de duplicado
       Archivos: `app/Http/Controllers/SympathizerSuggestController.php` · `app/Support/Sympathizers/DuplicateCheck.php` · `resources/js/components/sympathizers/sympathizer-form.tsx`
       RF-096, CL-09. Las sugerencias salen solo del ámbito; fuera de él, `DuplicateCheck` sigue respondiendo sí o no.
       Verifica: `php artisan test --filter=SympathizerSuggestTest` — un comité nunca recibe en las sugerencias a un simpatizante de otro; el aviso de duplicado ajeno no trae nombre ni comité.
+      **Hecha el 2026-10-28.** Busca por el comienzo de cada palabra, como el buscador del padrón, con el mismo gancho `use-remote-search`; cada sugerencia lleva a la ficha. Verificada a 360 px.
 
 - [x] T218 [US09] · El calendario compartido con seis datos, solo del cronograma general
       Archivos: `app/Models/Activity.php` · `tests/Feature/Schedule/SharedCalendarTest.php`

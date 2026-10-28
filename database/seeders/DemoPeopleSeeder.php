@@ -7,6 +7,7 @@ use App\Models\CommitteeMember;
 use App\Models\Member;
 use App\Models\Sympathizer;
 use App\Models\User;
+use App\Support\Sympathizers\Assignments;
 use Illuminate\Database\Seeder;
 
 /**
@@ -50,7 +51,7 @@ class DemoPeopleSeeder extends Seeder
     public function run(): void
     {
         $pastor = User::where('username', 'pastor')->firstOrFail();
-        Committee::where('site_id', $pastor->site_id)->where('name', 'Comité de Evangelismo')->update(['follows_sympathizers' => true]);
+        Committee::where('site_id', $pastor->site_id)->where('name', 'Comité de Evangelismo')->update(['receives_sympathizers' => true]);
 
         foreach (self::MIEMBROS as $i => [$nombre, $genero, $edad, $civil, $bautismo, $comite]) {
             $miembro = Member::create([
@@ -84,7 +85,7 @@ class DemoPeopleSeeder extends Seeder
             }
         }
 
-        $evangelismo = Committee::where('site_id', $pastor->site_id)->where('follows_sympathizers', true)->firstOrFail();
+        $evangelismo = Committee::where('site_id', $pastor->site_id)->where('receives_sympathizers', true)->firstOrFail();
         $invita = User::where('username', 'lider.sonido')->value('id') ?? $pastor->id;
         $acompana = User::where('username', 'presidente.evangelismo')->value('id') ?? $pastor->id;
 
@@ -106,6 +107,7 @@ class DemoPeopleSeeder extends Seeder
                 'data_consent_at' => now()->subDays($hace)->toDateString(),
                 'data_consent_means' => 'verbal',
             ]);
+            Assignments::assign($persona, $evangelismo->id, User::find($invita));
 
             foreach (range(1, $etapa) as $n) {
                 $persona->stages()->create([

@@ -1,18 +1,12 @@
 import { useEffect, useState } from 'react';
 
-export interface PickerResult {
-    id: number;
-    name: string;
-    age: number | null;
-}
-
 /**
- * El buscador del padrón (RF-085): con dos letras o más pregunta al servidor, que responde solo el
- * nombre y la edad de quien coincide. Espera a que la persona deje de escribir para no preguntar
- * con cada letra.
+ * Busca en el servidor mientras la persona escribe: con dos letras o más pregunta, y espera a que
+ * deje de escribir para no preguntar con cada letra. Lo usan el buscador del padrón (RF-085) y las
+ * sugerencias al registrar un simpatizante (RF-096); cada uno trae solo lo que su ruta permite.
  */
-export function useMemberPicker(query: string): { results: PickerResult[]; searching: boolean } {
-    const [results, setResults] = useState<PickerResult[]>([]);
+export function useRemoteSearch<T>(path: string, query: string): { results: T[]; searching: boolean } {
+    const [results, setResults] = useState<T[]>([]);
     const [searching, setSearching] = useState(false);
     const term = query.trim();
 
@@ -25,9 +19,9 @@ export function useMemberPicker(query: string): { results: PickerResult[]; searc
         const controller = new AbortController();
         const timer = window.setTimeout(() => {
             setSearching(true);
-            fetch(`/members/picker?q=${encodeURIComponent(term)}`, { headers: { Accept: 'application/json' }, signal: controller.signal })
+            fetch(`${path}?q=${encodeURIComponent(term)}`, { headers: { Accept: 'application/json' }, signal: controller.signal })
                 .then((response) => response.json())
-                .then((data: { results: PickerResult[] }) => setResults(data.results))
+                .then((data: { results: T[] }) => setResults(data.results))
                 .catch(() => undefined)
                 .finally(() => setSearching(false));
         }, 300);
@@ -36,7 +30,7 @@ export function useMemberPicker(query: string): { results: PickerResult[]; searc
             window.clearTimeout(timer);
             controller.abort();
         };
-    }, [term]);
+    }, [path, term]);
 
     return { results: term.length < 2 ? [] : results, searching };
 }

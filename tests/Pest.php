@@ -174,13 +174,12 @@ function solicitudDe(User $quien, string $tipo = 'activity', string $titulo = 'V
 }
 
 /**
- * El comite que acompaña a los simpatizantes, con su presidente, su secretario y el lider de un
- * sub-comite: los cargos que la policy mas estrecha del proyecto debe distinguir (RF-040, R-06).
- * Los nombres son ficticios, como exige la constitucion.
+ * Un comite al que BIS le asigna simpatizantes, con su presidente, su secretario y el lider de un
+ * sub-comite (RF-040, D-34). Los nombres son ficticios, como exige la constitucion.
  */
 function evangelismoDePrueba(array $e): array
 {
-    $evangelismo = Committee::factory()->for($e['sede'])->create(['name' => 'Comité de Evangelismo', 'follows_sympathizers' => true]);
+    $evangelismo = Committee::factory()->for($e['sede'])->create(['name' => 'Comité de Evangelismo']);
     $visitacion = Committee::factory()->for($e['sede'])->childOf($evangelismo)->create(['name' => 'Sub-comité de Visitación']);
 
     $persona = function (string $nombre, Committee $donde, string $cargo) use ($e) {
@@ -196,6 +195,28 @@ function evangelismoDePrueba(array $e): array
         'presidenteEvangelismo' => $persona('Hermano Gustavo Rengifo', $evangelismo, 'president'),
         'secretarioEvangelismo' => $persona('Hermano Esteban Lara', $evangelismo, 'secretary'),
         'liderVisitacion' => $persona('Hermana Rocío Gómez', $visitacion, 'leader'),
+    ];
+}
+
+/**
+ * BIS, el comite que recibe a los simpatizantes de la sede y los asigna (D-34), con su presidenta y
+ * su secretario. Los nombres son ficticios.
+ */
+function bisDePrueba(array $e): array
+{
+    $bis = Committee::factory()->for($e['sede'])->create(['name' => 'Comité BIS', 'receives_sympathizers' => true]);
+
+    $persona = function (string $nombre, string $cargo) use ($e, $bis) {
+        $usuario = User::factory()->create(['site_id' => $e['sede']->id, 'name' => $nombre]);
+        CommitteeUser::factory()->forCommittee($bis)->role($cargo)->create(['user_id' => $usuario->id]);
+
+        return $usuario;
+    };
+
+    return [
+        'bis' => $bis,
+        'presidentaBis' => $persona('Hermana Yolanda Pérez', 'president'),
+        'secretarioBis' => $persona('Hermano Fabio Cárdenas', 'secretary'),
     ];
 }
 

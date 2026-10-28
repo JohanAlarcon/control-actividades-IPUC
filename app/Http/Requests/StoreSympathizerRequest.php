@@ -3,7 +3,9 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Concerns\PersonFields;
+use App\Models\Committee;
 use App\Models\Sympathizer;
+use App\Support\Scope\CurrentScope;
 use App\Support\Sympathizers\DuplicateCheck;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -30,7 +32,24 @@ class StoreSympathizerRequest extends FormRequest
             'arrival_source' => ['required', Rule::in(Sympathizer::ARRIVAL_SOURCES)],
             'invited_by_name' => ['nullable', 'string', 'max:120'],
             'first_contact_at' => ['required', 'date_format:Y-m-d', 'before_or_equal:today'],
+            'committee_id' => $this->choosesCommittee()
+                ? ['required', 'integer', Rule::in(Committee::forAssignment()->pluck('id'))]
+                : ['prohibited'],
         ];
+    }
+
+    /** BIS y el pastor escogen el comite que la acompaña; un comite registra a los suyos (RF-040). */
+    public function choosesCommittee(): bool
+    {
+        $scope = app(CurrentScope::class);
+
+        return $scope->isPastor() || $scope->isReception();
+    }
+
+    /** El comite al que queda asignada: el que se escogio, o el del cargo que la registra. */
+    public function assignedCommittee(): int
+    {
+        return $this->choosesCommittee() ? (int) $this->validated('committee_id') : app(CurrentScope::class)->activeRole()->committee_id;
     }
 
     /** Si ya hay alguien con ese nombre y ese telefono, se avisa antes de guardar (CL-09). */
@@ -68,6 +87,10 @@ class StoreSympathizerRequest extends FormRequest
             'first_contact_at.required' => 'Anote la fecha en que vino por primera vez.',
             'first_contact_at.date_format' => 'Escoja la fecha del primer contacto en el calendario.',
             'first_contact_at.before_or_equal' => 'La fecha del primer contacto no puede ser después de hoy.',
+            'committee_id.required' => 'Escoja el comité que va a acompañar a la persona.',
+            'committee_id.integer' => 'Escoja uno de los comités de la lista.',
+            'committee_id.in' => 'Escoja uno de los comités de la lista.',
+            'committee_id.prohibited' => 'La persona queda en la lista de su comité: no hace falta escoger otro.',
         ];
     }
 }

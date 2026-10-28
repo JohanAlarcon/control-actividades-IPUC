@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\BelongsToCommitteeScope;
 use App\Models\Concerns\BelongsToSite;
 use App\Support\People\PersonAge;
+use App\Support\Scope\CurrentScope;
 use App\Support\Sympathizers\CommitmentLevel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -81,6 +82,19 @@ class Sympathizer extends Model
         });
     }
 
+    /**
+     * La excepcion 2 del principio I (constitucion 3.0.0, D-34): un cargo de BIS ve a todos los
+     * simpatizantes de la sede, para recibirlos y asignarlos. Los demas cargos ven los asignados a su
+     * ambito, con el filtro de siempre, y el pastor ve todo. Solo los simpatizantes: BIS no ve por
+     * esto ningun miembro ni actividad ajena.
+     */
+    public function applyCommitteeScope(Builder $query, CurrentScope $scope): void
+    {
+        if (! $scope->isReception()) {
+            $query->whereIn('sympathizers.committee_id', $scope->committeeIds());
+        }
+    }
+
     /** Trae lo necesario para calcular el compromiso, en la misma consulta (R-07). */
     public function scopeWithCommitment(Builder $query): void
     {
@@ -117,5 +131,11 @@ class Sympathizer extends Model
     public function committee(): BelongsTo
     {
         return $this->belongsTo(Committee::class);
+    }
+
+    /** Por que comites paso, en orden (RF-097). */
+    public function assignments(): HasMany
+    {
+        return $this->hasMany(SympathizerAssignment::class)->orderBy('assigned_at')->orderBy('id');
     }
 }
