@@ -6,6 +6,7 @@ use App\Http\Controllers\ActivityTypeController;
 use App\Http\Controllers\AnnualPlanController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\CommitteeController;
+use App\Http\Controllers\CommitteeIdentityController;
 use App\Http\Controllers\CommitteeMemberController;
 use App\Http\Controllers\CommitteeUserController;
 use App\Http\Controllers\DashboardController;
@@ -46,6 +47,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('committees', [CommitteeController::class, 'index'])->name('committees.index');
     Route::get('committees/{committee}', [CommitteeController::class, 'show'])->whereNumber('committee')->name('committees.show');
 
+    Route::get('committees/{committee}/identity', [CommitteeIdentityController::class, 'edit'])->whereNumber('committee')->name('committees.identity.edit');
+    Route::post('committees/{committee}/identity', [CommitteeIdentityController::class, 'update'])->whereNumber('committee')->name('committees.identity.update');
+    Route::get('committees/{committee}/logo', [CommitteeIdentityController::class, 'logo'])->whereNumber('committee')->name('committees.logo');
     Route::post('committees/{committee}/roles', [CommitteeUserController::class, 'store'])->name('roles.store');
     Route::delete('roles/{role}', [CommitteeUserController::class, 'destroy'])->name('roles.destroy');
 

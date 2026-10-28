@@ -1,3 +1,4 @@
+import CommitteeIdentity from '@/components/committees/committee-identity';
 import CommitteeRow from '@/components/committees/committee-row';
 import InfoNote from '@/components/info-note';
 import PersonRow from '@/components/person-row';
@@ -6,11 +7,13 @@ import MainLayout from '@/layouts/main-layout';
 import { childrenTitle, levelOf, responsibleRole, structureSummary, withoutChildrenText } from '@/lib/committees';
 import { roleLabelFor } from '@/lib/roles';
 import { cardClass } from '@/lib/styles';
-import type { CommitteeSummary } from '@/types/committees';
+import type { CommitteeIdentity as Identity, CommitteeSummary } from '@/types/committees';
 import { Info } from 'lucide-react';
 
 interface Props {
     committee: { id: number; name: string; depth: number; active: boolean };
+    identity: Identity;
+    canEditIdentity: boolean;
     responsible: string | null;
     secretary: string | null;
     treasurer: string | null;
@@ -18,7 +21,7 @@ interface Props {
     children: CommitteeSummary[];
 }
 
-export default function CommitteeShow({ committee, responsible, secretary, treasurer, hasChildren, children }: Props) {
+export default function CommitteeShow({ committee, identity, canEditIdentity, responsible, secretary, treasurer, hasChildren, children }: Props) {
     const subtitle = [levelOf(committee.depth), hasChildren ? structureSummary(children) : null, committee.active ? null : 'ya no está activo']
         .filter(Boolean)
         .join(' · ');
@@ -26,6 +29,12 @@ export default function CommitteeShow({ committee, responsible, secretary, treas
     return (
         <MainLayout title={committee.name} subtitle={subtitle} back={{ href: '/committees', label: 'Comités' }}>
             <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-6">
+                <div className="lg:col-span-2">
+                    <SectionBlock title="Logo, lema y objetivos">
+                        <CommitteeIdentity committee={committee} identity={identity} canEdit={canEditIdentity} />
+                    </SectionBlock>
+                </div>
+
                 <SectionBlock title="Quiénes lo encabezan">
                     <ul className={`divide-y divide-ipuc/5 ${cardClass}`}>
                         <PersonRow role={roleLabelFor(responsibleRole(committee.depth), responsible)} name={responsible} />

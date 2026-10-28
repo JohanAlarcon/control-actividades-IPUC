@@ -29,6 +29,11 @@ class Committee extends Model
         'position',
         'active',
         'receives_sympathizers',
+        'logo_path',
+        'motto',
+        'objectives',
+        'identity_updated_by_user_id',
+        'identity_updated_at',
     ];
 
     protected function casts(): array
@@ -38,6 +43,7 @@ class Committee extends Model
             'position' => 'integer',
             'active' => 'boolean',
             'receives_sympathizers' => 'boolean',
+            'identity_updated_at' => 'datetime',
         ];
     }
 

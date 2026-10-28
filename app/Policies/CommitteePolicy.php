@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Committee;
+use App\Models\CommitteeUser;
 use App\Models\User;
 use App\Support\Scope\CurrentScope;
 
@@ -23,5 +24,17 @@ class CommitteePolicy
         $scope = app(CurrentScope::class);
 
         return $scope->user()?->is($quien) === true && $scope->sees($comite->id);
+    }
+
+    /**
+     * La identidad la registra el presidente (RF-083): la de su comité y la de sus sub-comités. El
+     * líder de un sub-comité la ve, pero no la cambia (HU-26 escenario 5).
+     */
+    public function updateIdentity(User $quien, Committee $comite): bool
+    {
+        $cargo = app(CurrentScope::class)->activeRole();
+        $presidido = $comite->depth === 1 ? $comite->id : $comite->parent_id;
+
+        return $cargo?->user_id === $quien->id && $cargo->role === CommitteeUser::PRESIDENT && $cargo->committee_id === $presidido;
     }
 }

@@ -46,10 +46,15 @@ class CommitteeController extends Controller
         // El comite y sus hijos salen en una sola consulta, para no pasarse de cinco. La
         // consulta pasa por el filtro del cargo: si es ajeno o no existe, no vuelve nada.
         $familia = Committee::query()
-            ->where(fn ($consulta) => $consulta->whereKey($committee)->orWhere('parent_id', $committee))
-            ->orderBy('position')
-            ->orderBy('name')
-            ->get(['id', 'parent_id', 'name', 'depth', 'active']);
+            ->leftJoin('users as editores', 'editores.id', '=', 'committees.identity_updated_by_user_id')
+            ->where(fn ($consulta) => $consulta->whereKey($committee)->orWhere('committees.parent_id', $committee))
+            ->orderBy('committees.position')
+            ->orderBy('committees.name')
+            ->get([
+                'committees.id', 'committees.parent_id', 'committees.name', 'committees.depth', 'committees.active',
+                'committees.logo_path', 'committees.motto', 'committees.objectives', 'committees.identity_updated_at',
+                'editores.name as identity_updated_by_name',
+            ]);
 
         $nodo = $familia->firstWhere('id', $committee) ?? abort(404);
         Gate::authorize('view', $nodo);
@@ -64,6 +69,14 @@ class CommitteeController extends Controller
                 'depth' => $nodo->depth,
                 'active' => $nodo->active,
             ],
+            'identity' => [
+                'logoUrl' => $nodo->logo_path ? "/committees/{$nodo->id}/logo?v={$nodo->identity_updated_at?->timestamp}" : null,
+                'motto' => $nodo->motto,
+                'objectives' => $nodo->objectives,
+                'updatedBy' => $nodo->identity_updated_by_name,
+                'updatedAt' => $nodo->identity_updated_at?->toIso8601String(),
+            ],
+            'canEditIdentity' => Gate::allows('updateIdentity', $nodo),
             'responsible' => $this->responsableDe($nodo, $titulares),
             'secretary' => $this->nombreDe($titulares, $nodo->id, CommitteeUser::SECRETARY),
             'treasurer' => $this->nombreDe($titulares, $nodo->id, CommitteeUser::TREASURER),

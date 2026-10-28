@@ -50,3 +50,24 @@ export function structureSummary(nodes: Countable[]): string {
         .map(([total, one, many]) => `${total} ${total === 1 ? one : many}`)
         .join(' · ');
 }
+
+/**
+ * Las iniciales de un comité sin logo (HU-26 escenario 3): «Damas Dorcas» da «DD» y «Comité de
+ * Alabanza» da «A», sin la palabra «Comité» ni los «de». Una sigla como «BIS» va entera.
+ */
+export function committeeInitials(name: string): string {
+    const words = name
+        .replace(/^(comité|sub-comité|subcomité)\s+/i, '')
+        .split(/\s+/)
+        .filter((word) => word && !/^(de|del|la|las|los|el|su|sus|y|e)$/i.test(word));
+
+    if (words.length === 1 && /^[A-ZÁÉÍÓÚÑ]{2,5}$/.test(words[0])) {
+        return words[0];
+    }
+
+    return words
+        .slice(0, 2)
+        .map((word) => word[0])
+        .join('')
+        .toUpperCase();
+}

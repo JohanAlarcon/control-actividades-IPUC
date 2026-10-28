@@ -1502,10 +1502,11 @@ actividades de un sub-comité.
       Archivos: `tests/Feature/Site/SiteMottoTest.php`
       Verifica: `php artisan test --filter=SiteMottoTest` — un escenario por cada uno de HU-25, incluido el cambio de año.
 
-- [ ] T223 [US26] · La identidad de cada comité
+- [x] T223 [US26] · La identidad de cada comité
       Archivos: `database/migrations/<ts>_add_identity_to_committees_table.php` · `app/Http/Controllers/CommitteeIdentityController.php` · `resources/js/pages/Committees/Identity.tsx` · `resources/js/components/committees/committee-badge.tsx`
       RF-083. Logo, lema y objetivos los registra el presidente. El logo se guarda como los demás archivos, fuera de `public/`. Sin logo, las iniciales en un círculo.
       Verifica: `php artisan test --filter=CommitteeIdentityTest` — los cinco escenarios de HU-26; en el calendario general un comité ajeno solo recibe el nombre · a 360 px.
+      **Hecha el 2026-10-28.** La registra el presidente: la de su comité y la de sus sub-comités, porque el escenario 5 deja al líder solo verla; la secretaria, el tesorero y el pastor también la ven sin cambiarla. El logo es JPG, PNG o WEBP de hasta 2 MB —nunca SVG, que puede llevar código—, se guarda en el disco privado y se sirve por `/committees/{id}/logo`, que pasa por el filtro; cambiarlo o quitarlo borra el archivo anterior. Las iniciales salen de `committeeInitials` («Damas Dorcas» da «DD»; «Comité BIS», «BIS»). El escenario 2, lo que el comité imprime, queda para T228. Verificada a 360 px.
 
 - [x] T257 [US09] · Las notas del mes
       Archivos: `database/migrations/<ts>_create_month_notes_table.php` · `app/Models/MonthNote.php` · `app/Http/Controllers/MonthNoteController.php` · `resources/js/components/schedule/month-calendar.tsx`

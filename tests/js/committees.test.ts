@@ -1,4 +1,4 @@
-import { flattenTree, levelOf, structureSummary, withoutChildrenText } from '@/lib/committees';
+import { committeeInitials, flattenTree, levelOf, structureSummary, withoutChildrenText } from '@/lib/committees';
 import { describe, expect, it } from 'vitest';
 
 const arbol = [
@@ -45,5 +45,29 @@ describe('los textos de cada nivel', () => {
         expect(withoutChildrenText(1)).toContain('su presidente coordina directamente');
         expect(withoutChildrenText(2)).toContain('su líder coordina directamente');
         expect(withoutChildrenText(2)).toContain('último nivel');
+    });
+});
+
+describe('committeeInitials: el círculo de un comité sin logo', () => {
+    it('toma la primera letra de cada palabra que lo distingue', () => {
+        expect(committeeInitials('Damas Dorcas')).toBe('DD');
+        expect(committeeInitials('Conquistadores Pentecostales')).toBe('CP');
+        expect(committeeInitials('Hijas del Rey')).toBe('HR');
+        expect(committeeInitials('Mensajeros de su Gracia')).toBe('MG');
+    });
+
+    it('no cuenta la palabra «Comité» ni los «de»', () => {
+        expect(committeeInitials('Comité de Alabanza')).toBe('A');
+        expect(committeeInitials('Sub-comité de Sonido')).toBe('S');
+        expect(committeeInitials('Comité de Damas Dorcas')).toBe('DD');
+    });
+
+    it('deja entera una sigla', () => {
+        expect(committeeInitials('Comité BIS')).toBe('BIS');
+        expect(committeeInitials('REFAM')).toBe('REFAM');
+    });
+
+    it('nunca pasa de dos letras si no es una sigla', () => {
+        expect(committeeInitials('Red de Familia Unida en Cristo')).toBe('RF');
     });
 });

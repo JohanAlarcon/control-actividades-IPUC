@@ -19,8 +19,8 @@ const labels = (items: ReturnType<typeof navItems>) => items.map((item) => item.
 const onPhone = (items: ReturnType<typeof navItems>) => labels(items.filter((item) => item.onPhone));
 
 describe('navItems', () => {
-    it('al costado, el pastor ve todo: aprueba y administra las cuentas', () => {
-        expect(labels(navItems(props(true, null)))).toEqual(['Inicio', 'Cronograma', 'Aprobar', 'Comités', 'Miembros', 'Simpatizantes', 'Cuentas']);
+    it('al costado, el pastor ve todo: aprueba, administra las cuentas y registra el lema del año', () => {
+        expect(labels(navItems(props(true, null)))).toEqual(['Inicio', 'Cronograma', 'Aprobar', 'Comités', 'Miembros', 'Simpatizantes', 'Cuentas', 'Lema del año']);
     });
 
     it('un presidente revisa, no aprueba, y no administra cuentas', () => {

@@ -44,7 +44,7 @@ petición se reparte en más propiedades diferidas.
 | Ruta | Método | Pantalla | Propiedades propias | No debe viajar |
 |---|---|---|---|---|
 | `/committees` | GET | `Committees/Index` | `tree[]`, `reviewer` · `cards[]` cuando existan miembros y presupuesto | de un comité fuera del ámbito: sus miembros, su presupuesto y su avance |
-| `/committees/{committee}` | GET | `Committees/Show` | `committee`, `responsible`, `secretary`, `treasurer`, `children[]`, `hasChildren` · `members[]`, `budget` y `progress` cuando existan esos módulos | nada si el comité está fuera del ámbito: «no disponible» (RF-008) |
+| `/committees/{committee}` | GET | `Committees/Show` | `committee`, `identity` (`logoUrl`, `motto`, `objectives`, `updatedBy`, `updatedAt`), `canEditIdentity`, `responsible`, `secretary`, `treasurer`, `children[]`, `hasChildren` · `members[]`, `budget` y `progress` cuando existan esos módulos | nada si el comité está fuera del ámbito: «no disponible» (RF-008) |
 
 **Reglas**: con `hasChildren` falso, la ficha lo dice expresamente y muestra que el presidente
 coordina directamente a sus miembros (RF-012, CL-01). Un líder ve su sub-comité y **el nombre de su
@@ -300,7 +300,8 @@ lo que verifica la prueba de aislamiento de cada pantalla.
 | Ruta | Pantalla | Quién | No debe viajar |
 |---|---|---|---|
 | `/site-motto` GET, POST | `Site/Motto` | solo el pastor | — |
-| `/committees/{committee}/identity` GET, PUT | `Committees/Identity` | ver: su ámbito; cambiar: su presidente | a otro comité: nada; en el calendario solo viaja el nombre (RF-083) |
+| `/committees/{committee}/identity` GET, POST | `Committees/Identity` | el presidente del comité, para el suyo y sus sub-comités; los demás cargos la ven en la ficha | a otro comité: nada; en el calendario solo viaja el nombre (RF-083) |
+| `/committees/{committee}/logo` GET | — (la imagen) | su ámbito, por el filtro del cargo; el archivo está fuera de `public/` | a otro comité: «no disponible» |
 | `/schedules` GET, POST | `Schedules/Index` | presidente y líder, sobre su nodo | los cronogramas internos de otro comité, ni que existen (RF-086) |
 | `/schedules/{schedule}` GET | `Schedules/Show` | su ámbito | — |
 | `/schedules/{schedule}/activities` POST | — | su ámbito; crea una o una serie (RF-088) | — |
