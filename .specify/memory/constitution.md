@@ -21,45 +21,71 @@ Idioma del proyecto:
 
 Cada persona ve únicamente la información de su ámbito: el pastor ve toda la congregación;
 el presidente de un comité ve su comité y sus sub-comités; el líder de un sub-comité ve
-solo el suyo.
+solo el suyo. Un miembro que pertenece a varios comités entra en el ámbito de cada uno de
+ellos, y de ningún otro.
 
 - La restricción DEBE aplicarse siempre en el servidor. Ocultar elementos en la interfaz NO
   cuenta como restricción.
-- Toda consulta a comités, miembros, actividades, asistencia, presupuesto y simpatizantes
-  DEBE pasar por el filtro de alcance centralizado. Ninguna consulta puede construirse
-  salteándolo, salvo la única excepción enumerada más abajo en este principio.
+- Toda consulta a comités, miembros, actividades, cronogramas, asistencia, presupuesto,
+  simpatizantes y niños DEBE pasar por el filtro de alcance centralizado. Ninguna consulta
+  puede construirse salteándolo, salvo las excepciones enumeradas más abajo en este principio.
 - Cada ruta y cada acción DEBE exigir autorización explícita mediante policy o gate.
 - Toda funcionalidad nueva que lea o escriba datos de un comité DEBE incluir una prueba que
   demuestre que un rol de otro comité no puede verla ni modificarla.
 
-Única excepción enumerada —el cronograma compartido—:
+Excepciones enumeradas. Son cuatro, y ninguna más. Cada una vive en un único lugar con nombre
+propio, solo lee, NO concede autorización para escribir, NUNCA retira el filtro de sede
+(`site_id`) y tiene su propia prueba automatizada de lista blanca: compara el juego de llaves
+de lo que devuelve con lo que aquí se enumera, de modo que un dato nuevo pone la prueba roja
+hasta que alguien decida si se comparte.
 
-- El cronograma de actividades, y solo él, se comparte con toda la congregación: así lo
-  aprobó la congregación en reunión. Que un dato interese a toda la congregación no lo
-  convierte en compartido; lo compartido es lo que esta excepción enumera. Toda persona con
-  un cargo activo escogido consulta cualquier actividad del año, sea de su comité o no.
-- De una actividad ajena se comparten exactamente siete datos: título, descripción, fecha,
-  hora, lugar, comité responsable y estado. El presupuesto y las tareas internas NUNCA salen
-  del comité dueño: ni en el listado, ni en la ficha, ni en un reporte, ni en una descarga.
-- El nombre del comité responsable SÍ se comparte por esta excepción. La reserva de RF-009 se
-  refiere a los conteos de `scope.hidden`, que nunca listan cuáles son; no convierte el
-  nombre de un comité en dato reservado.
-- La excepción DEBE vivir en un único método con nombre propio —`forSharedCalendar()` en el
-  modelo `Activity`—, que retira el filtro de comité y selecciona a mano esos siete datos. El
-  filtro de sede (`site_id`) NO se retira nunca. Cualquier otra consulta que salga del filtro
-  de alcance es un defecto, no una excepción.
-- El método SOLO lee. NO se usa como base de un `update`, de un `delete` ni de una descarga,
-  y NO concede autorización: la policy de `Activity` sigue negando toda escritura sobre una
-  actividad ajena.
-- La excepción DEBE tener una prueba automatizada de lista blanca: comprueba que la carga de
-  una actividad ajena trae EXACTAMENTE los siete datos enumerados y ningún otro, comparando
-  el juego de llaves y no buscando llaves prohibidas. Así, una columna nueva en `activities`
-  pone la prueba roja hasta que alguien decida si se comparte. La prueba revisa la carga de
-  la respuesta, no lo que se ve en pantalla, e incluye el caso de escritura: un presidente
-  que intenta modificar una actividad ajena recibe una negativa.
-- Esta es la ÚNICA excepción al filtro de alcance en todo el proyecto. Agregar otra exige
-  enmendar esta constitución: no se autoriza en una especificación, en un plan ni en una
-  tarea.
+**1. El cronograma general compartido.**
+
+- El cronograma general del año, y solo él, se comparte con toda la congregación: así lo
+  aprobó la congregación en reunión. Toda persona con un cargo activo escogido lo consulta
+  completo en el calendario. Los cronogramas internos de cada comité NO se comparten.
+- De una actividad ajena se comparten exactamente seis datos: título, fecha, hora, lugar,
+  comité responsable y estado. La descripción, el presupuesto, las tareas internas y el
+  soporte NUNCA salen del comité dueño: ni en el calendario, ni en la ficha, ni en un
+  reporte, ni en una descarga. El detalle de una actividad lo ven su comité, sus ascendientes
+  y el pastor.
+- El nombre del comité responsable SÍ se comparte. Los nombres de los comités no son un dato
+  reservado.
+- Vive en `Activity::forSharedCalendar()`, que retira el filtro de comité y selecciona a mano
+  esos seis datos. La prueba incluye el caso de escritura: un presidente que intenta modificar
+  una actividad ajena recibe una negativa.
+
+**2. BIS recibe a todos los simpatizantes.**
+
+- El comité BIS da la bienvenida a quienes llegan por primera vez a la iglesia. Por eso su
+  ámbito sobre los simpatizantes es toda la sede: los registra, los ve a todos, los acompaña
+  y asigna a cada uno el único comité que lo acompaña también. Para asignarlo ve el nombre de
+  todos los comités activos. El comité asignado ve únicamente a los suyos.
+- BIS no ve por esto ningún otro dato de otros comités: ni sus miembros, ni sus actividades,
+  ni su presupuesto.
+- Vive en el filtro de alcance de los simpatizantes, no en una consulta suelta. La prueba
+  comprueba que un cargo de BIS ve a todos los simpatizantes y nada más ajeno, y que un comité
+  ve solo los que le asignaron.
+
+**3. Lo que se pregunta sin traer datos.**
+
+- Dos preguntas miran fuera del ámbito y responden solo con un número o con un sí o un no:
+  cuántas personas de la congregación no aparecen en la lista de un cargo, y si la persona que
+  se va a registrar ya existe. Nunca devuelven un nombre ni ningún otro dato.
+- Cada una vive en una clase con nombre propio en `app/Support/`, nunca en un controlador. La
+  prueba comprueba que la respuesta es un número o un sí o un no.
+
+**4. El buscador de miembros ya registrados.**
+
+- El padrón de miembros lo lleva el pastor. Para que un comité agregue a su lista a una
+  persona ya registrada, el buscador le muestra de cada miembro de la sede únicamente su
+  nombre y su edad. No abre la ficha ni deja modificarla.
+- Vive en `Member::forPicker()`. La prueba comprueba que cada resultado trae exactamente el
+  nombre y la edad.
+
+Agregar otra excepción, o ampliar lo que una de estas deja ver, exige enmendar esta
+constitución: no se autoriza en una especificación, en un plan ni en una tarea. Cualquier otra
+consulta que salga del filtro de alcance es un defecto, no una excepción.
 
 Razón: es la promesa que la congregación aprobó en la reunión; si falla una sola vez, se
 pierde la confianza del cliente.
@@ -176,8 +202,12 @@ mantener cualquier archivo de este proyecto sin que nadie se lo explique.
 
 ### Datos y seguridad
 
-- La información de miembros y simpatizantes es propiedad del cliente. NO se usa para otros
-  fines, NO se copia fuera del servidor acordado y NO aparece en registros de depuración.
+- La información de miembros, simpatizantes y niños es propiedad del cliente. NO se usa para
+  otros fines, NO se copia fuera del servidor acordado y NO aparece en registros de depuración.
+- Los datos de los niños de la Escuela Dominical son los más protegidos del sistema: sus
+  datos de salud solo los ven la Escuela Dominical y el pastor, y ninguna foto de un niño se
+  sube sin la autorización de imagen firmada por su padre, madre o acudiente.
+- La dirección de residencia de los miembros NO se guarda.
 - Contraseñas con el hash de Laravel, sesiones seguras y protección CSRF activa.
 - Respaldo diario de la base de datos.
 - Las semillas y los datos de prueba son siempre ficticios. Nunca datos reales de personas
@@ -187,13 +217,27 @@ mantener cualquier archivo de este proyecto sin que nadie se lo explique.
 
 - Simple antes que completo. Lo que no está en el alcance contratado NO se construye: se
   registra como propuesta para cotizar.
-- El alcance contratado es: la estructura de comités en tres niveles —comité, sub-comité y
-  equipo—, administrable por el pastor; aprobaciones en dos niveles; cronograma anual con
-  propuesta, aprobación, rechazo y seguimiento, que es también el plan de trabajo de cada
-  comité; registro de miembros con reportes y estadísticas; seguimiento de simpatizantes por
-  etapas; asistencia a reuniones y ensayos; actas de reunión con sus compromisos, numeradas
-  e imprimibles; archivos que respaldan el cumplimiento de una actividad y los soportes de
-  los movimientos de presupuesto; y presupuesto asignado y ejecutado por comité.
+- El alcance contratado es el levantamiento de información de la sede La Esmeralda del
+  2026-10-26, completo:
+  - la estructura de comités en **dos niveles** —comité y sub-comité—, administrable por el
+    pastor, con la identidad de cada comité: logo, lema y objetivos;
+  - el nombre de la sede y su lema del año, en la entrada y en toda la plataforma;
+  - aprobaciones en dos niveles;
+  - el cronograma general del año, con propuesta, aprobación, rechazo y seguimiento, sin
+    actividades que se crucen, compartido en un calendario; y los cronogramas internos de
+    cada comité, varios por comité y privados;
+  - el orden de culto de cada comité;
+  - el padrón de miembros que lleva el pastor, con la pertenencia de cada persona a uno o
+    varios comités, sus cumpleaños, reportes y estadísticas;
+  - el registro y el seguimiento de los simpatizantes por etapas, con BIS en la entrada;
+  - la asistencia a las actividades internas y a las del cronograma general;
+  - actas de reunión con sus compromisos, numeradas e imprimibles;
+  - un soporte por actividad y los soportes de los movimientos de presupuesto;
+  - presupuesto asignado y ejecutado por comité;
+  - imprimir las actividades y compartirlas por WhatsApp;
+  - los módulos propios de la Escuela Dominical —grupos de niños, inscripción, autorización
+    firmada de los padres, cronograma de clases, visitas y estadísticas—, de Obra Social
+    —ayudas entregadas y fondo propio— y de Alabanza —quién toca y quién canta—.
 - Ninguna pantalla hace más de 5 consultas propias a la base de datos, y su número no crece
   con la cantidad de datos: se previenen las consultas N+1. No cuentan las tres fijas de
   Laravel en cada petición —leer la sesión, cargar a la persona y guardar la sesión—, que
@@ -226,9 +270,13 @@ mantener cualquier archivo de este proyecto sin que nadie se lo explique.
 
 ### Entrega
 
-- El desarrollo se entrega en cuatro hitos semanales: (1) comités, sub-comités, usuarios y
-  control de acceso; (2) cronograma anual y aprobaciones; (3) miembros, simpatizantes y
-  reportes; (4) asistencia, presupuesto, pruebas y puesta en funcionamiento.
+- El desarrollo se entrega en siete hitos: (1) comités en dos niveles, identidad de la sede y
+  de cada comité, usuarios y control de acceso; (2) cronograma general, aprobaciones y
+  cronogramas internos; (3) miembros, cumpleaños, simpatizantes con BIS y reportes;
+  (4) asistencia, orden de culto, actas, soportes, presupuesto, imprimir y compartir;
+  (5) Escuela Dominical; (6) Obra Social y Alabanza; (7) pruebas, carga inicial y puesta en
+  funcionamiento. Las fechas de cada hito las acuerda el autor del proyecto con la
+  congregación: la ampliación del 2026-10-28 corrió las que había.
 - Cada hito termina funcionando de punta a punta en el celular, no a medias.
 
 ## Gobernanza
@@ -242,13 +290,53 @@ mantener cualquier archivo de este proyecto sin que nadie se lo explique.
 - En cada revisión y antes de cada mezcla a `main` se verifica el cumplimiento de los cinco
   principios. Toda complejidad añadida debe justificarse por escrito.
 - Los dos principios marcados NO NEGOCIABLE —I y V— no admiten excepción: ni por plazo, ni
-  por alcance, ni por petición del cliente. La única excepción que existe es la enumerada
-  dentro del principio I —el cronograma compartido—, que entró por enmienda, nombra sus siete
-  datos y exige su propia prueba. Ninguna otra se concede, y ningún plan ni especificación
-  puede diluir ni reinterpretar estos principios en silencio.
+  por alcance, ni por petición del cliente. Las únicas excepciones que existen son las cuatro
+  enumeradas dentro del principio I —el cronograma general compartido, BIS sobre los
+  simpatizantes, lo que se pregunta sin traer datos y el buscador de miembros—, que entraron
+  por enmienda, nombran lo que dejan ver y exigen su propia prueba. Ninguna otra se concede, y
+  ningún plan ni especificación puede diluir ni reinterpretar estos principios en silencio.
 - Guía de desarrollo en tiempo de ejecución: `CLAUDE.md` en la raíz del proyecto.
 
 ### Registro de enmiendas
+
+**3.0.0 · 2026-10-28 · El levantamiento de la sede La Esmeralda**
+
+- Qué cambia:
+  - **Alcance:** «Alcance y simplicidad» reescribe el alcance contratado con el levantamiento
+    de información del 2026-10-26, completo.
+  - **Estructura:** baja de tres niveles a dos; el equipo desaparece.
+  - **Principio I, ámbito:** un miembro que pertenece a varios comités entra en el ámbito de
+    cada uno, y los niños entran en la lista de lo que el filtro protege.
+  - **Principio I, excepciones:** pasa de una a cuatro. El cronograma compartido deja de
+    compartir la descripción: de siete datos baja a seis. Se agregan BIS sobre los
+    simpatizantes, lo que se pregunta sin traer datos y el buscador de miembros.
+  - **Datos y seguridad:** protege los datos de los niños y prohíbe guardar la dirección de
+    los miembros.
+  - **Entrega:** pasa de cuatro hitos semanales a siete, con fechas por acordar.
+- Por qué: el autor del proyecto hizo con la congregación un levantamiento de información
+  detallado —el nombre de la sede, sus quince comités, cómo trabaja cada uno y lo que
+  necesitan la Escuela Dominical, Obra Social, Alabanza y BIS— y decidió el 2026-10-28 que
+  todo entra en el proyecto actual, aunque las fechas se corran. La congregación pidió que un
+  comité vea el calendario de los demás pero no el detalle, que BIS reciba a los
+  simpatizantes en la entrada y los reparta, y que el padrón lo lleve el pastor mientras cada
+  comité escoge a los suyos. Las cuatro excepciones no se pueden construir sin salir del
+  filtro, y esta Gobernanza prohíbe hacerlo en silencio. Dos de ellas ya existían en el
+  código sin estar autorizadas (D-29 del plan): esta enmienda las sanciona o las corrige.
+- Salto de versión: MAJOR. Redefine el principio I —el ámbito y sus excepciones— y la garantía
+  de la Gobernanza que las enumera, y reescribe el alcance contratado.
+- Impacto sobre las especificaciones ya escritas:
+  - **spec.md:** se reorienta. Cambian la estructura (RF-011, HU-03, HU-21), el cronograma
+    compartido (RF-010, HU-09), los miembros (RF-014, RF-031, HU-10), los simpatizantes
+    (RF-040, HU-13, HU-14), la asistencia, las actas y los soportes. Entran trece historias
+    nuevas, de HU-25 a HU-37.
+  - **Código ya construido:** se rehace el filtro de los miembros para la pertenencia a
+    varios comités, `forSharedCalendar()` y su prueba de lista blanca para seis datos, el
+    seguimiento de simpatizantes para BIS, y las semillas para la estructura real de dos
+    niveles.
+  - **plan.md, data-model.md, contracts/ y tasks.md:** recogen todo lo anterior.
+- Lo que NO cambia: los principios I y V siguen sin admitir excepción por plazo, por alcance
+  ni por petición del cliente. Ninguna de las cuatro excepciones deja ver presupuestos, actas,
+  asistencia ni datos personales de otro comité.
 
 **2.3.2 · 2026-10-26 · Dos excepciones más a los colores escritos a mano**
 
@@ -358,4 +446,4 @@ mantener cualquier archivo de este proyecto sin que nadie se lo explique.
   cambio de fondo. Toda la demás cobertura del principio I sigue igual, y ninguna otra
   salida del filtro queda autorizada.
 
-**Versión**: 2.3.2 | **Ratificada**: 2026-10-14 | **Última enmienda**: 2026-10-26
+**Versión**: 3.0.0 | **Ratificada**: 2026-10-14 | **Última enmienda**: 2026-10-28

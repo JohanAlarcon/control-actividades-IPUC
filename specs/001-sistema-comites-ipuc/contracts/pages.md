@@ -5,9 +5,10 @@ Rutas en inglés (R-03, corrección C-02). Toda respuesta incluye además el blo
 diferidas y viajan en su propia petición parcial. La columna **No debe viajar** es la que la prueba
 de aislamiento verifica sobre la carga de la respuesta.
 
-El ámbito de un cargo es **su nodo y todo su sub-árbol**, en los tres niveles —comité, sub-comité y
-equipo— desde la ampliación del 2026-10-24. Donde abajo se lee «su comité y sus sub-comités»,
-entiéndase el sub-árbol completo.
+El ámbito de un cargo es **su nodo y todo su sub-árbol**, en los dos niveles —comité y sub-comité—
+desde el levantamiento del 2026-10-28. Los miembros entran en el ámbito por sus pertenencias (D-32),
+y BIS ve a todos los simpatizantes (D-34). Las cuatro excepciones al filtro son las que enumera el
+principio I de la constitución 3.0.0, y cada una tiene su sección aquí.
 
 ## Entrar al sistema
 
@@ -83,23 +84,25 @@ presidente también va al pastor (RF-018). Una solicitud resuelta no se edita: `
 
 | Ruta | Método | Pantalla | Propiedades propias | No debe viajar |
 |---|---|---|---|---|
-| `/activities` | GET | `Activities/Index` | `filters`, `years`, `summary`, `months[]`, `canPropose` · **diferidas**: `annualPlan`, `committees[]` | de actividades ajenas: todo lo que no sean los siete datos compartidos (y su `id`) |
-| `/activities/{activity}` | GET | `Activities/Show` | `activity`, `mine`, `tasks[]`, `canEdit`, `canCheckTasks` · **diferida**: `trail[]` | si es ajena: todo lo que no sean los siete datos compartidos; nunca presupuesto, tareas ni rastro |
+| `/activities` | GET | `Activities/Index` | `filters`, `years`, `summary`, `months[]`, `canPropose` · **diferidas**: `annualPlan`, `committees[]` | de actividades ajenas: todo lo que no sean los seis datos compartidos (y su `id`); nada de los cronogramas internos ajenos |
+| `/activities/{activity}` | GET | `Activities/Show` | `activity`, `mine`, `tasks[]`, `canEdit`, `canCheckTasks` · **diferida**: `trail[]` | si es ajena: responde como fuera del ámbito; nunca descripción, presupuesto, tareas, soporte, orden de culto ni rastro |
 | `/activities/create` | GET | `Activities/Form` | `recipient`: el nombre de quien va a recibir la propuesta, o nulo si ese cargo está vacante; `types[]`: las clases activas, `{ id, name }` | — |
 | `/activity-types` | GET | `ActivityTypes/Index` | `types[]`: `{ id, name, active, uses }`. Solo el pastor (D-25) | — |
 | `/activity-types` | POST | — | agrega una clase; el nombre no se repite en la sede | — |
 | `/activity-types/{activityType}` | PATCH | — | cambia el nombre, o desactiva y activa. Nunca borra | — |
-| `/activities` | POST | — | propone; devuelve `conflictWarning` (RF-028, CL-08) — este aviso llega con T064, en la Phase 12 | — |
+| `/activities` | POST | — | propone; **impide** el cruce con otra actividad del cronograma general y dice cuál y de qué comité (RF-028, D-37) | — |
 | `/activities/{activity}/tasks/{task}/toggle` | POST | — | recalcula `progress` y el estado (R-04) | — |
 | `/activities/{activity}/tasks` | POST | — | agrega una tarea (`description`, `assigned_to`); solo el comité dueño | — |
 | `/annual-plan/{year}/activities` | POST | — | carga una actividad al plan de este año o del siguiente, mientras no esté aprobado (D-27) | — |
 | `/activities/{activity}/complete` | POST | — | solo para actividades sin tareas (R-04) | — |
 | `/annual-plan/{year}/approve` | POST | — | solo pastor (RF-025) | — |
 
-**Reglas**: esta es la **única excepción que enumera la constitución** al filtro de alcance.
-`forSharedCalendar()` entrega de las actividades ajenas exactamente siete datos —título,
-descripción, fecha, hora, lugar, comité responsable y estado— y ningún otro (RF-010, R-11). La
-prueba de aislamiento compara el **juego de llaves** de la carga con esos siete: una columna nueva
+**Reglas**: esta es la **excepción 1** que enumera la constitución al filtro de alcance.
+`forSharedCalendar()` entrega de las actividades ajenas del **cronograma general** exactamente seis
+datos —título, fecha, hora de inicio y de fin, lugar, comité responsable y estado— y ningún otro
+(RF-010, R-11, D-36). La descripción deja de viajar desde el 2026-10-28, y lo de los cronogramas
+internos no viaja nunca. La vista de mes del calendario usa esta misma excepción (RF-029). La
+prueba de aislamiento compara el **juego de llaves** de la carga con esos seis: una columna nueva
 en `activities` la pone roja hasta que alguien decida si se comparte. El método **solo lee**: no se
 usa como base de un `update`, un `delete` ni una descarga, y no concede autorización — la policy de
 `Activity` sigue negando toda escritura sobre una actividad ajena, aunque se vea en el cronograma.
@@ -107,7 +110,7 @@ usa como base de un `update`, un `delete` ni una descarga, y no concede autoriza
 (RF-030, HU-09 esc. 2). El plan anual aprobado muestra quién lo aprobó y cuándo, y distingue lo que
 venía en el plan de lo propuesto después (RF-024, HU-08).
 
-La excepción está amparada por la enmienda del principio I del 2026-10-18, constitución v2.0.0.
+La excepción está amparada por el principio I, excepción 1, de la constitución 3.0.0.
 
 ## Miembros
 
@@ -119,9 +122,16 @@ La excepción está amparada por la enmienda del principio I del 2026-10-18, con
 | `/members/{member}/edit` | GET | `Members/Form` | `member`, `committees[]`, `canLeaveWithoutCommittee` |
 | `/members/{member}` | PUT | — | corrige; conserva el valor anterior (RF-056) |
 | `/members/{member}/history` | GET | `Members/History` | `trail[]` leído por la relación del modelo, nunca de `activity_log` (V-01) |
+| `/members/picker` | GET | — (respuesta para el buscador) | `results[]`: `{ id, name, age }` y **nada más** — excepción 4 (`Member::forPicker()`, D-33) |
+| `/committees/{committee}/members` | POST | — | agrega a la lista del nodo a un miembro ya registrado, con su función (RF-084, RF-085) |
+| `/committees/{committee}/members/{member}` | DELETE | — | lo quita de la lista: cierra la pertenencia, no la borra |
 | `/members/import` | GET, POST | `Members/Import` | `preview[]`, `errors[]`, `validCount`, `invalidCount`, `duplicates[]` |
 
-**Reglas**: `committees[]` solo trae los del ámbito, también para llenar desplegables. La búsqueda
+**Reglas**: **registrar y corregir fichas es solo del pastor** desde el 2026-10-28 (RF-085, D-33):
+`/members/create`, `POST /members`, `/members/{member}/edit` y `PUT` le responden a cualquier otro
+cargo como fuera de su permiso. Los cargos manejan su lista con las rutas de pertenencia. El
+formulario no pide la dirección (RF-031). `committees[]` solo trae los del ámbito, también para
+llenar desplegables. La búsqueda
 ignora mayúsculas y tildes (RF-034) y corre en el teléfono sobre `members[]`, que ya llega filtrada
 por el ámbito (D-30). Cuántos cumplen —el largo de `members[]`, o lo que deja la búsqueda— se
 informa sobre `totalCount` (RF-035). Solo el pastor puede dejar a alguien sin comité
@@ -135,37 +145,41 @@ autorización con su fecha y medio (RF-061, RF-062).
 
 | Ruta | Método | Pantalla | Propiedades propias |
 |---|---|---|---|
-| `/sympathizers` | GET | `Sympathizers/Index` | `canFollow`; quien acompaña: `stats`, `funnel[]`, `list[]`, `missingConsent`; los demás: solo `followers`, el nombre del comité que acompaña |
-| `/sympathizers/create` | GET | `Sympathizers/Form` | — |
+| `/sympathizers` | GET | `Sympathizers/Index` | `isReception` (BIS); `stats`, `funnel[]`, `list[]` con el comité asignado de cada uno, `missingConsent` |
+| `/sympathizers/create` | GET | `Sympathizers/Form` | a BIS: `committees[]` activos `{ id, name }` para asignar; a los demás: nada |
+| `/sympathizers/suggest` | GET | — (respuesta para la lista que se completa sola) | `results[]` solo del ámbito: `{ id, name, phone }` (RF-096) |
+| `/sympathizers/{sympathizer}/assign` | POST | — | solo BIS: reasigna a otro comité y deja el asiento (RF-097) |
 | `/sympathizers/{sympathizer}` | GET | `Sympathizers/Show` | `sympathizer` (con `commitment`), `stages[]`, `thresholds`, `canPromote`, `visits[]` (diferida) |
 | `/sympathizers` | POST | — | registra; advierte duplicado (CL-09) |
 | `/sympathizers/{sympathizer}/stages` | POST | — | alcanza una etapa con su fecha (RF-042) |
 | `/sympathizers/{sympathizer}/visits` | POST | — | registra visita; recalcula el compromiso |
 | `/sympathizers/{sympathizer}/promote` | POST | — | propone el paso a miembro: va al pastor (RF-019) |
 
-**Reglas — la policy más estrecha del proyecto** (RF-040, R-06): `POST /sympathizers` lo puede
-cualquier cargo; **todo lo demás solo el presidente del Comité de Evangelismo y el pastor**, y el
-comité se reconoce por `follows_sympathizers` (D-28). Ni los
-líderes de los sub-comités de Evangelismo, ni quien registró a la persona. Quien registró recibe la
-explicación de por qué no ve la ficha, sin que parezca un error (HU-13 esc. 2). `commitment` llega
+**Reglas — BIS y el comité asignado** (RF-040, D-34, constitución 3.0.0, excepción 2):
+- BIS ve a todos los simpatizantes y los asigna.
+- Cualquier otro cargo ve solo los asignados a su ámbito, y registra a sus amigos, que quedan
+  asignados a su comité.
+- La lista de comités para asignar solo le llega a BIS, con id y nombre.
+
+`commitment` llega
 **calculado** por el servidor, con las señales que lo determinaron para poder explicarlo (RF-043,
-HU-14 esc. 3), y `thresholds` trae los umbrales con que se calculó. El aviso de duplicado responde
-sí o no: nunca trae la ficha ajena (D-29). Cada tarjeta dice si ya espera al pastor para pasar a
+HU-14 esc. 3), y `thresholds` trae los umbrales con que se calculó. El aviso de duplicado fuera
+del ámbito responde sí o no: nunca trae la ficha ajena (excepción 3). Cada tarjeta dice si ya espera al pastor para pasar a
 miembro. El formulario muestra el aviso de privacidad y pide la autorización (RF-061).
 
 ## Asistencia
 
 | Ruta | Método | Pantalla | Propiedades propias |
 |---|---|---|---|
-| `/attendance` | GET | `Meetings/Index` | `meetings[]`, `perMember[]`, `kpis`, `canRecord` |
-| `/attendance` | POST | — | registra la reunión y sus marcas |
-| `/attendance/{meeting}` | GET | `Meetings/Show` | `meeting`, `attendances[]`, `canEdit` |
-| `/attendance/{meeting}` | PUT | — | corrige; conserva lo registrado antes (RF-056) |
+| `/attendance` | GET | `Attendance/Index` | `perPerson[]` con su porcentaje, `kpis` |
+| `/activities/{activity}/attendance` | GET | `Attendance/Edit` | `activity`, `convoked[]`, `sympathizers[]` del ámbito, `marks[]`, `canEdit` |
+| `/activities/{activity}/attendance` | PUT | — | guarda o corrige las marcas —asistió, no asistió, excusado con su excusa—; conserva lo registrado antes (RF-056) |
 
-**Reglas**: los convocados solo pueden ser miembros de ese comité o sub-comité (RF-047). Una reunión
-sin ningún asistente se puede registrar (CL-11). El porcentaje por persona se calcula sobre las
-reuniones a las que **fue convocada** (RF-048). Por debajo del sesenta por ciento, el texto es de
-acompañamiento, nunca de reproche (RF-049).
+**Reglas**: la asistencia es por actividad, interna o general (RF-046, D-40). Los convocados son los
+integrantes vigentes del nodo dueño (RF-047). Una actividad sin ningún asistente se puede registrar
+(CL-11). El porcentaje por persona se calcula sobre las actividades a las que **fue convocada**
+(RF-048). Por debajo del sesenta por ciento, el texto es de acompañamiento, nunca de reproche
+(RF-049). La asistencia de un simpatizante cuenta para su compromiso (RF-091).
 
 ## Actas de reunión
 
@@ -275,3 +289,37 @@ RF-003). Retirar el acceso **no borra**: `active` en falso, y el nombre permanec
 histórico (RF-006, RN-09). Al asignar un cargo vacante, las solicitudes pendientes pasan al nuevo
 responsable con registro del traspaso (RF-023, CL-06). Una persona puede tener dos cargos; eso
 habilita el selector, no la unión de ámbitos (CL-05, C-01).
+
+## Lo que trajo el levantamiento del 2026-10-28
+
+Las rutas de las historias HU-25 a HU-37. Se detallan propiedad por propiedad al construir cada
+fase de `tasks.md` (R1 a R5); lo que aquí queda fijo es quién entra y qué **no** debe viajar, que es
+lo que verifica la prueba de aislamiento de cada pantalla.
+
+| Ruta | Pantalla | Quién | No debe viajar |
+|---|---|---|---|
+| `/site-motto` GET, POST | `Site/Motto` | solo el pastor | — |
+| `/committees/{committee}/identity` GET, PUT | `Committees/Identity` | ver: su ámbito; cambiar: su presidente | a otro comité: nada; en el calendario solo viaja el nombre (RF-083) |
+| `/schedules` GET, POST | `Schedules/Index` | presidente y líder, sobre su nodo | los cronogramas internos de otro comité, ni que existen (RF-086) |
+| `/schedules/{schedule}` GET | `Schedules/Show` | su ámbito | — |
+| `/schedules/{schedule}/activities` POST | — | su ámbito; crea una o una serie (RF-088) | — |
+| `/activities/{activity}/service-order` GET, PUT | `ServiceOrders/Edit` | la directiva del comité del culto | a otro comité: nada (RF-094) |
+| `/birthdays` GET | `Birthdays/Index` | todo cargo, sobre su ámbito | nadie fuera del ámbito (HU-29 esc. 5) |
+| `/print/activities` GET | `Print/Activities` | presidente y líder, sobre su nodo | lo de otro nodo |
+| `/obra-social/beneficiaries` GET, POST | `SocialWork/Beneficiaries` | Obra Social y el pastor | todo, a cualquier otro comité |
+| `/obra-social/aid` GET, POST | `SocialWork/Aid` | Obra Social y el pastor | todo, a cualquier otro comité |
+| `/obra-social/fund` GET, POST | `SocialWork/Fund` | el tesorero y el presidente de Obra Social, y el pastor | todo, a cualquier otro comité |
+| `/activities/{activity}/worship` GET, PUT | `Worship/Edit` | Alabanza y el pastor | a otro comité: nada |
+| `/sunday-school/groups` GET, POST, PUT | `SundaySchool/Groups` | Escuela Dominical y el pastor | todo, a cualquier otro comité |
+| `/sunday-school/children` GET, POST | `SundaySchool/Children` | Escuela Dominical y el pastor | todo; los datos de salud, también dentro del comité a quien la policy no autorice |
+| `/sunday-school/children/{child}/consents` GET, POST | `SundaySchool/Consent` | Escuela Dominical y el pastor | todo, a cualquier otro comité; una firma guardada no se modifica |
+| `/sunday-school/classes` GET, POST | `SundaySchool/Classes` | Escuela Dominical y el pastor | todo, a cualquier otro comité |
+| `/sunday-school/visits` GET, POST | `SundaySchool/Visits` | Escuela Dominical y el pastor | todo, a cualquier otro comité |
+
+**Reglas comunes**:
+
+- Toda pantalla nueva tiene su prueba de aislamiento: un cargo ajeno no la ve (puerta 3).
+- Toda pantalla nueva tiene su medición del presupuesto de cinco consultas (puerta 5).
+- El nombre de la sede y el lema del año viajan en el bloque compartido
+  ([shared-props.md](./shared-props.md)).
+- La alerta de cumpleaños viaja como propiedad diferida de la pantalla de inicio (D-42).

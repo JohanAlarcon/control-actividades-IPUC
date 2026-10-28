@@ -1032,6 +1032,8 @@ comprobar que el nivel de compromiso se recalcula sin intervención manual.
 
 ## Phase 19: User Story 15 - US15 · Registrar asistencia (Priority: P2)
 
+> **Reorientada el 2026-10-28** (D-40): la asistencia es por actividad, interna o general, con excusas y simpatizantes. T126 a T131 no se construyen como están escritas: las reemplazan T230 a T233, en la fase R3.
+
 **Goal**: anotar quién asistió a cada ensayo o reunión, para saber a quién hay que buscar.
 **Hito 4.**
 
@@ -1211,6 +1213,8 @@ comprobar que una aprobación ya resuelta no se puede editar.
 
 ## Phase 23: User Story 21 - US21 · Administrar la estructura de comités (Priority: P1)
 
+> **Reorientada el 2026-10-28** (D-31): la estructura tiene **dos** niveles. Lo que abajo dice «tres niveles» o «equipo» se lee con dos niveles; T211 deja la base.
+
 **Goal**: que el pastor cree, renombre, reordene e inactive comités, sub-comités y equipos, para que
 el organigrama del sistema sea el de la congregación de hoy. **Hito 1.**
 
@@ -1231,12 +1235,14 @@ comprobar que su historia sigue consultable.
       Archivos: `app/Http/Controllers/CommitteeStructureController.php` · `app/Http/Requests/StoreCommitteeRequest.php`, `UpdateCommitteeRequest.php` · `resources/js/pages/Structure/Index.tsx` · `resources/js/components/domain/StructureTree.tsx` · rutas `/structure`
       Valida la profundidad: un `parent_id` que apunte a un nodo de `depth` 3 se rechaza con una frase que explica que la estructura llega hasta tres niveles (CL-17). `name` único por sede y por padre.
       Verifica: `php artisan test --filter=CommitteeStructureTest` · a 360 px el árbol se administra con el pulgar, sin desplazamiento horizontal.
+      **Dos niveles desde el 2026-10-28** (D-31). El formulario de un comité incluye además su logo, su lema y sus objetivos (HU-26), y la marca de BIS (D-34).
       El formulario de un comité de primer nivel deja al pastor marcar cuál acompaña a los simpatizantes (`follows_sympathizers`, D-28); marcar uno desmarca el anterior. Mientras no exista, lo marca la semilla.
 
 - [ ] T183 [US21] · Inactivar un nodo conservando toda su historia
       Archivos: `app/Http/Controllers/CommitteeStructureController.php` · `app/Models/Committee.php`
       RF-064, CL-18: `active` en falso, **nunca borrado**. Sale de los desplegables para proponer cosas nuevas; su historia de actividades, actas, asistencia, presupuesto y decisiones sigue consultable; sus miembros quedan con `committee_id` nulo y señalados para reasignar.
       Verifica: `php artisan test --filter=DeactivateCommitteeTest` — tras inactivar, sus actividades y actas siguen consultables, no aparece para proponer, y sus miembros quedan señalados.
+      **Desde el 2026-10-28**: inactivar cierra las pertenencias de sus integrantes y devuelve sus simpatizantes a BIS (RF-064, CL-29).
 
 - [ ] T184 [US21] · El nombre de la época se conserva en la historia
       Archivos: `app/Models/Committee.php` · `app/Models/Minute.php`
@@ -1253,6 +1259,8 @@ comprobar que su historia sigue consultable.
 ---
 
 ## Phase 24: User Story 22 - US22 · Levantar el acta de una reunión (Priority: P2)
+
+> **Reorientada el 2026-10-28** (RF-067): el acta pertenece a una reunión —prevista o imprevista— o a una actividad programada. T238 ajusta la base antes de T190.
 
 **Goal**: que el secretario escriba el acta de cada reunión y se pueda imprimir, para que el trabajo
 del comité quede digitalizado y no en un cuaderno que se pierde. **Hito 4.**
@@ -1307,6 +1315,8 @@ del comité quede digitalizado y no en un cuaderno que se pierde. **Hito 4.**
 ---
 
 ## Phase 25: User Story 23 - US23 · Respaldar el cumplimiento con evidencias (Priority: P2)
+
+> **Reorientada el 2026-10-28** (RF-075, D-39): un solo soporte vigente por actividad. T229 lo deja así.
 
 **Goal**: adjuntar fotos y documentos a una actividad, para demostrar que se cumplió sin tener que
 explicarlo de palabra. **Hito 4.** Esta fase construye la infraestructura de archivos que US24
@@ -1377,6 +1387,294 @@ se respeta.
 **Checkpoint**: US24 funciona por separado. Cada peso tiene su soporte (CE-15).
 
 ---
+
+## Phase R1: Reorientación — lo construido que cambia (Priority: P1)
+
+**Goal**: dejar la base como la pide el levantamiento del 2026-10-28, antes de construir nada nuevo
+encima: dos niveles, pertenencias, padrón del pastor, BIS, calendario de seis datos, cruce impedido
+y semillas con la estructura real. **Hito 1 y 3, rehechos.**
+
+**Independent Test**: con las semillas nuevas, cada cargo de cada comité entra y ve exactamente lo
+suyo; un miembro de dos comités aparece en los dos; BIS ve a todos los simpatizantes; el calendario
+trae seis datos de lo ajeno; dos actividades generales no se cruzan.
+
+**Orden obligado** (RG-14, RG-16): en cada tarea que toca el filtro, las pruebas de aislamiento se
+rehacen **antes** de tocar el código.
+
+- [ ] T211 [US21] · Dos niveles: migración, modelo y regla de profundidad
+      Archivos: `database/migrations/<ts>_limit_committees_to_two_levels.php` · `app/Models/Committee.php` · `tests/Pest.php` · `tests/Feature/Scope/`
+      D-31. La migración falla con un mensaje claro si queda algún nodo de nivel 3. `Committee` impide colgar un nodo de un sub-comité. `estructuraDePrueba()` deja de crear el equipo de Montaje, y las pruebas que lo usaban se rehacen con un segundo sub-comité.
+      Verifica: `php artisan test` en verde · `--filter=CommitteeDepthTest`: crear un hijo de un sub-comité se rechaza y explica que la estructura llega hasta dos niveles (CL-17).
+
+- [ ] T212 · Semillas con los quince comités del levantamiento y personas ficticias
+      Archivos: `database/seeders/DemoSeeder.php` · `DemoPeopleSeeder.php` · `DemoCalendarSeeder.php` · `DemoApprovalsSeeder.php`
+      S-11. Los quince comités y los seis sub-comités con sus nombres reales; ningún nombre, teléfono ni firma de una persona real (constitución, «Datos y seguridad»). BIS marcado. Cuentas de ejemplo para un presidente, un secretario y un tesorero de varios comités, un líder de sub-comité y uno de BIS.
+      Verifica: `php artisan migrate:fresh --seed` sin errores · revisión a ojo: ningún nombre de los anexos del levantamiento aparece en las semillas.
+
+- [ ] T213 [US10] · Pertenencias: `committee_member` y el filtro de los miembros por pertenencia
+      Archivos: `database/migrations/<ts>_create_committee_member_table.php` · `app/Models/Member.php` · `app/Models/Concerns/BelongsToCommitteeScope.php` · `tests/Architecture/ScopeCoverageTest.php`
+      D-32, RF-014. La migración pasa `members.committee_id` a la tabla nueva y quita la columna. El filtro de `Member` pregunta si tiene una pertenencia dentro del ámbito, en una sola subconsulta. Los totales cuentan personas distintas.
+      Verifica: `php artisan test --filter=MemberScopeTest` — un miembro de dos comités lo ven los dos y nadie más; el pastor ve también a quien no tiene pertenencias (CL-03, CL-27) · `QueryBudgetTest` en verde.
+
+- [ ] T214 [US10] · El padrón del pastor y la lista de cada comité
+      Archivos: `app/Policies/MemberPolicy.php` · `app/Http/Controllers/CommitteeMemberController.php` · `app/Http/Requests/SaveMemberRequest.php` · `resources/js/pages/Members/` · `resources/js/components/members/`
+      D-33, RF-031, RF-084, RF-085. Registrar y corregir fichas es solo del pastor; el formulario pide los comités a los que pertenece la persona, su código lo pone el sistema, gana observaciones y el estado civil «divorciado», y no pide dirección. Los cargos agregan o quitan de su lista, con la función —directiva con su cargo, maestro, auxiliar o integrante—.
+      Verifica: `php artisan test --filter="MemberRegistryTest|CommitteeMemberTest"` — un presidente no corrige una ficha y el sistema le explica por qué (CL-28); sí agrega y quita; quitar cierra la pertenencia, no la borra · a 360 px.
+
+- [ ] T215 [US10] · `Member::forPicker()`: el buscador de nombre y edad
+      Archivos: `app/Models/Member.php` · `app/Http/Controllers/MemberPickerController.php` · `resources/js/components/members/member-picker.tsx`
+      Constitución 3.0.0, principio I, excepción 4. Un solo método con nombre propio, que solo lee y trae el id, el nombre y la edad calculada.
+      Verifica: `php artisan test --filter=MemberPickerTest` — prueba de **lista blanca**: cada resultado trae exactamente `{ id, name, age }`, y un presidente que intenta abrir la ficha de un resultado ajeno recibe «no disponible».
+
+- [ ] T216 [US13] · BIS: la marca, el ámbito sobre los simpatizantes y la asignación
+      Archivos: `database/migrations/<ts>_mark_bis_and_assignments.php` · `app/Models/Sympathizer.php` · `app/Models/Committee.php` · `app/Policies/SympathizerPolicy.php` · `app/Http/Controllers/SympathizerController.php` · `app/Http/Controllers/SympathizerAssignmentController.php`
+      D-34, RF-040, RF-097. `follows_sympathizers` pasa a `receives_sympathizers`. El filtro de `Sympathizer` deja pasar todo a un cargo de BIS; los demás ven lo asignado a su ámbito. Lo que registra un comité queda asignado a él; lo que registra BIS, al comité que escoge, de una lista con id y nombre de los comités activos. Reasignar deja asiento. Reemplaza lo de Evangelismo de T112 y T176.
+      Verifica: `php artisan test --filter="BisScopeTest|SympathizerAssignmentTest"` — BIS ve a todos y ningún miembro ni actividad ajena (excepción 2); un comité ve solo los suyos; la lista de comités trae exactamente `{ id, name }`; un simpatizante cuyo comité se inactiva vuelve a BIS (CL-29).
+
+- [ ] T217 [US13] · La lista que se completa sola y el aviso de duplicado
+      Archivos: `app/Http/Controllers/SympathizerSuggestController.php` · `app/Support/Sympathizers/DuplicateCheck.php` · `resources/js/components/sympathizers/sympathizer-form.tsx`
+      RF-096, CL-09. Las sugerencias salen solo del ámbito; fuera de él, `DuplicateCheck` sigue respondiendo sí o no.
+      Verifica: `php artisan test --filter=SympathizerSuggestTest` — un comité nunca recibe en las sugerencias a un simpatizante de otro; el aviso de duplicado ajeno no trae nombre ni comité.
+
+- [ ] T218 [US09] · El calendario compartido con seis datos, solo del cronograma general
+      Archivos: `app/Models/Activity.php` · `tests/Feature/Schedule/SharedCalendarTest.php`
+      D-36, RF-010. `forSharedCalendar()` deja de seleccionar `description` y toma solo actividades del cronograma general (cuando exista T224, por `schedule.kind`). La ficha de una actividad ajena responde como fuera del ámbito.
+      Verifica: `php artisan test --filter=SharedCalendarTest` — lista blanca de **seis** llaves; el caso de escritura sigue negado.
+
+- [ ] T219 [US05] · Hora de fin y cruce impedido en el cronograma general
+      Archivos: `database/migrations/<ts>_add_ends_at_to_activities.php` · `app/Support/Schedule/ScheduleConflict.php` · `app/Http/Requests/StoreActivityRequest.php` · `app/Support/Approvals/ApprovalFlow.php` · `resources/js/components/activities/proposal-form.tsx`
+      D-37, RF-028. Las actividades que ya existen reciben su hora de inicio más dos horas. El cruce se impide al proponer, al cargar al plan y al aprobar, dentro de un bloqueo.
+      Verifica: `php artisan test --filter=ScheduleConflictTest` — dos actividades generales con horario sobrepuesto el mismo día no se guardan y el mensaje dice cuál y de qué comité; contiguas sí; dos aprobaciones simultáneas no se cruzan (CL-08).
+
+- [ ] T220 · Las cuatro excepciones de la constitución 3.0.0, vigiladas
+      Archivos: `tests/Architecture/NoRawQueriesTest.php` · `tests/Architecture/ScopeExceptionsTest.php`
+      `withoutGlobalScope` solo puede aparecer en los lugares con nombre propio que enumera el principio I: `Activity::forSharedCalendar()`, el filtro de `Sympathizer` y la lista de comités de BIS, `Member::forPicker()`, y las clases de conteo y de sí o no de `app/Support/`. Cualquier otro uso pone la prueba roja.
+      Verifica: `php artisan test tests/Architecture` en verde · un `withoutGlobalScope` agregado a propósito en otro archivo la pone roja.
+
+**Checkpoint**: la base quedó como la pide el levantamiento. Todo lo que sigue se construye encima.
+
+---
+
+## Phase R2: Identidad y cronogramas — HU-25, HU-26, HU-27, HU-30 (Priority: P1)
+
+**Goal**: el nombre y el lema de la sede, la identidad de cada comité, los cronogramas internos con
+sus repeticiones, el calendario del mes, un soporte por actividad, y la impresión y el botón de
+WhatsApp. **Hitos 1 y 2.**
+
+**Independent Test**: registrar el lema del año, dar identidad a un comité, crear dos cronogramas
+internos con una actividad repetida, verlos en el calendario del mes, e imprimir y compartir las
+actividades de un sub-comité.
+
+- [ ] T221 [US25] · El nombre de la sede y el lema del año
+      Archivos: `database/migrations/<ts>_create_site_mottos_table.php` · `app/Models/SiteMotto.php` · `app/Http/Controllers/SiteMottoController.php` · `app/Http/Middleware/HandleInertiaRequests.php` · `resources/js/layouts/auth-layout.tsx` · `resources/js/components/layout/top-bar.tsx`
+      D-43, RF-081, RF-082. `site` viaja en el bloque compartido desde la memoria de la aplicación, que se borra al guardar un lema. Solo el pastor registra el lema.
+      Verifica: `php artisan test --filter=SiteIdentityTest` — la entrada trae el nombre y el lema del año en curso; sin lema, solo el nombre (CL-40); un presidente no puede registrar el lema · el bloque compartido sigue en dos consultas · a 360 px.
+
+- [ ] T222 [US25] · Prueba: los cuatro escenarios de HU-25
+      Archivos: `tests/Feature/Site/SiteMottoTest.php`
+      Verifica: `php artisan test --filter=SiteMottoTest` — un escenario por cada uno de HU-25, incluido el cambio de año.
+
+- [ ] T223 [US26] · La identidad de cada comité
+      Archivos: `database/migrations/<ts>_add_identity_to_committees_table.php` · `app/Http/Controllers/CommitteeIdentityController.php` · `resources/js/pages/Committees/Identity.tsx` · `resources/js/components/committees/committee-badge.tsx`
+      RF-083. Logo, lema y objetivos los registra el presidente. El logo se guarda como los demás archivos, fuera de `public/`. Sin logo, las iniciales en un círculo.
+      Verifica: `php artisan test --filter=CommitteeIdentityTest` — los cinco escenarios de HU-26; en el calendario general un comité ajeno solo recibe el nombre · a 360 px.
+
+- [ ] T224 [US27] · Cronogramas: migración, modelo y filtro
+      Archivos: `database/migrations/<ts>_create_schedules_table.php` · `app/Models/Schedule.php` · `database/migrations/<ts>_add_schedule_to_activities.php`
+      D-35. Cada actividad que ya existe queda en el cronograma general de su año. `ScopeCoverageTest` cubre la tabla nueva.
+      Verifica: `php artisan test --filter=ScheduleModelTest` · `ScopeCoverageTest` en verde · `migrate:fresh --seed` sin errores.
+
+- [ ] T225 [US27] · Pantallas de los cronogramas internos y sus actividades
+      Archivos: `app/Http/Controllers/ScheduleController.php` · `app/Http/Requests/StoreInternalActivityRequest.php` · `resources/js/pages/Schedules/Index.tsx`, `Schedules/Show.tsx` · `lib/navigation.ts`
+      RF-086, RF-087. Sin aprobación (P-03); los gastos sí la piden. Se cruzan sin problema.
+      Verifica: `php artisan test --filter=InternalScheduleTest` — los seis escenarios de HU-27; un cargo ajeno no ve ni que existen · a 360 px · medición de consultas.
+
+- [ ] T226 [US27] · Actividades que se repiten
+      Archivos: `database/migrations/<ts>_create_activity_series_table.php` · `app/Support/Schedule/SeriesDates.php` · `tests/Unit/Schedule/SeriesDatesTest.php`
+      D-38, RF-088. Semanal, quincenal o mensual; sesenta fechas como máximo; cada fecha se mueve o se cancela sola (CL-30).
+      Verifica: `php artisan test --filter=SeriesDatesTest` — el día 31 en los meses cortos, el tope de sesenta y la cancelación de una sola fecha.
+
+- [ ] T227 [US09] · El calendario del mes
+      Archivos: `resources/js/components/schedule/month-calendar.tsx` · `app/Http/Controllers/ActivityController.php`
+      RF-029, HU-09 escenarios 5 y 6. Lo general de todos por la excepción 1; lo interno, solo lo propio.
+      Verifica: `php artisan test --filter=MonthCalendarTest` — un cronograma interno ajeno no aparece · a 360 px el mes se lee sin desplazarse de lado · medición de consultas.
+
+- [ ] T228 [US30] · Imprimir y compartir por WhatsApp
+      Archivos: `app/Http/Controllers/PrintActivitiesController.php` · `resources/js/pages/Print/Activities.tsx` · `resources/js/lib/share.ts` · `tests/js/share.test.ts`
+      D-44, RF-089. Página con estilos de impresión; el botón arma el texto en el celular y abre `wa.me`. El sistema nunca envía nada solo.
+      Verifica: `php artisan test --filter=PrintActivitiesTest` — un líder solo imprime lo de su sub-comité · `npm run test:js` — el texto compartido trae fecha, hora, lugar y responsable de cada actividad.
+
+- [ ] T229 [US23] · Un soporte por actividad
+      Archivos: `app/Http/Controllers/AttachmentController.php` · `app/Support/Attachments/`
+      D-39, RF-075. Subir otro reemplaza el vigente, que se conserva. Se construye junto con T201.
+      Verifica: `php artisan test --filter=ActivitySupportTest` — a lo sumo un soporte vigente; el reemplazado sigue en la historia; un cargo ajeno no lo ve.
+
+**Checkpoint**: cada comité lleva su trabajo de la semana en el sistema, y lo comparte.
+
+---
+
+## Phase R3: Asistencia, orden de culto y cumpleaños — HU-15, HU-28, HU-29 (Priority: P2)
+
+**Goal**: la asistencia a toda actividad, el orden de cada culto y los cumpleaños al entrar.
+**Hitos 3 y 4.**
+
+**Independent Test**: tomar asistencia en un ensayo y en un culto con una excusa y un simpatizante,
+llenar el orden de un culto y dejar otro incompleto, y entrar el día de un cumpleaños.
+
+- [ ] T230 [US15] · Asistencia por actividad: migración, modelo y reglas
+      Archivos: `database/migrations/<ts>_create_attendances_table.php` · `app/Models/Attendance.php`
+      D-40, RF-046, RF-047. Reemplaza a T126. Exactamente una persona por fila; los convocados son los integrantes vigentes del nodo dueño.
+      Verifica: `php artisan test --filter=AttendanceModelTest` · `ScopeCoverageTest` en verde.
+
+- [ ] T231 [US15] · Tomar y corregir la asistencia de una actividad
+      Archivos: `app/Http/Controllers/AttendanceController.php` · `resources/js/pages/Attendance/Edit.tsx`
+      Reemplaza a T127 y T131. Asistió, no asistió o excusado con su excusa; simpatizantes del ámbito; corregir conserva lo anterior (RF-056).
+      Verifica: `php artisan test --filter=AttendanceTest` — los escenarios 1 a 5 de HU-15; una actividad sin asistentes se registra (CL-11) · a 360 px · medición de consultas.
+
+- [ ] T232 [US15] · El porcentaje por persona, con la señal de cuidado
+      Archivos: `app/Support/Attendance/AttendanceRate.php` · `resources/js/pages/Attendance/Index.tsx` · `tests/Unit/Attendance/AttendanceRateTest.php`
+      Reemplaza a T128 y T129. Sobre las actividades a las que fue convocada (RF-048); por debajo del sesenta por ciento, texto de acompañamiento (RF-049).
+      Verifica: `php artisan test --filter=AttendanceRateTest` — el escenario 6 de HU-15, incluida la persona sin convocatorias.
+
+- [ ] T233 [US14] · La asistencia de los simpatizantes cuenta para su compromiso
+      Archivos: `app/Support/Sympathizers/CommitmentLevel.php` · `app/Models/Sympathizer.php`
+      RF-091, RF-043. Las asistencias recientes se cuentan como contactos.
+      Verifica: `php artisan test --filter=CommitmentTest` — un simpatizante que asiste a dos actividades sube de nivel sin que nadie lo escriba.
+
+- [ ] T234 [US28] · El orden de culto
+      Archivos: `database/migrations/<ts>_create_service_orders_tables.php` · `app/Http/Controllers/ServiceOrderController.php` · `resources/js/pages/ServiceOrders/Edit.tsx`
+      D-41, RF-092, RF-094. Las cinco partes de siempre al crearlo; una persona del comité o un nombre escrito a mano; impresión y botón de compartir de T228.
+      Verifica: `php artisan test --filter=ServiceOrderTest` — los escenarios 1, 2, 5 y 6 de HU-28 · a 360 px.
+
+- [ ] T235 [US28] · El pendiente a quince días y el atraso a ocho
+      Archivos: `app/Support/ServiceOrders/ServiceOrderDeadline.php` · `tests/Unit/ServiceOrders/ServiceOrderDeadlineTest.php` · `app/Http/Controllers/DashboardController.php`
+      RF-093, P-04. En la pantalla de inicio de la directiva.
+      Verifica: `php artisan test --filter=ServiceOrderDeadlineTest` — dieciséis días: nada; quince: pendiente; ocho: atrasado (CL-31).
+
+- [ ] T236 [US29] · Los cumpleaños y la alerta al entrar
+      Archivos: `app/Support/People/Birthdays.php` · `tests/Unit/People/BirthdaysTest.php` · `resources/js/components/dashboard/birthday-alert.tsx`
+      D-42, RF-095. Propiedad diferida de la pantalla de inicio; se puede cerrar.
+      Verifica: `php artisan test --filter=BirthdaysTest` — hoy y los próximos siete días; el 29 de febrero en un año no bisiesto (CL-32); nadie fuera del ámbito · a 360 px.
+
+- [ ] T237 [US29] · La lista de cumpleaños por mes
+      Archivos: `app/Http/Controllers/BirthdayController.php` · `resources/js/pages/Birthdays/Index.tsx`
+      HU-29 escenarios 3 a 5. Miembros, simpatizantes y niños del ámbito, con su fecha y su código; cuántos no tienen fecha.
+      Verifica: `php artisan test --filter=BirthdayListTest` · a 360 px · medición de consultas.
+
+- [ ] T238 [US22] · El acta sobre una actividad o una reunión imprevista
+      Archivos: `database/migrations/<ts>_create_minutes_table.php` · `app/Models/Minute.php`
+      RF-067. Ajusta la base de la fase 24 antes de T190.
+      Verifica: `php artisan test --filter=MinuteOriginTest` — un acta sobre una actividad programada y otra sobre una reunión imprevista heredan fecha, lugar y asistentes.
+
+**Checkpoint**: asistencia, orden de culto y cumpleaños funcionan para todos los comités.
+
+---
+
+## Phase R4: Escuela Dominical — HU-34 a HU-37 (Priority: P2)
+
+**Goal**: grupos de niños, inscripción, autorizaciones firmadas, clases, visitas y estadísticas.
+**Hito 5.** Antes de empezar: DEP-09, DEP-10 y DEP-12.
+
+**Independent Test**: inscribir niños de varias edades, hacer firmar sus autorizaciones, armar el
+semestre de un grupo, tomar asistencia, registrar una visita y abrir las estadísticas, y comprobar
+que ningún otro comité ve nada.
+
+- [ ] T239 [US34] · Los grupos por edad, con su maestro y su auxiliar
+      Archivos: `database/migrations/<ts>_create_class_groups_table.php` · `app/Models/ClassGroup.php` · `app/Http/Controllers/ClassGroupController.php` · `resources/js/pages/SundaySchool/Groups.tsx`
+      RF-105, RF-106. La semilla crea los cinco grupos. Advierte rangos que se pisan o edades sin grupo.
+      Verifica: `php artisan test --filter=ClassGroupTest` — los cinco escenarios de HU-34, incluido CL-35 · a 360 px.
+
+- [ ] T240 [US35] · La ficha del niño, con los datos de salud protegidos
+      Archivos: `database/migrations/<ts>_create_children_table.php` · `app/Models/Child.php` · `app/Policies/ChildPolicy.php` · `app/Http/Controllers/ChildController.php` · `resources/js/pages/SundaySchool/Children.tsx` · `resources/js/components/sunday-school/`
+      RF-107, constitución 3.0.0 («Datos y seguridad»). El formulario de inscripción por secciones; aviso de niño ya inscrito.
+      Verifica: `php artisan test --filter=ChildTest` — escenarios 1, 4 y 6 de HU-35; los datos de salud no viajan a quien la policy no autoriza · a 360 px · medición de consultas.
+
+- [ ] T241 [US35] · El grupo se calcula de la fecha de nacimiento
+      Archivos: `app/Support/SundaySchool/ClassGroupFor.php` · `tests/Unit/SundaySchool/ClassGroupForTest.php`
+      RF-108, D-46. Cambia solo el día que cumple la edad; a los dieciocho sale de los grupos.
+      Verifica: `php artisan test --filter=ClassGroupForTest` — el día antes y el día del cumpleaños; el que cumple dieciocho (CL-33, CL-34).
+
+- [ ] T242 [US36] · El lienzo de firma
+      Archivos: `resources/js/components/signature-pad.tsx` · `resources/js/lib/signature.ts` · `tests/js/signature.test.ts`
+      D-45. Con el dedo o el mouse; borrar y volver a firmar; una firma vacía no se acepta.
+      Verifica: `npm run test:js` — una firma sin trazos se rechaza · a 360 px el lienzo usa todo el ancho y los botones miden 48 px.
+
+- [ ] T243 [US36] · Las dos autorizaciones de los padres
+      Archivos: `database/migrations/<ts>_create_child_consents_table.php` · `app/Models/ChildConsent.php` · `app/Http/Controllers/ChildConsentController.php` · `resources/js/pages/SundaySchool/Consent.tsx` · `resources/js/pages/Print/Consent.tsx`
+      RF-109. El texto oficial vive en un solo lugar (DEP-09, RG-19). Inmutables al guardarse; la vigente es la más reciente; foto del papel firmado cuando no se puede firmar en la pantalla (CL-36).
+      Verifica: `php artisan test --filter=ChildConsentTest` — los escenarios 1 a 5 de HU-36; modificar una firmada se rechaza.
+
+- [ ] T244 [US35] · Ninguna foto de un niño sin su autorización de imagen
+      Archivos: `app/Support/Attachments/` · `app/Http/Controllers/AttachmentController.php`
+      RF-110, RN-13, CL-37.
+      Verifica: `php artisan test --filter=ChildPhotoTest` — sin autorización de imagen vigente, la foto se rechaza con una frase que explica por qué.
+
+- [ ] T245 [US37] · El cronograma de clases de cada grupo
+      Archivos: `database/migrations/<ts>_create_class_sessions_table.php` · `app/Http/Controllers/ClassSessionController.php` · `resources/js/pages/SundaySchool/Classes.tsx`
+      RF-111. Fecha del cuaderno, fecha de la clase, tema, maestro, auxiliar y aseo; días sin clase con su motivo; filtros por grupo, mes y maestro.
+      Verifica: `php artisan test --filter=ClassSessionTest` — escenarios 1 a 3 de HU-37 · a 360 px.
+
+- [ ] T246 [US37] · La asistencia a las clases y su informe del mes
+      Archivos: `app/Http/Controllers/ClassAttendanceController.php` · `resources/js/pages/SundaySchool/Attendance.tsx`
+      RF-112. Sobre `attendances` con `child_id`; los días sin clase no cuentan.
+      Verifica: `php artisan test --filter=ClassAttendanceTest` — escenario 4 de HU-37.
+
+- [ ] T247 [US37] · Las visitas a maestros y a niños
+      Archivos: `database/migrations/<ts>_create_sunday_school_visits_table.php` · `app/Http/Controllers/SundaySchoolVisitController.php` · `resources/js/pages/SundaySchool/Visits.tsx`
+      RF-113.
+      Verifica: `php artisan test --filter=SundaySchoolVisitTest` — escenario 5 de HU-37.
+
+- [ ] T248 [US37] · Las estadísticas de los niños
+      Archivos: `app/Support/SundaySchool/ChildrenStats.php` · `tests/Unit/SundaySchool/ChildrenStatsTest.php` · `resources/js/pages/SundaySchool/Stats.tsx`
+      RF-114. Con su tabla equivalente (RF-037).
+      Verifica: `php artisan test --filter=ChildrenStatsTest` — por grupo, género y edad, y los que no tienen autorizaciones; un grupo vacío da cero (CL-12).
+
+- [ ] T249 [US34] [US35] [US36] [US37] · Prueba de aislamiento de cada pantalla de la Escuela Dominical
+      Archivos: `tests/Feature/SundaySchool/SundaySchoolScopeTest.php`
+      RG-17. Puerta 3 para cada ruta de la fase.
+      Verifica: `php artisan test --filter=SundaySchoolScopeTest` — un cargo de otro comité no ve ni abre nada de la Escuela Dominical, ni por su número.
+
+**Checkpoint**: la Escuela Dominical deja sus carpetas y sus planillas.
+
+---
+
+## Phase R5: Obra Social y Alabanza — HU-31, HU-32, HU-33 (Priority: P2)
+
+**Goal**: las ayudas y el fondo propio de Obra Social, y quién toca y quién canta en Alabanza.
+**Hito 6.**
+
+**Independent Test**: registrar ayudas y aportes de dos meses, abrir el informe y el fondo, armar el
+formato de Alabanza de un culto, y comprobar que ningún otro comité ve nada.
+
+- [ ] T250 [US31] · Los beneficiarios y las ayudas entregadas
+      Archivos: `database/migrations/<ts>_create_social_work_tables.php` · `app/Models/Beneficiary.php`, `AidDelivery.php` · `app/Http/Controllers/AidDeliveryController.php` · `resources/js/pages/SocialWork/`
+      RF-098, RF-099. La lista de beneficiarios no lee el padrón; un beneficiario nuevo se agrega en el mismo paso (CL-38); foto opcional.
+      Verifica: `php artisan test --filter=AidDeliveryTest` — escenarios 1, 2 y 5 de HU-31 · a 360 px.
+
+- [ ] T251 [US31] · El informe mensual y la lista de mercados del mes
+      Archivos: `app/Support/SocialWork/MonthlyAidReport.php` · `tests/Unit/SocialWork/MonthlyAidReportTest.php`
+      RF-100. Gráfico con su tabla equivalente.
+      Verifica: `php artisan test --filter=MonthlyAidReportTest` — escenarios 3 y 4 de HU-31; un mes sin ayudas da cero.
+
+- [ ] T252 [US32] · El fondo propio: aportes, salidas y saldo
+      Archivos: `database/migrations/<ts>_create_fund_movements_table.php` · `app/Models/FundMovement.php` · `app/Http/Controllers/FundController.php` · `app/Support/SocialWork/FundBalance.php`
+      RF-101, RN-14. Independiente del presupuesto general; saldo negativo advertido (CL-39); corregir conserva lo anterior.
+      Verifica: `php artisan test --filter="FundTest|FundBalanceTest"` — los cinco escenarios de HU-32; el presupuesto general del comité no cambia.
+
+- [ ] T253 [US33] · Las funciones de Alabanza y su formato por actividad
+      Archivos: `database/migrations/<ts>_create_worship_tables.php` · `app/Http/Controllers/WorshipAssignmentController.php` · `resources/js/pages/Worship/Edit.tsx`
+      RF-103, RF-104. Piano, batería, voces principales y de apoyo, y las que se agreguen; la doble función se advierte (CL-41); se comparte con T228.
+      Verifica: `php artisan test --filter=WorshipTest` — los cinco escenarios de HU-33 · a 360 px.
+
+- [ ] T254 [US31] [US32] [US33] · Prueba de aislamiento de Obra Social y Alabanza
+      Archivos: `tests/Feature/SocialWork/SocialWorkScopeTest.php` · `tests/Feature/Worship/WorshipScopeTest.php`
+      Puerta 3 para cada ruta de la fase.
+      Verifica: `php artisan test --filter="SocialWorkScopeTest|WorshipScopeTest"` — un cargo de otro comité no ve ni abre nada, ni por su número.
+
+**Checkpoint**: los tres comités con módulo propio trabajan en el sistema.
+
+---
+
 
 ## Phase 27: Polish & Cross-Cutting Concerns
 
@@ -1494,6 +1792,7 @@ cierre de cada hito se ejecutan al terminar las fases de ese hito, no todas al f
       Archivos: `docs/capacitacion.md`
       Incluye decirle al pastor, con esas palabras, que los avisos viven dentro del sistema y no llegan por WhatsApp ni por correo (S-01), para que no lo espere.
       Verifica: cada una entra, cambia su clave, y resuelve o envía una solicitud de prueba. Base del CE-01.
+      **Desde el 2026-10-28** la sede tiene quince comités y seis sub-comités: la cantidad de personas por capacitar sale de DEP-05.
 
 - [ ] T161 · Acta de entrega
       Archivos: `docs/acta-entrega.md`
@@ -1609,6 +1908,21 @@ Task: "T046 Aplicación instalable en vite.config.ts y public/manifest.webmanife
 
 Cada hito termina **funcionando de punta a punta en el celular**, desplegado y probado — no a
 medias.
+
+### Los siete hitos desde el 2026-10-28
+
+La enmienda 3.0.0 pasó la entrega a siete hitos, con fechas que acuerda el autor con la
+congregación. Las fases ya cumplidas siguen contando en el hito que tenían.
+
+| Hito | Fases | Qué se puede mostrar al pastor |
+|---|---|---|
+| **1 · Cimiento** | 1 a 7, R1 (T211, T212, T220), R2 (T221 a T223) | Cada cargo entra con el nombre y el lema de la sede y ve exactamente lo suyo |
+| **2 · Decidir y programar** | 8 a 13, R1 (T218, T219), R2 (T224 a T229) | El cronograma general sin cruces, compartido en el calendario, y los internos de cada comité |
+| **3 · La gente** | 14 a 18, 21, R1 (T213 a T217), R3 (T233, T236, T237) | El padrón del pastor, las listas de cada comité, BIS y los cumpleaños |
+| **4 · El trabajo del comité** | 19, 20, 22, 24 a 26, R3 (T230 a T232, T234, T235, T238) | Asistencia, orden de culto, actas, soportes y presupuesto |
+| **5 · Escuela Dominical** | R4 | Grupos, niños, autorizaciones firmadas, clases y visitas |
+| **6 · Obra Social y Alabanza** | R5 | Ayudas, fondo propio y el formato de Alabanza |
+| **7 · Entrega** | 23, 27 | Carga inicial, pruebas finales, capacitación y puesta en funcionamiento |
 
 ### Si el tiempo aprieta
 
@@ -1764,6 +2078,25 @@ Los dieciocho de la ampliación del 2026-10-24:
 - Evitar: tareas vagas, conflictos en el mismo archivo, y dependencias cruzadas que rompan la
   independencia de las historias.
 
+### Cobertura del levantamiento del 2026-10-28
+
+| Requisitos | Tareas |
+|---|---|
+| RF-009, RF-010, RF-028, RF-029 | T218, T219, T227 |
+| RF-011, RF-013, RF-063, RF-064 | T211, T182, T183 |
+| RF-014, RF-031, RF-036, RF-084, RF-085 | T213, T214, T215 |
+| RF-019, RF-040, RF-043, RF-091, RF-096, RF-097 | T216, T217, T233 |
+| RF-046, RF-047 | T230 a T232 |
+| RF-067 | T238 |
+| RF-075 | T229 |
+| RF-081 a RF-083 | T221 a T223 |
+| RF-086 a RF-090 | T224 a T228 |
+| RF-092 a RF-095 | T234 a T237 |
+| RF-098 a RF-104 | T250 a T254 |
+| RF-105 a RF-114 | T239 a T249 |
+| CL-27 a CL-41 | en el «Verifica» de cada tarea de las fases R1 a R5 |
+| La constitución 3.0.0, principio I, cuatro excepciones | T215, T216, T217, T218, T220 |
+
 ### Lo que este documento deja pendiente de confirmar
 
 1. **S-02, importación de miembros (Phase 21).** No está listada en la Cláusula Segunda del
@@ -1786,3 +2119,18 @@ Los dieciocho de la ampliación del 2026-10-24:
    entrega la congregación. La decisión jurídica sobre el tratamiento de datos es del cliente.
 6. **A-08, versiones exactas de las tres dependencias (T003).** Confirmar la compatibilidad con
    Laravel 12 contra Packagist al instalar, y anotar el número resuelto en `research.md`.
+7. **P-01 a P-08 del spec (2026-10-28).**
+   - Dirección de simpatizantes y niños.
+   - Qué es un cruce.
+   - Actividades internas sin aprobación.
+   - Los plazos del orden de culto.
+   - Los grupos del portafolio que no están en la lista.
+   - Si los maestros entran al sistema.
+   - Las ofrendas.
+   - Los vocales.
+
+   Rige lo que dice cada uno mientras la congregación no responda. Los que tocan una fase se
+   confirman antes de empezarla: P-01 y P-06 antes de R4, P-03 antes de T225, y P-04 antes de T235.
+8. **DEP-09 a DEP-12, antes de R2 y R4.** Los formularios oficiales de la Escuela Dominical, el
+   nombre del grupo de 0 a 2 años, el lema y la identidad de cada comité, y si la firma en la
+   pantalla le basta a la congregación.

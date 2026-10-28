@@ -250,6 +250,41 @@ del esquema.
 quedan fijos y la calidad no se negocia, lo que cede es la promesa de que cada hito cierre de punta
 a punta.
 
+### Lo que cambia con el levantamiento del 2026-10-28
+
+La enmienda 3.0.0 incorporó el levantamiento de la sede La Esmeralda completo
+(`levantamiento-la-esmeralda.md`). Esta vez **las fechas se corren**: el autor lo decidió así, y la
+entrega pasa a siete hitos con fechas por acordar. Las decisiones están en `spec.md` →
+`## Clarifications` → Session 2026-10-28, y su traducción técnica en D-31 a D-46.
+
+**Lo ya construido que se rehace**, en este orden, porque cada paso se apoya en el anterior:
+
+| Qué | Por qué | Decisión |
+|---|---|---|
+| La estructura, de tres niveles a dos | Lo dice el levantamiento | D-31 |
+| La pertenencia del miembro, de una columna a una tabla | Un miembro puede estar en varios comités | D-32 |
+| El padrón, solo del pastor | Un comité escoge, no corrige | D-33 |
+| El seguimiento de simpatizantes, de Evangelismo a BIS | BIS los recibe a todos y los reparte | D-34 |
+| El calendario compartido, de siete datos a seis | La descripción deja de viajar | D-36 |
+| El cruce de fechas, de aviso a impedimento, con hora de fin | Las actividades generales no se cruzan | D-37 |
+| Las semillas, con los quince comités reales y personas ficticias | Las pruebas a mano deben parecerse a la sede | S-11 |
+
+**Lo nuevo** se arma sobre esa base:
+
+- cronogramas internos y repeticiones (D-35, D-38);
+- un soporte por actividad (D-39);
+- asistencia por actividad (D-40);
+- orden de culto (D-41);
+- cumpleaños (D-42);
+- identidad de la sede y de cada comité (D-43);
+- imprimir y compartir (D-44);
+- la firma de los padres (D-45);
+- y los módulos de Escuela Dominical, Obra Social y Alabanza (D-46).
+
+**Lo que NO cambia:** los dos principios NO NEGOCIABLES; el techo de cinco consultas por pantalla;
+las migraciones como única fuente de verdad. Y no entra **ninguna dependencia nueva**: la firma, la
+impresión y el botón de WhatsApp se hacen con lo que ya traen el navegador, Laravel y React.
+
 ## Project Structure
 
 ### Documentation (this feature)
@@ -439,7 +474,7 @@ el controlador, porque ejercitan ruta, autorización y filtro juntos.
 
 ## Registro de decisiones
 
-Las quince decisiones de arquitectura de este plan, con lo que se descartó en cada una. Se citan
+Las decisiones de arquitectura de este plan, con lo que se descartó en cada una. Se citan
 por su identificador en `tasks.md`, `data-model.md`, `research.md` y los contratos, así que viven
 aquí y no en el documento de entrada. Tres familias de identificadores conviven en los artefactos
 y cada una tiene prefijo propio, para que ninguna cita quede ambigua: **RG-xx** son los riesgos de
@@ -477,9 +512,25 @@ los **R-xx**, que son las decisiones de investigación de [research.md](./resear
 | D-25 | Las clases de actividad viven en una tabla que administra el pastor | Lo pidió el autor el 2026-10-26: eran una lista fija en la columna `type`, y agregar una clase exigía programar. Ahora están en `activity_types`, por sede, y el pastor las agrega, les cambia el nombre o las desactiva desde `/activity-types`. Ninguna se borra, porque las actividades que la tienen son historia. Cada sede nace con las ocho de siempre. El formulario de propuesta solo ofrece y acepta las activas. |
 | D-26 | En el celular el menú de abajo lleva tres secciones | A 360 px y con la palabra completa a 18 px no caben cuatro: «Cronograma» no cabe. Abajo van Inicio, Cronograma y lo más usado del cargo —la bandeja para quien decide, los comités para los demás—; lo que no cabe queda en los atajos del inicio, y al costado del escritorio va todo. Las secciones salen de `lib/navigation.ts`. |
 | D-27 | El plan del año se carga con el mismo formulario de la propuesta | HU-08 parte de «los comités cargaron sus actividades», pero ninguna tarea decía cómo. `/activities/create?plan=2027` usa el mismo formulario y lo envía a `/annual-plan/2027/activities`: la actividad queda en el plan, sin solicitud, hasta que el pastor apruebe el plan completo. Se puede cargar al plan de este año o del siguiente, mientras no esté aprobado. |
-| D-28 | El comité que acompaña a los simpatizantes se marca, no se busca por el nombre | RF-040 nombra al Comité de Evangelismo, pero buscarlo por el nombre se rompería el día que lo renombren. `committees.follows_sympathizers` lo marca; `SympathizerPolicy::follow` deja entrar solo al pastor y a quien preside ese comité con cargo activo. Ni su secretario, ni los líderes de sus sub-comités, ni quien registró a la persona (R-06). Mientras no exista el formulario de la estructura (T182), lo marca la semilla. |
-| D-29 | Tres consultas miran fuera del ámbito sin traer datos ajenos — **pendiente de la decisión del autor** | La constitución enumera una sola salida del filtro: el cronograma. Pero el spec pide tres cosas que no se pueden hacer sin mirar afuera: cuántos miembros no le corresponden al cargo (RF-009, `HiddenCounts`, como ya lo hacía con los comités), el aviso de que la persona ya está registrada (CL-09, `DuplicateCheck`, que solo responde sí o no) y a qué comité va el simpatizante que registra cualquier cargo (HU-13, `Committee::followingSympathizers()`, que trae el número y el nombre del comité). Ninguna devuelve un dato de una persona ajena, y las tres viven en un método con nombre propio, nunca en un controlador (`NoRawQueriesTest`). Se propone una enmienda del principio I que las enumere, con su prueba; sin esa aprobación, esto no se mezcla a `main`. |
+| D-28 | El comité que acompaña a los simpatizantes se marca, no se busca por el nombre | RF-040 nombra al Comité de Evangelismo, pero buscarlo por el nombre se rompería el día que lo renombren. `committees.follows_sympathizers` lo marca; `SympathizerPolicy::follow` deja entrar solo al pastor y a quien preside ese comité con cargo activo. Ni su secretario, ni los líderes de sus sub-comités, ni quien registró a la persona (R-06). Mientras no exista el formulario de la estructura (T182), lo marca la semilla. **Reemplazada por D-34 el 2026-10-28**: quien recibe a los simpatizantes es BIS. |
+| D-29 | Tres consultas miran fuera del ámbito sin traer datos ajenos — **resuelta por la enmienda 3.0.0** | La constitución enumera una sola salida del filtro: el cronograma. Pero el spec pide tres cosas que no se pueden hacer sin mirar afuera: cuántos miembros no le corresponden al cargo (RF-009, `HiddenCounts`, como ya lo hacía con los comités), el aviso de que la persona ya está registrada (CL-09, `DuplicateCheck`, que solo responde sí o no) y a qué comité va el simpatizante que registra cualquier cargo (HU-13, `Committee::followingSympathizers()`, que trae el número y el nombre del comité). Ninguna devuelve un dato de una persona ajena, y las tres viven en un método con nombre propio, nunca en un controlador (`NoRawQueriesTest`). La enmienda 3.0.0 del 2026-10-28 las enumeró en el principio I: los conteos y el aviso de duplicado son la excepción 3, y la lista de comités que BIS ve para asignar entra en la excepción 2 (D-34). |
 | D-30 | La búsqueda de miembros corre en el teléfono | La lista ya llega filtrada por el ámbito y por los filtros del servidor. Buscar por nombre o barrio sobre ella responde al instante y sin señal (`memberMatches`, sobre `lib/search.ts`, que ignora mayúsculas y tildes). La intercalación `utf8mb4_unicode_ci` de `name` y `neighborhood` deja bien el orden alfabético con tildes y eñes. |
+| D-31 | La estructura baja a dos niveles | El levantamiento lo dice: los sub-comités no tienen más grupos. `committees.depth` acepta 1 y 2, y la regla del modelo que impedía colgar de un equipo pasa a impedir colgar de un sub-comité. `SubtreeResolver` no cambia: el sub-árbol de dos niveles es un caso del de tres. Antes de restringir, una migración comprueba que no quede ningún nodo de nivel 3. Las semillas y las pruebas que usan un equipo se rehacen. |
+| D-32 | La pertenencia a varios comités vive en una tabla aparte | `committee_member` (miembro, comité, función en la lista —directiva con su cargo, maestro, auxiliar o integrante— y desde cuándo). `members.committee_id` desaparece: una migración pasa su valor a la tabla nueva. El filtro de alcance de `Member` deja de comparar una columna y pregunta si el miembro tiene al menos una pertenencia dentro del ámbito, en el mismo rasgo centralizado y con una sola subconsulta. Así un miembro de dos comités aparece en los dos y en ningún otro, como pide el principio I. Los totales de la congregación cuentan personas distintas. |
+| D-33 | El padrón lo lleva el pastor; los comités escogen con `Member::forPicker()` | `MemberPolicy::create` y `update` pasan a ser solo del pastor; los cargos agregan y quitan de su lista. El buscador es la excepción 4 del principio I: un método con nombre propio que trae el id, el nombre y la edad calculada, y nada más, con su prueba de lista blanca. Se descartó que cada comité creara fichas: el levantamiento lo prohíbe y duplicaría personas. |
+| D-34 | BIS se marca en el comité y su ámbito sobre los simpatizantes es la sede | Reemplaza a D-28. `committees.follows_sympathizers` pasa a `receives_sympathizers`. El filtro de alcance de `Sympathizer` deja pasar todo a un cargo de BIS, y a los demás solo lo asignado a su ámbito: `sympathizers.committee_id` es el comité asignado. La lista de comités para asignar sale de un método con nombre propio que trae id y nombre de los comités activos. Cada reasignación deja su asiento en `sympathizer_assignments`. `DuplicateCheck` sigue respondiendo sí o no, y la lista que se completa mientras se escribe es un buscador dentro del ámbito. |
+| D-35 | El cronograma general por año y los internos por comité, en una sola tabla | `schedules`: sede, comité (nulo para el general), año, clase —general o interno—, nombre y periodo. `activities.schedule_id`. El plan anual que ya existe es el cronograma general de su año. `forSharedCalendar()` filtra la clase general, así que lo interno nunca entra en la excepción. Una sola tabla de actividades para las dos clases evita duplicar asistencia, soporte, acta y tareas. |
+| D-36 | El calendario compartido entrega seis datos | `forSharedCalendar()` deja de seleccionar `description`, y la prueba de lista blanca pasa a seis llaves. El detalle de una actividad ajena responde como cualquier registro fuera del ámbito. La vista de mes del calendario usa la misma excepción, sin consultas nuevas. |
+| D-37 | El cruce del cronograma general se impide, con hora de fin | `activities.ends_at`, obligatoria; las actividades existentes reciben en la migración su hora de inicio más dos horas. `ScheduleConflict` deja de advertir y pasa a impedir, solo entre actividades generales vigentes. Vale al proponer, al cargar al plan y al aprobar, dentro de un bloqueo para que dos aprobaciones simultáneas no se crucen. Mira el cronograma de los otros comités a través de `forSharedCalendar()`, que ya ve fecha y hora de todo el cronograma general, sin abrir una consulta nueva. |
+| D-38 | Las repeticiones son actividades sueltas atadas a una serie | `activity_series`: frecuencia —semanal, quincenal o mensual—, desde y hasta. Al crear la serie se generan sus fechas como actividades con `series_id`, y cada una se mueve o se cancela sola. Se descartó calcular las fechas al vuelo: complicaba la asistencia y el acta de una fecha concreta. Tope de sesenta fechas por serie, para que nadie cree mil por error. |
+| D-39 | Un soporte vigente por actividad | `attachments` no cambia: una actividad tiene a lo sumo uno sin `replaced_at`. Subir otro reemplaza el vigente, que se conserva (RF-079). |
+| D-40 | La asistencia se toma por actividad | `attendances`: actividad, persona —con tres llaves que admiten nulo, a miembro, simpatizante o niño, y exactamente una llena—, estado —asistió, no asistió o excusado—, excusa y quién la tomó. Reemplaza la tabla de reuniones del plan original: una reunión es una actividad de un cronograma interno. Los porcentajes se calculan sobre las actividades a las que la persona fue convocada. Corregir deja asiento (RF-056). |
+| D-41 | El orden de culto | `service_orders` (actividad, completado el) y `service_order_parts` (posición, nombre de la parte, miembro o nombre escrito a mano). Las cinco partes de siempre se crean con el orden. Es culto la actividad general de la clase «Culto» (D-25). El pendiente de los quince días y el atraso de los ocho se calculan en `Support/ServiceOrders/ServiceOrderDeadline`, un solo lugar. |
+| D-42 | Los cumpleaños se calculan, no se guardan | `Support/People/Birthdays` toma las fechas de nacimiento de los miembros, simpatizantes y niños del ámbito, y devuelve los de hoy y los de los próximos siete días, incluido el caso del 29 de febrero. La alerta sale en la pantalla de inicio como propiedad diferida, para no sumar consultas a la carga. |
+| D-43 | La identidad de la sede y la de cada comité son datos | El nombre del sistema es `sites.name`. El lema va en `site_mottos`: año, texto, cita y quién lo registró. Cada comité gana `logo_path`, `motto` y `objectives`; el logo se guarda como los demás archivos, fuera de `public/`. La barra y la entrada leen la sede y el lema del año en las propiedades compartidas, que siguen dentro de su techo de consultas. |
+| D-44 | Imprimir y compartir sin dependencias | Las vistas de impresión son páginas con estilos de impresión, como el acta. Compartir por WhatsApp es un enlace `https://wa.me/?text=` con el resumen armado en el celular (`lib/share.ts`): no hay API ni envío automático. |
+| D-45 | La firma se dibuja en un lienzo, sin dependencia | `components/signature-pad.tsx`, con eventos de puntero sobre un `canvas`. La firma viaja como imagen y se guarda como archivo de la autorización (`child_consents`), que el modelo vuelve inmutable, como las actas. Se descartó un paquete de firma: son unas sesenta líneas, y no hay otro caso que lo use. |
+| D-46 | Escuela Dominical, Obra Social y Alabanza llevan tablas propias, con el filtro de comité | **Escuela Dominical:** `class_groups`, `children`, `child_consents`, `class_sessions` y `sunday_school_visits`. El grupo de un niño **no se guarda**: `Support/SundaySchool/ClassGroupFor` lo calcula de su fecha de nacimiento y los rangos vigentes, y por eso cambia solo el día que cumple la edad (RF-108). Los datos de salud van en columnas que solo selecciona lo que autoriza la policy de la Escuela Dominical. **Obra Social:** `beneficiaries`, `aid_deliveries` y `fund_movements`, con las entradas y salidas del fondo propio. **Alabanza:** `worship_roles` y `worship_assignments`. Todas llevan `site_id` y `committee_id`, entran en `ScopeCoverageTest`, y ninguna se lee fuera de su comité. |
 
 ## Registro de riesgos
 
@@ -506,6 +557,11 @@ este plan justifica.
 | RG-12 | El disco de 2 TB se llena con fotos y facturas | Medio. Bloquearía subir evidencias y, si el respaldo comparte disco, también el respaldo. | Límite de 10 MB por archivo y compresión de imágenes al recibirlas (RF-076, RF-077). Medición del espacio usado al cerrar cada hito, y aviso en lenguaje claro a quien sube y al pastor cuando el disco se acerque al límite (CL-24) |
 | RG-13 | El respaldo diario no incluye los archivos | **Alto.** Una falla de disco perdería las evidencias y los soportes de factura aunque la base de datos se recupere. | DEP-07: ampliar el respaldo antes de que el módulo de archivos entre en producción. Hasta que eso esté hecho, el módulo no se despliega |
 | RG-14 | Reescribir el filtro de alcance a tres niveles introduce una fuga | **Crítico.** Toca el principio no negociable I, que es lo primero que el cliente comprueba. | Las pruebas de aislamiento se rehacen **antes** de tocar `CurrentScope`, no después, y suman los casos nuevos: un líder de equipo que no ve a su sub-comité hermano, y un presidente que sí ve a sus nietos. `ScopeCoverageTest` cubre las tres tablas nuevas automáticamente |
+| RG-15 | El alcance casi se duplica con el levantamiento | **Crítico.** Trece historias y treinta y cuatro requisitos nuevos, más lo construido que se rehace. | Decisión del autor el 2026-10-28: todo entra y las fechas se corren (constitución 3.0.0, «Entrega»). Siete hitos con fechas acordadas con la congregación; la base rehecha (fase R1 de `tasks.md`) va primero, porque todo lo nuevo se apoya en ella. |
+| RG-16 | Rehacer el filtro de los miembros para la pertenencia a varios comités introduce una fuga | **Crítico.** Toca el principio no negociable I. | Igual que RG-14: las pruebas de aislamiento de miembros se rehacen **antes** de tocar el rasgo, y suman los casos nuevos: un miembro de dos comités lo ven los dos y nadie más, y el buscador trae solo nombre y edad. |
+| RG-17 | Los datos de los niños se exponen | **Crítico.** Son datos de menores, con salud, protegidos por la Ley 1581 de 2012. | Constitución 3.0.0, «Datos y seguridad»: salud solo para la Escuela Dominical y el pastor; ninguna foto sin autorización de imagen firmada (RF-110); pruebas de aislamiento propias para cada pantalla de la Escuela Dominical. |
+| RG-18 | La firma en la pantalla no le sirve a la congregación como constancia | Medio. Habría que volver al papel. | DEP-12: se confirma antes de construir HU-36. La subida de la foto del formato firmado en papel (RF-109) cubre el caso mientras tanto. |
+| RG-19 | El texto de los formularios oficiales de la Escuela Dominical no se puede usar o cambia | Medio. La vista de impresión saldría distinta al formato. | DEP-09: la Escuela Dominical entrega el texto vigente y confirma el permiso. El texto vive en un solo lugar, para cambiarlo sin tocar pantallas. |
 
 La mitigación de RG-04 la enmendó la Política de alcance de [tasks.md](./tasks.md): el alcance no
 se recorta, se mueve la fecha con acuerdo escrito previo.

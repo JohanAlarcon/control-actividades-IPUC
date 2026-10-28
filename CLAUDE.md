@@ -5,14 +5,18 @@ aquí **no sustituye** a `.specify/memory/constitution.md`: la resume para tener
 las reglas de trabajo del día a día. Si algo de aquí contradice la constitución, manda la
 constitución.
 
-Constitución vigente: **2.3.2** (ratificada 2026-10-14; enmendada 2026-10-18, 2026-10-24, 2026-10-26).
+Constitución vigente: **3.0.0** (ratificada 2026-10-14; enmendada 2026-10-18, 2026-10-24, 2026-10-26,
+2026-10-28). La 3.0.0 incorporó el levantamiento de la sede La Esmeralda: dos niveles de comités,
+miembros en varios comités, BIS, cronogramas internos y los módulos de Escuela Dominical, Obra
+Social y Alabanza.
 
 ---
 
 ## Los cinco principios, en una línea cada uno
 
 1. **La privacidad entre comités es ley (NO NEGOCIABLE).** Cada cargo ve solo su nodo y sus
-   descendientes; el filtro se aplica siempre en el servidor y ninguna consulta lo saltea.
+   descendientes; el filtro se aplica siempre en el servidor y ninguna consulta lo saltea, salvo
+   las cuatro excepciones que enumera la constitución.
 2. **Primero el celular.** Toda pantalla se diseña y se prueba primero a 360 px de ancho.
 3. **Toda decisión deja rastro.** Aprobaciones, rechazos, cambios de estado y movimientos de
    presupuesto quedan registrados y son inmutables.
@@ -95,14 +99,23 @@ sobre papel blanco— y confirmar que la IPUC nacional autoriza usar el logo en 
   filtro de alcance sin que nadie se entere. `NoRawQueriesTest` lo verifica.
 - **Nada de Livewire ni Filament.** El stack es Laravel + Inertia + React.
 - **La base de datos no se modifica a mano.** Las migraciones son la única fuente de verdad.
-- **Ninguna salida del filtro de alcance** salvo la única que enumera la constitución: el
-  cronograma compartido, por `Activity::forSharedCalendar()`, de solo lectura y con los siete datos
-  permitidos. Cualquier otra es un defecto.
+- **Ninguna salida del filtro de alcance** salvo las cuatro que enumera la constitución 3.0.0, cada
+  una de solo lectura, en un lugar con nombre propio y con su prueba de lista blanca:
+  1. el cronograma general compartido, por `Activity::forSharedCalendar()`, con sus seis datos;
+  2. BIS, que ve a todos los simpatizantes y el nombre de los comités para asignarlos;
+  3. lo que se pregunta sin traer datos: conteos y respuestas de sí o no, en `app/Support/`;
+  4. el buscador del padrón, `Member::forPicker()`, que trae solo el nombre y la edad.
+
+  Cualquier otra es un defecto.
 - **No se cambia el orden del filtro.** `ResolveScope` corre antes de que Laravel busque el registro
   de la ruta (D-21). Si ese orden se pierde, abrir `/committees/5` trae un comité ajeno.
   `DirectAccessTest` lo vigila.
 - **Los archivos adjuntos no se sirven desde `public/`.** Pasan por una ruta con policy.
-- **Nunca datos reales de personas en el repositorio.** Las semillas son ficticias.
+- **Nunca datos reales de personas en el repositorio.** Las semillas son ficticias. Los anexos del
+  levantamiento —fotos y portafolio de la sede— traen nombres y firmas de hermanos reales: de ellos
+  se toma la forma de trabajar, nunca las personas.
+- **La dirección de los miembros no se guarda**, y ninguna foto de un niño sin su autorización de
+  imagen firmada.
 - **Una cuenta nunca se borra** (D-22). Retirar el acceso es `active` en falso. Ni el modelo ni la
   base de datos dejan borrar a quien tiene historia: las llaves hacia una persona son `restrict`.
 
@@ -237,6 +250,7 @@ conocimientos avanzados, y el tono es cercano, no de manual.
 |---|---|
 | `.specify/memory/constitution.md` | La norma del proyecto. Manda sobre todo lo demás |
 | `specs/001-sistema-comites-ipuc/spec.md` | Qué se construye: historias, requisitos, casos límite |
+| `specs/001-sistema-comites-ipuc/levantamiento-la-esmeralda.md` | El levantamiento de la sede del 2026-10-26, sin datos de personas. Manda sobre la entrada original |
 | `specs/001-sistema-comites-ipuc/plan.md` | Cómo: stack, estructura, decisiones (D-xx) y riesgos (RG-xx) |
 | `specs/001-sistema-comites-ipuc/data-model.md` | Las tablas, sus reglas y la cobertura del filtro |
 | `specs/001-sistema-comites-ipuc/tasks.md` | Las tareas, por fase y por historia |
