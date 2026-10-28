@@ -1469,10 +1469,11 @@ rehacen **antes** de tocar el código.
       Verifica: `php artisan test --filter=SchedulePrintTest` — un presidente imprime lo que ve, sin datos reservados de lo ajeno; el pastor, todo · medición de consultas · a 360 px la vista previa no se desplaza de lado.
       **Hecha el 2026-10-28.** La hoja mide una carta horizontal; los colores de fondo se imprimen (`print-color-adjust`), y si un día trae tanto que no cabe, la letra de la hoja se encoge hasta un sesenta por ciento para que el mes salga en una sola hoja. Para WhatsApp: «Guardar como PDF» al imprimir.
 
-- [ ] T220 · Las cuatro excepciones de la constitución 3.0.0, vigiladas
+- [x] T220 · Las cuatro excepciones de la constitución 3.0.0, vigiladas
       Archivos: `tests/Architecture/NoRawQueriesTest.php` · `tests/Architecture/ScopeExceptionsTest.php`
       `withoutGlobalScope` solo puede aparecer en los lugares con nombre propio que enumera el principio I: `Activity::forSharedCalendar()`, el filtro de `Sympathizer` y la lista de comités de BIS, `Member::forPicker()`, y las clases de conteo y de sí o no de `app/Support/`. Cualquier otro uso pone la prueba roja.
       Verifica: `php artisan test tests/Architecture` en verde · un `withoutGlobalScope` agregado a propósito en otro archivo la pone roja.
+      **Hecha el 2026-10-28.** `ScopeExceptionsTest` cuenta las veces por archivo: un `withoutGlobalScope` nuevo, aun en un lugar permitido, la pone roja hasta que se decida expresamente. Comprobado con un archivo de prueba. T216 le suma la excepción 2 cuando exista BIS.
 
 **Checkpoint**: la base quedó como la pide el levantamiento. Todo lo que sigue se construye encima.
 
