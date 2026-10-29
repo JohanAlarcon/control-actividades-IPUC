@@ -275,6 +275,13 @@ límite.
 > 6 sin mostrar nada. El autor del proyecto decidió contar las consultas propias de la pantalla y
 > medir aparte las fijas (constitución 2.3.1).
 
+> **Corregido el 2026-10-28, al construir los reportes (T100).** La medida 3 no se puede cumplir
+> tal como está escrita: un `GROUP BY` sobre `members` necesita `selectRaw`, y la constitución
+> prohíbe el SQL crudo sobre tablas con ámbito. Los reportes cuentan como ya lo hacía la lista de
+> miembros: una consulta trae a los miembros del ámbito y otra sus listas, con el filtro puesto, y
+> las cifras se sacan de ahí. El número de consultas sigue fijo —dos, más el bloque compartido—, que
+> es lo que la medida protegía. Queda a revisión del autor.
+
 **Razón.** La constitución fija el máximo y exige prevenir N+1. Con ~140 miembros el costo real es
 bajo hoy, pero el límite protege del hábito, no del volumen. El criterio de medición vive en
 plan.md, que es el documento normativo; aquí se remite a él para que no haya dos cifras que

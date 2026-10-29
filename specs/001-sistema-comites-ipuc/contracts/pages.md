@@ -253,9 +253,9 @@ pantalla de presupuesto (RF-053). Un comité sin asignación funciona en cero (C
 
 | Ruta | Método | Pantalla | Propiedades propias |
 |---|---|---|---|
-| `/reports` | GET | `Reports/Index` | `stats`, `charts`, `filters`, `scopeNotice` · **diferida**: `tables` |
+| `/reports` | GET | `Reports/Index` | `filters`, `scopeNotice` · **diferidas**: `report` (las cifras y sus grupos, que sirven a las barras y a las tablas), `committees` |
 | `/reports/download` | GET | — | archivo .xlsx con los filtros aplicados (RF-038) |
-| `/reports/print` | GET | `Reports/Print` | vista de impresión |
+| `/reports/print` | GET | `Reports/Print` | `filters`, `filterText`, `scopeNotice`, `report` |
 
 **Reglas**: todo gráfico tiene su equivalente exacto en tabla, con la misma información (RF-037,
 HU-11 esc. 3). Un presidente o un líder obtiene los mismos reportes **solo con su gente**, y
@@ -264,8 +264,10 @@ La descarga y la impresión respetan filtros **y** ámbito (RF-038, HU-12 esc. 3
 legible en blanco y negro, con el nombre de la iglesia, la fecha y los filtros aplicados (HU-12
 esc. 2). Un grupo vacío muestra cero, no una pantalla rota (CL-12).
 
-Esta es la pantalla de mayor riesgo para el límite de cinco consultas: se arma con agregaciones, una
-por eje (R-08). Por eso es la otra **excepción declarada**. `stats` y `charts` caben en la primera
+Esta es la pantalla de mayor riesgo para el límite de cinco consultas. **Construida el 2026-10-28**
+(R-08 corregido): las cifras se cuentan sobre dos consultas con el filtro puesto, y cada propiedad
+diferida queda en cinco o menos. Lo que sigue es el criterio con que se planeó: se arma con
+agregaciones, una por eje (R-08). Por eso es la otra **excepción declarada**. `stats` y `charts` caben en la primera
 carga con una agregación condicional más las dos que exigen `GROUP BY`; `tables` viaja como
 **propiedad diferida**, en su propia petición parcial, con su propio presupuesto de cinco consultas
 por respuesta y con las dos del bloque compartido incluidas

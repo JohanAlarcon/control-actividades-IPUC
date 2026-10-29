@@ -4,7 +4,9 @@ use App\Http\Middleware\HandleInertiaRequests;
 use App\Models\Activity;
 use App\Models\Approval;
 use App\Models\Committee;
+use App\Models\CommitteeMember;
 use App\Models\CommitteeUser;
+use App\Models\Member;
 use App\Models\Site;
 use App\Models\Sympathizer;
 use App\Models\User;
@@ -243,4 +245,25 @@ function simpatizanteDePrueba(array $ev, array $datos = [], int $etapa = 1, arra
     }
 
     return $persona;
+}
+
+/**
+ * Cinco miembros para los reportes, sobre la estructura de prueba: Gloria está en dos comités, Nubia
+ * tiene la edad anotada y Pedro no tiene comité, ni fecha, ni edad. Los nombres son ficticios.
+ */
+function miembrosDeReporte(array $e): void
+{
+    $miembro = function (array $comites, array $datos) use ($e) {
+        $persona = Member::factory()->create($datos + ['site_id' => $e['sede']->id, 'birth_date' => null]);
+
+        foreach ($comites as $comite) {
+            CommitteeMember::create(['site_id' => $e['sede']->id, 'member_id' => $persona->id, 'committee_id' => $comite->id, 'role' => 'member', 'since' => '2026-01-10']);
+        }
+    };
+
+    $miembro([$e['alabanza']], ['name' => 'Rocío Vanegas', 'gender' => 'f', 'marital_status' => 'married', 'baptized' => true, 'baptized_at' => '2015-05-10', 'birth_date' => '1981-06-01']);
+    $miembro([$e['sonido']], ['name' => 'Fabio Rincón', 'gender' => 'm', 'marital_status' => 'single', 'birth_date' => '2000-01-01']);
+    $miembro([$e['damas'], $e['alabanza']], ['name' => 'Gloria Pineda', 'gender' => 'f', 'marital_status' => 'widowed', 'baptized' => true, 'baptized_at' => '2019-03-03', 'birth_date' => '1955-01-01']);
+    $miembro([$e['damas']], ['name' => 'Nubia Aguirre', 'gender' => 'f', 'marital_status' => 'married', 'baptized' => true, 'baptized_at' => '2019-09-08', 'age_reported' => 40, 'age_reported_at' => '2025-06-01']);
+    $miembro([], ['name' => 'Pedro Salcedo', 'gender' => 'm', 'marital_status' => 'single']);
 }

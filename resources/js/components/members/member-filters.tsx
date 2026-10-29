@@ -8,12 +8,14 @@ interface Props {
     filters: Filters;
     /** Solo los comités del alcance; llegan un momento después de la pantalla. */
     committees?: CommitteeOption[];
+    /** La pantalla que se filtra: la lista o los reportes. */
+    path?: string;
 }
 
 /** Los filtros combinables de la lista: comité, género, estado civil, bautizado y edad (RF-035). Se quitan de una vez. */
-export default function MemberFilters({ filters, committees }: Props) {
+export default function MemberFilters({ filters, committees, path = '/members' }: Props) {
     function apply(changes: Partial<Filters>) {
-        router.get(membersUrl({ ...filters, ...changes }), {}, { preserveState: true, preserveScroll: true, replace: true });
+        router.get(membersUrl({ ...filters, ...changes }, path), {}, { preserveState: true, preserveScroll: true, replace: true });
     }
 
     const filtered = Object.values(filters).some((value) => value !== null);
@@ -78,7 +80,7 @@ export default function MemberFilters({ filters, committees }: Props) {
             </div>
 
             {filtered && (
-                <Link href="/members" className="mt-3 inline-block text-lg font-semibold text-ipuc underline underline-offset-4">
+                <Link href={path} className="mt-3 inline-block text-lg font-semibold text-ipuc underline underline-offset-4">
                     Quitar todos los filtros
                 </Link>
             )}

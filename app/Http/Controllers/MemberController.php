@@ -6,6 +6,7 @@ use App\Http\Requests\SaveMemberRequest;
 use App\Models\CommitteeMember;
 use App\Models\Member;
 use App\Support\Committees\CommitteeOptions;
+use App\Support\Members\MemberFilters;
 use App\Support\Members\Memberships;
 use App\Support\Scope\CurrentScope;
 use Illuminate\Http\RedirectResponse;
@@ -22,9 +23,6 @@ use Inertia\Response;
  */
 class MemberController extends Controller
 {
-    /** Los rangos de edad del filtro (RF-035). La edad sale de la fecha o de la edad anotada (RF-031). */
-    private const AGE_RANGES = ['children' => [0, 12], 'teens' => [13, 17], 'young' => [18, 29], 'adults' => [30, 59], 'seniors' => [60, 150]];
-
     public function __construct(private readonly CurrentScope $scope) {}
 
     /**
@@ -37,25 +35,11 @@ class MemberController extends Controller
     {
         Gate::authorize('viewAny', Member::class);
 
-        $filtros = [
-            'committee' => $request->integer('committee') ?: null,
-            'gender' => in_array($request->query('gender'), ['f', 'm'], true) ? $request->query('gender') : null,
-            'marital' => in_array($request->query('marital'), Member::MARITAL_STATUSES, true) ? $request->query('marital') : null,
-            'baptized' => in_array($request->query('baptized'), ['yes', 'no'], true) ? $request->query('baptized') : null,
-            'age' => array_key_exists((string) $request->query('age'), self::AGE_RANGES) ? $request->query('age') : null,
-        ];
-
-        $todos = Member::query()
-            ->where('members.active', true)
-            ->with(['memberships' => fn ($pertenencias) => $pertenencias->current()
-                ->join('committees', 'committees.id', '=', 'committee_member.committee_id')
-                ->orderBy('committees.name')
-                ->select(['committee_member.*', 'committees.name as committee_name', 'committees.parent_id as committee_parent_id'])])
-            ->orderBy('members.name')
-            ->get();
+        $filtros = MemberFilters::fromRequest($request);
+        $todos = MemberFilters::scopedMembers();
 
         return Inertia::render('Members/Index', [
-            'members' => $todos->filter(fn (Member $miembro) => $this->cumple($miembro, $filtros))->map($this->tarjeta(...))->values(),
+            'members' => $todos->filter(fn (Member $miembro) => MemberFilters::matches($miembro, $filtros))->map($this->tarjeta(...))->values(),
             'filters' => $filtros,
             'totalCount' => $todos->count(),
             'missingConsent' => $todos->where('data_consent', false)->count(),
@@ -128,19 +112,6 @@ class MemberController extends Controller
         });
 
         return redirect('/members')->with('notice', "Listo. Los datos de {$member->name} quedaron guardados.");
-    }
-
-    private function cumple(Member $miembro, array $filtros): bool
-    {
-        $edad = $miembro->age();
-        $rango = $filtros['age'] ? self::AGE_RANGES[$filtros['age']] : null;
-        $comites = $miembro->memberships->flatMap(fn (CommitteeMember $pertenencia) => [$pertenencia->committee_id, $pertenencia->committee_parent_id]);
-
-        return (! $filtros['committee'] || $comites->contains($filtros['committee']))
-            && (! $filtros['gender'] || $miembro->gender === $filtros['gender'])
-            && (! $filtros['marital'] || $miembro->marital_status === $filtros['marital'])
-            && (! $filtros['baptized'] || $miembro->baptized === ($filtros['baptized'] === 'yes'))
-            && (! $rango || ($edad !== null && $edad >= $rango[0] && $edad <= $rango[1]));
     }
 
     /** Lo que muestra la tarjeta de un miembro, sus listas dentro del alcance, y lo que le falta a su ficha. */

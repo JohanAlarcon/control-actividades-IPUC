@@ -20,15 +20,15 @@ const onPhone = (items: ReturnType<typeof navItems>) => labels(items.filter((ite
 
 describe('navItems', () => {
     it('al costado, el pastor ve todo: aprueba, administra las cuentas y registra el lema del año', () => {
-        expect(labels(navItems(props(true, null)))).toEqual(['Inicio', 'Cronograma', 'Cronogramas internos', 'Aprobar', 'Comités', 'Miembros', 'Simpatizantes', 'Cumpleaños', 'Cuentas', 'Lema del año']);
+        expect(labels(navItems(props(true, null)))).toEqual(['Inicio', 'Cronograma', 'Cronogramas internos', 'Aprobar', 'Comités', 'Miembros', 'Simpatizantes', 'Cumpleaños', 'Reportes', 'Cuentas', 'Lema del año']);
     });
 
     it('un presidente revisa, no aprueba, y no administra cuentas', () => {
-        expect(labels(navItems(props(false, 'president')))).toEqual(['Inicio', 'Cronograma', 'Cronogramas internos', 'Revisar', 'Comités', 'Miembros', 'Cumpleaños']);
+        expect(labels(navItems(props(false, 'president')))).toEqual(['Inicio', 'Cronograma', 'Cronogramas internos', 'Revisar', 'Comités', 'Miembros', 'Cumpleaños', 'Reportes']);
     });
 
     it('un líder no aprueba: ve en qué van sus solicitudes', () => {
-        expect(labels(navItems(props(false, 'leader')))).toEqual(['Inicio', 'Cronograma', 'Cronogramas internos', 'Solicitudes', 'Comités', 'Miembros', 'Cumpleaños']);
+        expect(labels(navItems(props(false, 'leader')))).toEqual(['Inicio', 'Cronograma', 'Cronogramas internos', 'Solicitudes', 'Comités', 'Miembros', 'Cumpleaños', 'Reportes']);
     });
 
     it('en el celular caben tres: quien decide lleva la bandeja; los demás, los comités', () => {

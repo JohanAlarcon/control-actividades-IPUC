@@ -126,7 +126,7 @@ function contarConsultas(Closure $peticion): array
     $consultas = count(DB::getQueryLog());
     DB::disableQueryLog();
 
-    return [$consultas, $respuesta->status()];
+    return [$consultas, $respuesta->getStatusCode()];
 }
 
 /** @return array<string, int> consultas por "persona en ruta" */

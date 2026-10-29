@@ -16,6 +16,7 @@ use App\Http\Controllers\MemberController;
 use App\Http\Controllers\MemberPickerController;
 use App\Http\Controllers\MonthNoteController;
 use App\Http\Controllers\PrintActivitiesController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleSwitchController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\SiteMottoController;
@@ -62,6 +63,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('activities/print', [ActivityController::class, 'print'])->name('activities.print');
     Route::get('print/activities', PrintActivitiesController::class)->name('print.activities');
     Route::get('birthdays', [BirthdayController::class, 'index'])->name('birthdays.index');
+    Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('reports/print', [ReportController::class, 'print'])->name('reports.print');
+    Route::get('reports/download', [ReportController::class, 'download'])->name('reports.download');
     Route::post('activities', [ActivityController::class, 'store'])->name('activities.store');
     Route::get('activities/{activity}', [ActivityController::class, 'show'])->whereNumber('activity')->name('activities.show');
     Route::post('activities/{activity}/complete', [ActivityController::class, 'complete'])->whereNumber('activity')->name('activities.complete');

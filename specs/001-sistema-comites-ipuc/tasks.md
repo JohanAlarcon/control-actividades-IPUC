@@ -881,34 +881,40 @@ contar a mano. **Hito 3.**
 **Independent Test**: con el padrón cargado, abrir los reportes con cada cargo y comparar la vista
 de gráficos con la de tabla.
 
-- [ ] T100 [US11] · Cálculos de las estadísticas de la congregación
+- [x] T100 [US11] · Cálculos de las estadísticas de la congregación
       Archivos: `app/Support/Reports/MemberStats.php`
       Total, bautizados con porcentaje, estado civil, género, rangos de edad, distribución por comité, bautismos por año, y cuántos no pertenecen a ningún comité (RF-036). Los rangos de edad usan **las dos fuentes de edad** (T090). **Una consulta de agregación por eje**, no conteo de filas en PHP (R-08).
       Verifica: `php artisan test --filter=MemberStatsTest`
       Incluye los conteos de fichas sin autorización y por completar (T174).
+      **Hecha el 2026-10-28**, con un cambio a R-08: `MemberStats::of()` cuenta sobre los miembros que ya trae `MemberFilters::scopedMembers()` —dos consultas, con el filtro puesto, como la lista de miembros—, no con una consulta de agregación por eje. Un `GROUP BY` necesita `selectRaw`, que la constitución prohíbe sobre tablas con ámbito; contar en PHP deja el número de consultas fijo, y una sede tiene cientos de miembros, no millones. Los filtros de la lista pasaron a `app/Support/Members/MemberFilters.php`, para que la lista y los reportes cuenten lo mismo, y los nombres de las cifras a `app/Support/Reports/ReportLabels.php`.
 
-- [ ] T101 [US11] · Prueba: las estadísticas, incluido el grupo vacío
+- [x] T101 [US11] · Prueba: las estadísticas, incluido el grupo vacío
       Archivos: `tests/Unit/Reports/MemberStatsTest.php`
       Verifica: `php artisan test --filter=MemberStatsTest` — con cero miembros devuelve ceros y no una pantalla rota (CL-12); el promedio de edad de un grupo vacío no divide por cero; los miembros con edad declarada entran en los rangos de edad, con precisión de ±1 año, y solo los que no tienen ni fecha ni edad declarada se cuentan aparte y quedan fuera de esos rangos (RG-05).
+      **Hecha el 2026-10-28**: `tests/Unit/Reports/MemberStatsTest.php`.
 
-- [ ] T102 [US11] · Pantalla de reportes con gráficos
+- [x] T102 [US11] · Pantalla de reportes con gráficos
       Archivos: `app/Http/Controllers/ReportController.php` · `resources/js/pages/Reports/Index.tsx` · `resources/js/components/domain/BarChart.tsx`, `DonutChart.tsx` · ruta `/reports`
       Gráficos en SVG propio: una librería de gráficos exigiría justificación escrita y no la necesita. `filters` y `scopeNotice` viajan en la primera carga; **las cifras de los ocho ejes de RF-036 van en propiedades diferidas**, con su propio presupuesto de cinco consultas por respuesta, y si los ocho no caben se separan en dos propiedades diferidas. Es la segunda de las **dos excepciones declaradas** del presupuesto (T150), porque dos ejes —distribución por comité y bautismos por año— exigen `GROUP BY` propio.
       Verifica: `php artisan test --filter=ReportIndexTest` · a 360 px los gráficos se leen sin girar el teléfono · cada propiedad diferida se mide aparte y ninguna pasa de cinco consultas.
+      **Hecha el 2026-10-28.** Las cifras llegan en `report` y los comités del filtro en `committees`, dos propiedades diferidas de cinco consultas o menos cada una. Las barras son de CSS, con el nombre y el número escritos; no hizo falta la de dona: con dos valores, las barras se leen igual. Arriba, las seis cifras del escenario 1; debajo, los seis grupos. Un grupo vacío dice «Nadie todavía». En el menú del costado y en los atajos del inicio. Verificada a 360 px.
 
-- [ ] T103 [US11] · Vista de tabla equivalente a cada gráfico
+- [x] T103 [US11] · Vista de tabla equivalente a cada gráfico
       Archivos: `resources/js/pages/Reports/Index.tsx` · `resources/js/components/ui/ChartTableToggle.tsx`
       RF-037: quien no distingue bien los colores o prefiere los números obtiene **exactamente** la misma información.
       Verifica: a 360 px el conmutador funciona y la tabla trae los mismos números que el gráfico, uno por uno.
+      **Hecha el 2026-10-28**: «En barras» y «En tablas», con los mismos números. Dentro de su tarjeta, el título de la columna queda solo para el lector de pantalla, porque la tarjeta ya lo trae.
 
-- [ ] T104 [US11] · Reportes por ámbito, con la aclaración
+- [x] T104 [US11] · Reportes por ámbito, con la aclaración
       Archivos: `app/Http/Controllers/ReportController.php` · `resources/js/pages/Reports/Index.tsx`
       El presidente y el líder obtienen los mismos reportes con su gente, y `scopeNotice` aclara que los totales de la congregación los ve únicamente el pastor.
       Verifica: `php artisan test --filter=ReportScopeTest` — los números de un presidente suman su comité, no la congregación.
+      **Hecha el 2026-10-28**: la aclaración sale para todo cargo y no para el pastor; las cifras de un presidente son las de su comité y sus sub-comités, y de quien está también en otro comité solo cuenta su lista propia.
 
-- [ ] T105 [US11] · Prueba: los cuatro escenarios de HU-11 por los tres cargos
+- [x] T105 [US11] · Prueba: los cuatro escenarios de HU-11 por los tres cargos
       Archivos: `tests/Feature/Reports/ReportIndexTest.php` · `tests/Feature/Reports/ReportScopeTest.php`
       Verifica: `php artisan test tests/Feature/Reports`
+      **Hecha el 2026-10-28**: `ReportIndexTest` y `ReportScopeTest`, con el pastor, un presidente, la presidenta de otro comité, los cargos de la directiva y un líder sin gente.
 
 **Checkpoint**: US11 funciona por separado.
 
@@ -922,19 +928,22 @@ convenciones. **Hito 3.**
 **Independent Test**: aplicar filtros a un reporte, descargarlo e imprimirlo, y verificar que el
 archivo respeta los filtros y el ámbito del cargo.
 
-- [ ] T106 [US12] · Descarga en hoja de cálculo, respetando filtros y ámbito
+- [x] T106 [US12] · Descarga en hoja de cálculo, respetando filtros y ámbito
       Archivos: `app/Exports/MemberReportExport.php` · `app/Exports/StatsReportExport.php` · `app/Http/Controllers/ReportController.php` · ruta `/reports/download`
       RF-038: el archivo trae lo que la persona está viendo, no todo.
       Verifica: `php artisan test --filter=ReportDownloadTest` — con un filtro de 32 personas, el archivo trae 32 filas, no 140.
+      **Hecha el 2026-10-28.** Un libro con dos hojas: «Cifras», con la sede, la fecha, los filtros en palabras y la aclaración del ámbito, y «Miembros», con quienes cumplen los filtros —sin teléfono ni barrio: el archivo sale del sistema y para un reporte no hacen falta—. La versión 4 de la librería pide que el libro se declare `Export`. Cinco consultas; la medición de `QueryBudgetTest` ahora lee también una respuesta que es un archivo.
 
-- [ ] T107 [US12] · Vista de impresión en blanco y negro
+- [x] T107 [US12] · Vista de impresión en blanco y negro
       Archivos: `app/Http/Controllers/ReportController.php` · `resources/js/pages/Reports/Print.tsx` · `resources/css/print.css` · ruta `/reports/print`
       Con el nombre de la iglesia, la fecha y los filtros aplicados en el encabezado.
       Verifica: Ctrl+P produce una hoja legible en blanco y negro, sin fondos de color y sin menús · cabe en una página por sección.
+      **Hecha el 2026-10-28**, sin `print.css`: bastaron las clases `print:` de Tailwind. Todo en tablas, con la sede, la fecha, los filtros en palabras y la aclaración. El nombre del comité del filtro sale de las listas que ya llegaron, sin otra consulta. Verificada a 360 px.
 
-- [ ] T108 [US12] · Prueba: los tres escenarios de HU-12
+- [x] T108 [US12] · Prueba: los tres escenarios de HU-12
       Archivos: `tests/Feature/Reports/ReportDownloadTest.php`
       Verifica: `php artisan test --filter=ReportDownloadTest` — el archivo descargado por un líder contiene únicamente su ámbito.
+      **Hecha el 2026-10-28**: `ReportDownloadTest` abre el archivo de verdad y revisa sus dos hojas; un comité ajeno en el filtro no trae a nadie.
 
 **Checkpoint**: US12 funciona por separado.
 

@@ -110,14 +110,14 @@ export function daysAgo(days: number): string {
     return `hace ${days} días`;
 }
 
-/** La dirección de la lista de miembros con sus filtros, sin los vacíos. */
-export function membersUrl(filters: Partial<MemberFilters>): string {
+/** La dirección de la lista de miembros —o de los reportes, que usan los mismos filtros— sin los filtros vacíos. */
+export function membersUrl(filters: Partial<MemberFilters>, path = '/members'): string {
     const query = Object.entries(filters)
         .filter(([, value]) => value !== null && value !== undefined)
         .map(([key, value]) => `${key}=${encodeURIComponent(String(value))}`)
         .join('&');
 
-    return query ? `/members?${query}` : '/members';
+    return query ? `${path}?${query}` : path;
 }
 
 /** La búsqueda de miembros: por nombre o por barrio, sin importar mayúsculas ni tildes (HU-10, escenario 4). */
